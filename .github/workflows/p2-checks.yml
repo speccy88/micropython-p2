@@ -1,0 +1,61 @@
+name: P2 validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: p2-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host:
+    name: P2 host checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.13.0
+          package-manager-cache: false
+      - name: Check maintained source formatting, lint and spelling
+        run: |
+          python -m pip install ruff==0.11.6 codespell==2.4.1 micropython-uncrustify==1.0.0.post1 pyserial==3.5
+          python ports/p2/ci/quality.py
+      - name: Build mpy-cross, compile examples and exercise packages
+        run: |
+          make -C mpy-cross -j3
+          python ports/p2/tests/drivers/host_check.py --mpy-cross mpy-cross/build/mpy-cross --output "$RUNNER_TEMP/packages.json"
+          python ports/p2/tests/test_pyboard_socket.py
+      - name: Exercise Web Serial transfers and NOR storage
+        run: |
+          node --test ports/p2/web/rom.test.mjs
+          cc -std=c11 -Wall -Wextra -Ilib/littlefs ports/p2/tests/bus/flash_model.c lib/littlefs/lfs2.c lib/littlefs/lfs2_util.c -o "$RUNNER_TEMP/flash-model"
+          "$RUNNER_TEMP/flash-model"
+      - name: Verify kit bytes, Unix permissions and packaged compiler
+        run: |
+          python ports/p2/tests/test_starter.py
+          python ports/p2/tools/make_starter.py "$RUNNER_TEMP/kit"
+          python ports/p2/tests/kit_mpy.py "$RUNNER_TEMP/kit/micropython-p2-starter.zip"
+      - name: Report release image and heap sizes
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          profiles = json.loads(Path("ports/p2/firmware/manifest.json").read_text())["profiles"]
+          print("| Profile | Flat bytes | GC arena bytes | Primary stack bytes |")
+          print("| --- | ---: | ---: | ---: |")
+          for profile, info in profiles.items():
+              print(f"| {profile} | {info['flat']['bytes']} | {info['gc_arena_bytes']} | {info['primary_stack_bytes']} |")
+          PY
