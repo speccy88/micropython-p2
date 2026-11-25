@@ -63,6 +63,7 @@ for variant in baseline candidate; do
     if [ "$variant" = baseline ]; then revision=$baseline; else revision=$candidate; fi
     folder="$(pwd)/../p2-ab-$variant"
     git worktree add --detach "$folder" "$revision" || exit 1
+    git -C "$folder" submodule update --init --depth 1 lib/micropython-lib || exit 1
     (cd "$folder" && bash ports/p2/tools/build_profiles.sh edge lean threaded) || exit 1
     python ports/p2/tools/package.py "$folder/ports/p2/build-delivery" --repo "$folder" --output "$folder/ports/p2/build-packaged" || exit 1
 done
