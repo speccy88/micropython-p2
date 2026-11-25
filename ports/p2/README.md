@@ -5,6 +5,8 @@ at 160 MHz and uses the four on-board PSRAM devices as explicit external
 storage. The interpreter, active Python objects and primary stack live in
 the P2's 512 KiB hub. A second cog handles full-duplex serial on P62/P63.
 
+For event-driven inputs, Edge and Lean can also be built with hardware pin interrupts. The optional image captures a rising or falling edge on cog 0 and schedules a Python callback. The guide includes a button example and a RAM-only board test. [Build and use Pin.irq](IRQ.md)
+
 ### Load and run
 
 The [Propeller 2 workbench](https://speccy88.github.io/micropython-p2/) loads a release image over Web Serial and opens ViperIDE on the same USB connection. Start with **Try in RAM**, choose the board's adapter and press **F5** in the editor. For a flash-equipped board, **Boot flash** installs the selected image as the boot program. [Walk through your first session](../../README.md#from-your-browser)

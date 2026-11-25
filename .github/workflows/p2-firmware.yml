@@ -86,6 +86,14 @@ jobs:
         run: |
           git submodule update --init --depth=1 lib/micropython-lib
           bash ports/p2/tools/build_profiles.sh edge lean
+          cd ports/p2
+          make -f tests/irq/Makefile -j4 BUILD="$BUILD_ROOT/native" P2_LLVM_BIN="$P2_BIN"
+          for fixture in stimulus:7 bus_probe:132; do
+            name=${fixture%:*}
+            "$P2_BIN/clang" --target=p2 -c "tests/irq/$name.S" -o "$BUILD_ROOT/$name.o"
+            python3 tools/cog_image.py pack "$BUILD_ROOT/$name.o" "$BUILD_ROOT/$name.p2d" --words "${fixture#*:}"
+            cmp "tests/irq/$name.p2d" "$BUILD_ROOT/$name.p2d"
+          done
       - name: Compare freshly linked release images with manifest
         if: inputs.reproduce_release
         env:
@@ -121,4 +129,5 @@ jobs:
             ${{ runner.temp }}/p2-irq/*/firmware.bin
             ${{ runner.temp }}/p2-irq/*/firmware.elf
             ${{ runner.temp }}/p2-irq/*/sections.txt
+            ${{ runner.temp }}/p2-irq/native/irq-native.bin
           if-no-files-found: error

@@ -1,0 +1,53 @@
+{
+  "image_sha256": "dee57180e6723cf11c9390e68513635d019421c576c1908b83ba484afddc426c",
+  "fixture_sha256": "642b058d2c2990160298bc3dd8770f1677ef4d36006328888be3e50498c0433e",
+  "stimulus_sha256": "14967328d074d9cde47987725c5ed52957fd83f098f37e9d112a7e5d62bd35fb",
+  "checks": {
+    "edges": {
+      "stdout": "IRQ_LATENCY_CT [(51, 24296), (35, 24320), (43, 23968), (51, 24032), (35, 24416), (35, 24360), (59, 23984), (35, 24344), (43, 24008), (43, 24504), (59, 24328), (43, 24568)]",
+      "stderr": ""
+    },
+    "roots": {
+      "stdout": "IRQ_ROOTS_PASS",
+      "stderr": ""
+    },
+    "reentry": {
+      "stdout": "IRQ_REENTRY_PASS",
+      "stderr": ""
+    },
+    "masking": {
+      "stdout": "IRQ_NESTED_PASS False",
+      "stderr": ""
+    },
+    "loaded_latency": {
+      "stdout": "IRQ_WORKLOAD_CT gc [(937736, 53, 902791), (928752, 53, 877623), (928712, 77, 861895)]\r\nIRQ_WORKLOAD_CT sum [(4739576, 37, 4704487), (4739584, 45, 4692759), (4742968, 53, 4680239)]",
+      "stderr": ""
+    },
+    "queue": {
+      "stdout": "IRQ_QUEUE_PASS 4",
+      "stderr": ""
+    },
+    "callback_lifecycle": {
+      "stdout": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 296, in fail_once\r\nRuntimeError: irq_expected_exception\r\nIRQ_CALLBACK_PASS",
+      "stderr": ""
+    }
+  },
+  "passed": true,
+  "resets_with_active_source": [
+    {
+      "mode": "raw",
+      "callbacks": 2337,
+      "ctrl_c_ms": 42.01
+    },
+    {
+      "mode": "friendly",
+      "callbacks": 2066,
+      "ctrl_c_ms": 42.77
+    },
+    {
+      "mode": "raw",
+      "callbacks": 2566,
+      "ctrl_c_ms": 42.71
+    }
+  ]
+}

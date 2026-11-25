@@ -1,0 +1,75 @@
+{
+  "image_sha256": "5574342e6400feed2055147fdba30a1228cabe9006568c50ebfa81db1dfa13df",
+  "fixture_sha256": "642b058d2c2990160298bc3dd8770f1677ef4d36006328888be3e50498c0433e",
+  "stimulus_sha256": "14967328d074d9cde47987725c5ed52957fd83f098f37e9d112a7e5d62bd35fb",
+  "checks": {
+    "bus_timing": {
+      "stdout": "SPI_CT CONTROL high/low/setup/hold min/max [(3328, 3400), (3416, 3560), (3256, 3336), (3424, 3568)]\r\nSPI_CT IRQ high/low/setup/hold min/max [(3328, 3480), (3416, 3560), (3256, 3336), (3424, 3640)]\r\nSPI_CT CONTROL high/low/setup/hold min/max [(3328, 3400), (3416, 3560), (3256, 3336), (3416, 3568)]\r\nSPI_CT IRQ high/low/setup/hold min/max [(3328, 3480), (3416, 3560), (3256, 3336), (3424, 3640)]",
+      "stderr": ""
+    },
+    "i2c_timeout": {
+      "stdout": "I2C_HELD_SCL_CT 737832",
+      "stderr": ""
+    },
+    "edges": {
+      "stdout": "IRQ_LATENCY_CT [(59, 23498), (91, 23018), (51, 23906), (51, 23618), (35, 23738), (67, 24554), (51, 23146), (51, 23658), (35, 23130), (59, 22898), (51, 23250), (43, 24314)]",
+      "stderr": ""
+    },
+    "roots": {
+      "stdout": "IRQ_ROOTS_PASS",
+      "stderr": ""
+    },
+    "reentry": {
+      "stdout": "IRQ_REENTRY_PASS",
+      "stderr": ""
+    },
+    "masking": {
+      "stdout": "IRQ_NESTED_PASS True",
+      "stderr": ""
+    },
+    "loaded_latency": {
+      "stdout": "IRQ_WORKLOAD_CT gc [(932968, 45, 896745), (913880, 45, 861561), (913888, 45, 846761)]\r\nIRQ_WORKLOAD_CT sum [(4594200, 61, 4558889), (4594216, 53, 4542281), (4594216, 69, 4525793)]\r\nIRQ_WORKLOAD_CT psram_write [(229352, 61, 192249), (229368, 125, 177097), (229368, 181, 160401)]\r\nPSRAM_MAX_CS_CT 549",
+      "stderr": ""
+    },
+    "queue": {
+      "stdout": "IRQ_QUEUE_PASS 4",
+      "stderr": ""
+    },
+    "callback_lifecycle": {
+      "stdout": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 296, in fail_once\r\nRuntimeError: irq_expected_exception\r\nIRQ_CALLBACK_PASS",
+      "stderr": ""
+    },
+    "tests/bus/loopback.py": {
+      "stdout": "P2 bus loopbacks and ownership OK",
+      "stderr": ""
+    },
+    "tests/media_readonly.py": {
+      "stdout": "SD_READ 61132800 512 16384 184406\r\nFAT_ROOT_COUNTS 2 2\r\nJEDEC 0xef7018\r\nFLASH_READ_PASS 256 4096",
+      "stderr": ""
+    },
+    "tests/timer.py": {
+      "stdout": "Timer passed one-shot, periodic, cancellation, GC, queue and argument checks",
+      "stderr": ""
+    }
+  },
+  "passed": true,
+  "bus_probe_sha256": "e6a912215c3d96aa742aaa21f01e4b7dbb8558d1016b84eb5d90165f20864d8d",
+  "bus_fixture_sha256": "5d96bc3dbbe777b6b51f0e3b9de1af108a56b625ccb7f23013e8c4b04d25ef52",
+  "resets_with_active_source": [
+    {
+      "mode": "raw",
+      "callbacks": 2359,
+      "ctrl_c_ms": 42.06
+    },
+    {
+      "mode": "friendly",
+      "callbacks": 13008,
+      "ctrl_c_ms": 42.86
+    },
+    {
+      "mode": "raw",
+      "callbacks": 2821,
+      "ctrl_c_ms": 41.56
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "baseline_source": "5140d038db094ec17cac9cacf5c9f16538ad276f",
+  "implementation_source": "d2b4886d59357a158b1d0494576ce66186abb8f0",
+  "tinygo_p2": "fc631f268080135e7c13ad27783ee6e1bb6a1c35",
+  "compiler": "clang version 15.0.7 (https://github.com/ne75/llvm-project.git 8dfdcc7b7bf66834a761bd8de445840ef68e4d1a)",
+  "port_patch_sha256": "d5e87aeda5ed5f263083321a07a1662b296e104a2ce46535cb4b52e683ff4a86",
+  "SOURCE_DATE_EPOCH": 1795581669,
+  "MICROPY_GIT_HASH": "ee618817ca5a",
+  "MICROPY_GIT_TAG": "v1.29.0-p2.1",
+  "builds": {
+    "baseline": {
+      "edge": {
+        "flat_bytes": 403960,
+        "bin_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+        "elf_sha256": "0f721ef274f747e16e253a58439d4c0a166acdcd1ff1bf0c205a4b6a059e4f21",
+        "heap_arena": 73904,
+        "bss": 12632,
+        "primary_stack": 16384,
+        "lut": 1172
+      },
+      "lean": {
+        "flat_bytes": 238464,
+        "bin_sha256": "c0aea460d3b86d26ff85f6e4834e1d24ac63c53c3523c8ae7abb3b828fe2be59",
+        "elf_sha256": "e16a6e49b7acd1a046acb1cc4bc2a3c64cca0287c81ba3f30a9bcf074592b5e8",
+        "heap_arena": 240840,
+        "bss": 11192,
+        "primary_stack": 16384,
+        "lut": 772
+      },
+      "threaded": {
+        "flat_bytes": 232824,
+        "bin_sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757",
+        "elf_sha256": "d7539164c864f5e2350c8ef098c7203cf1b3b0ba28788067156af7d653d316c2",
+        "heap_arena": 194008,
+        "bss": 63664,
+        "primary_stack": 16384,
+        "lut": 772
+      }
+    },
+    "off": {
+      "edge": {
+        "flat_bytes": 403960,
+        "bin_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+        "elf_sha256": "0f721ef274f747e16e253a58439d4c0a166acdcd1ff1bf0c205a4b6a059e4f21",
+        "heap_arena": 73904,
+        "bss": 12632,
+        "primary_stack": 16384,
+        "lut": 1172
+      },
+      "lean": {
+        "flat_bytes": 238464,
+        "bin_sha256": "c0aea460d3b86d26ff85f6e4834e1d24ac63c53c3523c8ae7abb3b828fe2be59",
+        "elf_sha256": "e16a6e49b7acd1a046acb1cc4bc2a3c64cca0287c81ba3f30a9bcf074592b5e8",
+        "heap_arena": 240840,
+        "bss": 11192,
+        "primary_stack": 16384,
+        "lut": 772
+      },
+      "threaded": {
+        "flat_bytes": 232824,
+        "bin_sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757",
+        "elf_sha256": "d7539164c864f5e2350c8ef098c7203cf1b3b0ba28788067156af7d653d316c2",
+        "heap_arena": 194008,
+        "bss": 63664,
+        "primary_stack": 16384,
+        "lut": 772
+      }
+    },
+    "on": {
+      "edge": {
+        "flat_bytes": 406404,
+        "bin_sha256": "5574342e6400feed2055147fdba30a1228cabe9006568c50ebfa81db1dfa13df",
+        "elf_sha256": "97e012b255e46d04909d3c735fc512f49ef3914b12bc409d2e3e0922cb244536",
+        "heap_arena": 71424,
+        "bss": 12664,
+        "primary_stack": 16384,
+        "lut": 1172
+      },
+      "lean": {
+        "flat_bytes": 240928,
+        "bin_sha256": "dee57180e6723cf11c9390e68513635d019421c576c1908b83ba484afddc426c",
+        "elf_sha256": "1f41e631b91aafc05d8cd5bdbca7765a5eb10e33a90f4b96700d8a7089d687a8",
+        "heap_arena": 238336,
+        "bss": 11232,
+        "primary_stack": 16384,
+        "lut": 772
+      }
+    }
+  }
+}
