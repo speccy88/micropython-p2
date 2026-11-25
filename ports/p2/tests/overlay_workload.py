@@ -14,6 +14,7 @@ import tempfile
 import time
 
 parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--image", type=Path, help="record the loaded flat image digest with this measurement")
 parser.add_argument("--port", required=True)
 parser.add_argument("--mpy-cross", required=True)
 parser.add_argument("--wsl", action="store_true")
@@ -91,6 +92,8 @@ gc.collect()""")
                       mpy_bytes=total, mpy_sha256=digest.hexdigest(), initial_free_heap=heap,
                       upload_seconds=upload_seconds, run_ms=runtime_ms, free_after=free_after,
                       actual=actual, expected=expected, passed=actual==expected)
+        if args.image:
+            result["image_sha256"] = hashlib.sha256(args.image.read_bytes()).hexdigest()
         print(json.dumps(result), flush=True)
         args.output.write_text(json.dumps(result, indent=2) + "\n")
         if actual != expected:

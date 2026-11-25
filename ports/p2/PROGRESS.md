@@ -27,7 +27,44 @@ The build uses the pinned TinyGo/P2 LLVM 15.0.7 sources, a separately built P2 b
 
 `p2array.Array` places the bulk data in PSRAM and caches selected pages in ordinary hub buffers. The [8 MiB example](examples/external_array.py) writes and verifies every element, then revisits randomly selected pages after dirty evictions. The cache size describes persistent page buffers. Allocations during the Python loop can temporarily consume much more hub space. `p2.PSRAM` also supports checked staging-buffer I/O without the array cache.
 
-The [bytecode workload](tests/overlay_workload.py) compiles 36 cooperating stages, uploads them to a 2 MiB LittleFS2 volume in PSRAM, and passes state from one stage to the next. The host independently computes the result. A previous board run executed 237,971 bytes of compiled modules with 92,256 bytes of free hub heap at startup. A single live stage and anything retained across stages must fit with the runtime. [Original overlay measurement](validation/overlay.json)
+The full-capacity hardware test allocated one managed region of **33,554,432 bytes**, wrote all 8,192 address-tagged tiles before reading any back, then compared every byte with the expected pattern. It used two 4 KiB hub buffers. Writing took 40.476 seconds. Readback and verification took 62.055 seconds. [Full-capacity test](tests/drivers/full_capacity.py) · [Physical results](validation/extended-memory-media.json)
+
+The [bytecode workload](tests/overlay_workload.py) compiles 36 cooperating stages, uploads them to a 2 MiB LittleFS2 volume in PSRAM, and passes state from one stage to the next. With 69,088 bytes of free hub heap at the start, the release executed 237,971 bytes of compiled modules containing 23,040 generated operations. Execution took 4.785 seconds and produced 41,735, matching the independent host calculation. Upload over serial took 107.47 seconds. A single live stage and anything retained across stages must fit with the runtime. [Release overlay measurement](validation/overlay-release.json)
+
+## Recorded measurements
+
+The Edge image from source `8432dcbac` produced byte-identical ELF and flat files in two independent build directories. Its 404,428-byte flat image contains code and initialized data. BSS occupies a further 12,632 bytes. The linker reserves 16,384 bytes for the primary C stack, 1,024 for the serial cog stack and 16,384 bytes at the top of hub RAM. The C-cog runtime uses 1,172 of the available 2,048 LUT bytes. The link fails if the GC arena falls below 32 KiB. [Rebuild comparison](validation/reproducibility.json) · [Profile memory budgets](firmware/manifest.json)
+
+| Measurement on the Edge at 160 MHz | Observed |
+| --- | --- |
+| Free Python heap after each of four raw resets | 70,640 bytes |
+| Timed 1,000-iteration integer sum | 41,528 µs |
+| Garbage collection, 20 samples with the VM fixture loaded | 6,809 µs minimum, 6,817 µs median, 6,841 µs maximum |
+| Active C stack at the fixture's sample point | 1,388 bytes inside a 16 KiB reservation. This is a sample rather than a high-water mark. |
+| Recursive factorial(10), ten seconds | 13,503 iterations |
+| 8 MiB typed array, full bulk write / full read verification | 14.338 s / 19.678 s, compared with 18.948 s / 23.082 s in the earlier development image |
+| 512 dirty random page evictions and readbacks | 2.329 s with a 512-byte cache. Live hub delta after collection was 5,008 bytes. Transient sampled peak was 48,208 bytes. |
+| Combined allocation, GC, PSRAM, serial and autonomous-counter soak | 1,045 loops in 5.001 s, all data verified. A run of eight 513-byte writes took 5,081 µs and eight reads took 5,826 µs. |
+| SD block throughput | 16,384 bytes read in 183,348 µs. This board shares the SD and flash pins. |
+| ADC readiness | Internal GIO/VIO reference means 720 and 3,417 on P4. Thirty-two undriven input samples completed. External voltage and absolute accuracy were not measured. |
+
+The PSRAM driver keeps each chip-select assertion bounded. The native probe observed 138 write cycles and 214 read cycles. The firmware fast path avoids per-word hub copying for aligned transfers and preserves the original chip transaction. Both array measurements include Python, GC and cache overhead. Differences between the two firmware revisions also include VM/compiler changes. [Edge performance and driver records](validation/edge-release.json) · [Native probe](validation/drivers-probe.json)
+
+### Release acceptance
+
+The Edge ran 698 upstream test files covering language basics, float arithmetic, selected standard modules, FAT, LittleFS and heap allocation. Of these, **573 passed, 125 skipped and zero failed**. The target requested 83 skips and the upstream runner excluded 42 for the detected configuration. The receipt lists each file, the skip category and candidate source guards for program-requested skips. An earlier run lost part of one list printout on the serial transport. The release passed that upstream file, 20 consecutive repetitions, a 39,969-byte raw paste, and an exact 80,896-byte output comparison. The cause of the one earlier serial loss remains unconfirmed. [Upstream results](validation/upstream.json) · [Repeated list output](validation/serial-repeat.json)
+
+| Profile | Flat image | GC arena | Free heap after raw reset | Physical coverage |
+| --- | ---: | ---: | ---: | --- |
+| Edge | 404,428 B | 73,432 B | 70,640 B | Native devices, VM, storage, PSRAM, packages, tools and upstream suites |
+| Lean | 238,420 B | 240,880 B | 235,024 B | Plain-board configuration tested on this EC32MB with external RAM disabled, VM and software timer |
+| Threaded | 228,092 B | 198,824 B | 193,936 B | Two GIL-coordinated Python cogs, 25 GC calls in 78,221 µs wall time and six worker resets |
+
+[Lean receipt](validation/lean-release.json) · [Threaded receipt](validation/threaded-release.json) · [Worker reset receipt](validation/thread-reset.json) · [Thonny backend and variable inspector](validation/thonny.json) · [Standard mpremote and mip](validation/mpremote.json)
+
+The existing card's root has 34 live directory entries with four distinct short names. Python's string list, bytes list and iterator all matched the independently decoded on-card entries in order. The earlier firmware reported 34 distinct names: the old compiler incorrectly returned a set length of 34 even for 34 copies of the same key. That same physical control returns one on the corrected firmware. Both images returned identical SHA-256 values for the MBR, boot sector and three root directory sectors. A fresh FAT volume on PSRAM passed creation, enumeration and content verification for 40 distinct short, lowercase and long names. No card repair was attempted. [Raw-sector and API comparison](validation/fat-directory.json) · [Old-image control](validation/fat-historical-control.json) · [Volatile filesystem checks](validation/extended-memory-media.json)
+
+A second RAM-loaded P2 program used the SDK's independent Smart Pin SD driver to read all five sectors twice. Its SHA-256 values matched the MicroPython block driver at every LBA, and its bytewise directory scan counted the same four distinct short names. The recommended Edge firmware was then reloaded from the delivery directory and returned to its friendly REPL on COM12. [Independent SD receipt](validation/sd-independent.json) · [Final RAM-load receipt](validation/installed-ram.json)
 
 ## Repeat the checks
 
@@ -36,6 +73,7 @@ Start the RAM session for the selected image as described in the [quick start](R
 ```sh
 python tests/acceptance.py --port socket://127.0.0.1:8122 --image firmware/edge.bin --output build-retest/edge.json --scripts tests/vm.py tests/timer.py tests/drivers/api.py tests/drivers/bounds32.py tests/drivers/borrowed_io.py examples/external_array.py tests/media_readonly.py
 python tests/hubdriver.py --port socket://127.0.0.1:8122 --image firmware/edge.bin --output build-retest/driver.json
+mpremote connect socket://127.0.0.1:8122 run tests/drivers/full_capacity.py
 python tests/tool_workflows.py --port socket://127.0.0.1:8122 --image firmware/edge.bin --output build-retest/tools.json
 python tests/upstream.py --port socket://127.0.0.1:8122 --image firmware/edge.bin --out build-retest/upstream
 python tests/overlay_workload.py --port socket://127.0.0.1:8122 --mpy-cross /absolute/linux/path/to/mpy-cross --output build-retest/overlay.json

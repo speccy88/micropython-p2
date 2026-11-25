@@ -1,6 +1,6 @@
 {
   "scope": "CPython recording devices and host bytecode compilation",
-  "mpy_cross": "MicroPython v1.29.0 on 2026-11-24; mpy-cross emitting mpy v6.3",
+  "mpy_cross": "MicroPython v1.29.0-p2.1 on 2026-11-25; mpy-cross emitting mpy v6.3",
   "tests": {
     "test_array.Arrays.test_8_mib_random_offsets": "pass",
     "test_array.Arrays.test_bounds_and_formats": "pass",

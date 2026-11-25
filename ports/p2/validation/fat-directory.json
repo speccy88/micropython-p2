@@ -1,0 +1,75 @@
+{
+  "flat_image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "expected_names": "long",
+  "passed": true,
+  "stage": "complete",
+  "card_sectors": 61132800,
+  "fat_bits": 32,
+  "volume_sector": 2048,
+  "sectors_per_cluster": 32,
+  "raw_entries": 34,
+  "validated_lfn_entries": 0,
+  "raw_unique_sfn": 4,
+  "raw_unique_preferred": 4,
+  "root_sectors": [
+    31916,
+    31917,
+    31918
+  ],
+  "sector_sha256": {
+    "0": "9577a9fb8e11dc4a7b78adcff454a714d5c3cb9b1bde34b7e74bf0d245a176ee",
+    "2048": "999e9265a821ad8ebc29cfd452cf3783a510bdd665a5b1e834e5a400c514f524",
+    "31916": "a6feb706ccbca92405d2402c2da069b727d2cb359e27ad1bd9809cd1c539436c",
+    "31917": "e35997b21fb9ba16fea7755a2b3f6b1a30b8f21c3f11bafd67530d7aca040a17",
+    "31918": "b9d1d8975795f5099e32953e67fc2f59849e186be5147e217899e8fd1a6fcfac"
+  },
+  "sector_crc32": {
+    "0": "6589af25",
+    "2048": "43ec4cc3",
+    "31916": "28865bf0",
+    "31917": "cb9069dd",
+    "31918": "294e4ae6"
+  },
+  "listdir_str": {
+    "count": 34,
+    "pairwise_unique": 4,
+    "set_unique": 4,
+    "builtin_hash_unique": 4,
+    "host_unique_content": 4,
+    "matches_sfn_multiset": false,
+    "matches_preferred_multiset": true,
+    "preferred_position_matches": 34,
+    "ordered_tag_sha256": "d8768385c415cfc9d86f347a7333de4600e0eb4060b64a11160a2ea77d9e1253"
+  },
+  "listdir_bytes": {
+    "count": 34,
+    "pairwise_unique": 4,
+    "set_unique": 4,
+    "builtin_hash_unique": 4,
+    "host_unique_content": 4,
+    "matches_sfn_multiset": false,
+    "matches_preferred_multiset": true,
+    "preferred_position_matches": 34,
+    "ordered_tag_sha256": "d8768385c415cfc9d86f347a7333de4600e0eb4060b64a11160a2ea77d9e1253"
+  },
+  "ilistdir": {
+    "count": 34,
+    "pairwise_unique": 4,
+    "set_unique": 4,
+    "builtin_hash_unique": 4,
+    "host_unique_content": 4,
+    "matches_sfn_multiset": false,
+    "matches_preferred_multiset": true,
+    "preferred_position_matches": 34,
+    "ordered_tag_sha256": "d8768385c415cfc9d86f347a7333de4600e0eb4060b64a11160a2ea77d9e1253"
+  },
+  "expected_preferred_ordered_tag_sha256": "d8768385c415cfc9d86f347a7333de4600e0eb4060b64a11160a2ea77d9e1253",
+  "synthetic_counts": [
+    64,
+    64,
+    64,
+    64
+  ],
+  "directory_has_duplicate_names": true
+}

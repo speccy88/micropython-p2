@@ -32,6 +32,32 @@ A nonlocal return unwinds to that exact head without comparing stack-local
 addresses. This handles the upward stack direction and independent compiler
 layout of locals in the same activation.
 
+### Interpreting the early SD directory count
+
+The early image printed 34 entries and a set length of 34 for the SD root.
+Its compiler generated an incorrect branch in `mp_set_lookup`. Each
+insertion skipped the equality check at the string's home slot, overwrote
+that slot and incremented the set's size. Repeated strings therefore
+inflated `len(set(names))`. The corrected compiler keeps the slot
+comparison and conditional branch together. On COM12 the same string
+inserted 34 times gave a reported length of 34 and one iterable member on
+the early image. The release returned one for both measurements. Both
+images read matching SHA-256 values from the five compared SD sectors.
+[Historical control](validation/fat-historical-control.json)
+
+On the release image an independent host parser decoded 34 FAT entries
+in the three root-directory sectors and found four distinct short names.
+String and byte directory listings from the VM matched all 34 decoded
+names in order. Pairwise comparisons, the Python set and a host comparison
+also agreed on four distinct names. This establishes what the board
+returned from those sectors. Determining when duplicate entries appeared
+requires a separate history of the medium.
+[Read-only directory analysis](validation/fat-directory.json)
+
+On a fresh PSRAM FAT volume the release recovered all 40 separately
+created filenames, including uppercase 8.3, lowercase and long names,
+and verified each file's distinct contents. [PSRAM FAT check](validation/extended-memory-media.json)
+
 ## REPL and checks
 
 Ctrl-A enters raw mode, Ctrl-B returns to friendly mode, Ctrl-C interrupts

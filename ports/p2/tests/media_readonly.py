@@ -21,6 +21,11 @@ if sd is not None:
     print("SD_READ", count, 512, 16384, time.ticks_diff(time.ticks_us(), t))
     names = os.listdir("/")
     print("FAT_ROOT_COUNTS", len(names), len(set(names)))
+    distinct = []
+    for name in names:
+        if name not in distinct:
+            distinct.append(name)
+    assert len(distinct) == len(set(names)), "name equality and set count disagree"
     vfs.umount("/")
     if p2sd.active() is not None:
         sd.ioctl(2, 0)

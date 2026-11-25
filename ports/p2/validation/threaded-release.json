@@ -1,38 +1,45 @@
 {
-  "flat_image_sha256": "cfecb088583f68567f7194042ba080c35708200c09d83a01c1c4f2e61c6f51d3",
+  "flat_image_sha256": "c5215c0639ee5906dcca7cf3a6a2a35135ec2a933d0a702e6c52484adb817bc4",
   "serial_endpoint": "socket://127.0.0.1:8122",
   "checks": {
     "large_raw_paste": {
       "bytes": 39969,
-      "reply": "a9140e2d58d32ff4c807572b",
-      "nonce": "a9140e2d58d32ff4c807572b",
+      "reply": "740dd6558a3756118bcc26af",
+      "nonce": "740dd6558a3756118bcc26af",
+      "passed": true
+    },
+    "large_serial_output": {
+      "expected_bytes": 80896,
+      "received_bytes": 80896,
+      "expected_sha256": "ad260e547e3ff91a16a6d2d806a6d8824b16c7648388aa475bd176f619429b0b",
+      "received_sha256": "ad260e547e3ff91a16a6d2d806a6d8824b16c7648388aa475bd176f619429b0b",
       "passed": true
     },
     "interrupt_loop": {
       "passed": true,
-      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 2, in <module>\r\nKeyboardInterrupt: \r\n"
     },
     "soft_reset_0": {
       "passed": true,
-      "heap_free": 196368
+      "heap_free": 193936
     },
     "soft_reset_1": {
       "passed": true,
-      "heap_free": 196368
+      "heap_free": 193936
     },
     "soft_reset_2": {
       "passed": true,
-      "heap_free": 196368
+      "heap_free": 193936
     },
     "soft_reset_3": {
       "passed": true,
-      "heap_free": 196368
+      "heap_free": 193936
     },
     "tests/threaded.py": {
       "sha256": "1fc2777d7c55e7491d7028fcb48686325182b4203a47a9195802fa98ab093566",
-      "seconds": 0.3600000001024455,
+      "seconds": 0.3589999999385327,
       "passed": true,
-      "stdout": "{\"gc_25_wall_us\": 77595, \"test\": \"two_threads\", \"passed\": true, \"main_id\": 1, \"worker_id\": 3}",
+      "stdout": "{\"gc_25_wall_us\": 78221, \"test\": \"two_threads\", \"passed\": true, \"main_id\": 1, \"worker_id\": 3}",
       "stderr": ""
     }
   },

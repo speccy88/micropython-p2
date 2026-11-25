@@ -1,0 +1,49 @@
+{
+  "port": "COM12",
+  "image": {
+    "file": "C:\\Users\\fred_\\OneDrive\\One Note\\ChatGPT\\Propeller 2\\micropython-p2\\ports\\p2\\build-P2_EC32MB-edge\\sd-independent.bin",
+    "sha256": "1f085d6dc7608a373df6fc465827d9ac292543af4c53f8e85d4644e0aae7703e",
+    "format": "binary",
+    "file_bytes": 11184
+  },
+  "challenge": "47b95607",
+  "passed": true,
+  "sd_driver": "ne75/p2llvm libc/drivers/sdmmc.c Smart Pins, CMD17",
+  "sector_sha256": {
+    "0": "9577a9fb8e11dc4a7b78adcff454a714d5c3cb9b1bde34b7e74bf0d245a176ee",
+    "2048": "999e9265a821ad8ebc29cfd452cf3783a510bdd665a5b1e834e5a400c514f524",
+    "31916": "a6feb706ccbca92405d2402c2da069b727d2cb359e27ad1bd9809cd1c539436c",
+    "31917": "e35997b21fb9ba16fea7755a2b3f6b1a30b8f21c3f11bafd67530d7aca040a17",
+    "31918": "b9d1d8975795f5099e32953e67fc2f59849e186be5147e217899e8fd1a6fcfac"
+  },
+  "repeated_sector_sha256": {
+    "0": "9577a9fb8e11dc4a7b78adcff454a714d5c3cb9b1bde34b7e74bf0d245a176ee",
+    "2048": "999e9265a821ad8ebc29cfd452cf3783a510bdd665a5b1e834e5a400c514f524",
+    "31916": "a6feb706ccbca92405d2402c2da069b727d2cb359e27ad1bd9809cd1c539436c",
+    "31917": "e35997b21fb9ba16fea7755a2b3f6b1a30b8f21c3f11bafd67530d7aca040a17",
+    "31918": "b9d1d8975795f5099e32953e67fc2f59849e186be5147e217899e8fd1a6fcfac"
+  },
+  "slot_classes": {
+    "31916": "SSSSSSSSSSSSSSSS",
+    "31917": "SSSSSSSSSSSSSSSS",
+    "31918": "SSE-------------"
+  },
+  "rom": "Prop_Ver G",
+  "download": {
+    "loaded_bytes": 11184,
+    "checksum": "adfed1da",
+    "checksum_ack": ".",
+    "checksum_prefix": "",
+    "load_mode": "ROM-base64-RAM-only"
+  },
+  "raw_sfn_count": 34,
+  "raw_sfn_unique": 4,
+  "root_terminator_seen": true,
+  "matching_reference_sectors": {
+    "0": true,
+    "2048": true,
+    "31916": true,
+    "31917": true,
+    "31918": true
+  }
+}

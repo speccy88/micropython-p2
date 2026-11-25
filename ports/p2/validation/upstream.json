@@ -1,0 +1,2794 @@
+{
+  "image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "suite": [
+    "basics/*.py",
+    "float/*.py",
+    "extmod/json*.py",
+    "extmod/asyncio_basic*.py",
+    "extmod/vfs_fat*.py",
+    "extmod/vfs_lfs*.py",
+    "micropython/heapalloc*.py"
+  ],
+  "requested_files": 698,
+  "exitcode": 0,
+  "counts": {
+    "pass": 573,
+    "skip": 125
+  },
+  "target": "p2",
+  "outcomes": {
+    "basics/0prelim.py": {
+      "outcome": "pass"
+    },
+    "basics/andor.py": {
+      "outcome": "pass"
+    },
+    "basics/annotate_var.py": {
+      "outcome": "pass"
+    },
+    "basics/array1.py": {
+      "outcome": "pass"
+    },
+    "basics/array_add.py": {
+      "outcome": "pass"
+    },
+    "basics/array_construct.py": {
+      "outcome": "pass"
+    },
+    "basics/array_construct2.py": {
+      "outcome": "pass"
+    },
+    "basics/array_construct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/array_int_repr.py": {
+      "outcome": "pass"
+    },
+    "basics/array_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/array_limits_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/array_micropython.py": {
+      "outcome": "pass"
+    },
+    "basics/assign1.py": {
+      "outcome": "pass"
+    },
+    "basics/assign_expr.py": {
+      "outcome": "pass"
+    },
+    "basics/assign_expr_scope.py": {
+      "outcome": "pass"
+    },
+    "basics/assign_expr_syntaxerror.py": {
+      "outcome": "pass"
+    },
+    "basics/async_await.py": {
+      "outcome": "pass"
+    },
+    "basics/async_await2.py": {
+      "outcome": "pass"
+    },
+    "basics/async_def.py": {
+      "outcome": "pass"
+    },
+    "basics/async_for.py": {
+      "outcome": "pass"
+    },
+    "basics/async_for2.py": {
+      "outcome": "pass"
+    },
+    "basics/async_syntaxerror.py": {
+      "outcome": "pass"
+    },
+    "basics/async_with.py": {
+      "outcome": "pass"
+    },
+    "basics/async_with2.py": {
+      "outcome": "pass"
+    },
+    "basics/async_with_break.py": {
+      "outcome": "pass"
+    },
+    "basics/async_with_return.py": {
+      "outcome": "pass"
+    },
+    "basics/attrtuple1.py": {
+      "outcome": "pass"
+    },
+    "basics/attrtuple2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 3,
+          "source": "import os"
+        },
+        {
+          "line": 9,
+          "source": "u = os.uname()"
+        }
+      ]
+    },
+    "basics/bool1.py": {
+      "outcome": "pass"
+    },
+    "basics/boundmeth1.py": {
+      "outcome": "pass"
+    },
+    "basics/break.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_abs.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_abs_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_allany.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_bin.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_bin_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_callable.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_chr.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_compile.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "compile"
+        }
+      ]
+    },
+    "basics/builtin_delattr.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_dir.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_divmod.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_divmod_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_ellipsis.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_enumerate.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_eval.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_eval_buffer.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_eval_error.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_exec.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_exec_buffer.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_filter.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_getattr.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_hasattr.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_hash.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_hash_gen.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_hash_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_help.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "help"
+        }
+      ]
+    },
+    "basics/builtin_hex.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_hex_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_id.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_issubclass.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_len1.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_locals.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_map.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_minmax.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_next_arg2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "next(iter([]), 42)"
+        }
+      ]
+    },
+    "basics/builtin_oct.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_oct_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_ord.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_override.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 7,
+          "source": "builtins.abs = lambda x: x + 1"
+        }
+      ]
+    },
+    "basics/builtin_pow.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_pow3.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "print(pow(3, 4, 7))"
+        }
+      ]
+    },
+    "basics/builtin_pow3_intbig.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "print(pow(3, 4, 7))"
+        }
+      ]
+    },
+    "basics/builtin_print.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_property.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_property_inherit.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_range.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_range_attrs.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_range_binop.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "if range(1) != range(1):"
+        }
+      ]
+    },
+    "basics/builtin_range_maxsize.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_reversed.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_round.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_round_int.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_round_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_setattr.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_slice.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_sorted.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_str_hex.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_sum.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_super.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_type.py": {
+      "outcome": "pass"
+    },
+    "basics/builtin_zip.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray1.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_add.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_add_self.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_append.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_byte_operations.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_center.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "bytearray.center"
+        }
+      ]
+    },
+    "basics/bytearray_construct.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_construct_array.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_construct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/bytearray_count.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_decode.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/bytearray_partition.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "bytearray.partition"
+        }
+      ]
+    },
+    "basics/bytearray_slice_assign.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_add.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_add_array.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_add_bytearray.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_add_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/bytes_center.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "bytes.center"
+        }
+      ]
+    },
+    "basics/bytes_compare.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_compare2.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_compare3.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_compare_array.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_compare_bytearray.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_construct.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_construct_array.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_construct_bytearray.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_construct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/bytes_construct_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_count.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_escape_unicode.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_find.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_format_modulo.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_gen.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_index.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_large.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_mult.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_partition.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "str.partition"
+        }
+      ]
+    },
+    "basics/bytes_replace.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_split.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_strip.py": {
+      "outcome": "pass"
+    },
+    "basics/bytes_subscr.py": {
+      "outcome": "pass"
+    },
+    "basics/class1.py": {
+      "outcome": "pass"
+    },
+    "basics/class2.py": {
+      "outcome": "pass"
+    },
+    "basics/class3.py": {
+      "outcome": "pass"
+    },
+    "basics/class_bases.py": {
+      "outcome": "pass"
+    },
+    "basics/class_bind_self.py": {
+      "outcome": "pass"
+    },
+    "basics/class_binop.py": {
+      "outcome": "pass"
+    },
+    "basics/class_call.py": {
+      "outcome": "pass"
+    },
+    "basics/class_contains.py": {
+      "outcome": "pass"
+    },
+    "basics/class_delattr_setattr.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "class Test():"
+        }
+      ]
+    },
+    "basics/class_descriptor.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 28,
+          "source": "m.__class__"
+        },
+        {
+          "line": 35,
+          "source": "if \"Descriptor\" in repr(r.__class__):"
+        }
+      ]
+    },
+    "basics/class_dict.py": {
+      "outcome": "pass"
+    },
+    "basics/class_emptybases.py": {
+      "outcome": "pass"
+    },
+    "basics/class_getattr.py": {
+      "outcome": "pass"
+    },
+    "basics/class_inherit1.py": {
+      "outcome": "pass"
+    },
+    "basics/class_inherit_mul.py": {
+      "outcome": "pass"
+    },
+    "basics/class_inplace_op.py": {
+      "outcome": "pass"
+    },
+    "basics/class_inplace_op2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 53,
+          "source": "a *= None"
+        }
+      ]
+    },
+    "basics/class_instance_override.py": {
+      "outcome": "pass"
+    },
+    "basics/class_item.py": {
+      "outcome": "pass"
+    },
+    "basics/class_misc.py": {
+      "outcome": "pass"
+    },
+    "basics/class_new.py": {
+      "outcome": "pass"
+    },
+    "basics/class_notimpl.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "NotImplemented"
+        }
+      ]
+    },
+    "basics/class_number.py": {
+      "outcome": "pass"
+    },
+    "basics/class_ordereddict.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from collections import OrderedDict"
+        },
+        {
+          "line": 9,
+          "source": "if not hasattr(int, \"__dict__\"):"
+        }
+      ]
+    },
+    "basics/class_reverse_op.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/class_setname_hazard.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 14,
+          "source": "a.__class__"
+        },
+        {
+          "line": 21,
+          "source": "if \"Descriptor\" in repr(b.__class__):"
+        }
+      ]
+    },
+    "basics/class_setname_hazard_rand.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 7,
+          "source": "from random import choice"
+        },
+        {
+          "line": 24,
+          "source": "a.__class__"
+        },
+        {
+          "line": 31,
+          "source": "if \"Descriptor\" in repr(b.__class__):"
+        }
+      ]
+    },
+    "basics/class_staticclassmethod.py": {
+      "outcome": "pass"
+    },
+    "basics/class_store.py": {
+      "outcome": "pass"
+    },
+    "basics/class_store_class.py": {
+      "outcome": "pass"
+    },
+    "basics/class_str.py": {
+      "outcome": "pass"
+    },
+    "basics/class_super.py": {
+      "outcome": "pass"
+    },
+    "basics/class_super_aslocal.py": {
+      "outcome": "pass"
+    },
+    "basics/class_super_closure.py": {
+      "outcome": "pass"
+    },
+    "basics/class_super_multinherit.py": {
+      "outcome": "pass"
+    },
+    "basics/class_super_object.py": {
+      "outcome": "pass"
+    },
+    "basics/class_use_other.py": {
+      "outcome": "pass"
+    },
+    "basics/closure1.py": {
+      "outcome": "pass"
+    },
+    "basics/closure2.py": {
+      "outcome": "pass"
+    },
+    "basics/closure_defargs.py": {
+      "outcome": "pass"
+    },
+    "basics/closure_manyvars.py": {
+      "outcome": "pass"
+    },
+    "basics/closure_namedarg.py": {
+      "outcome": "pass"
+    },
+    "basics/compare_multi.py": {
+      "outcome": "pass"
+    },
+    "basics/comprehension1.py": {
+      "outcome": "pass"
+    },
+    "basics/containment.py": {
+      "outcome": "pass"
+    },
+    "basics/continue.py": {
+      "outcome": "pass"
+    },
+    "basics/decorator.py": {
+      "outcome": "pass"
+    },
+    "basics/del_attr.py": {
+      "outcome": "pass"
+    },
+    "basics/del_deref.py": {
+      "outcome": "pass"
+    },
+    "basics/del_global.py": {
+      "outcome": "pass"
+    },
+    "basics/del_local.py": {
+      "outcome": "pass"
+    },
+    "basics/del_name.py": {
+      "outcome": "pass"
+    },
+    "basics/del_subscr.py": {
+      "outcome": "pass"
+    },
+    "basics/deque1.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import deque"
+        }
+      ]
+    },
+    "basics/deque2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import deque"
+        }
+      ]
+    },
+    "basics/deque_micropython.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from collections import deque"
+        }
+      ]
+    },
+    "basics/deque_slice.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import deque"
+        }
+      ]
+    },
+    "basics/dict1.py": {
+      "outcome": "pass"
+    },
+    "basics/dict2.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_clear.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_construct.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_copy.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_del.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_fixed.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_from_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_fromkeys.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_fromkeys2.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_get.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_intern.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_iterator.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_pop.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_popitem.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_setdefault.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_specialmeth.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_union.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_update.py": {
+      "outcome": "pass"
+    },
+    "basics/dict_views.py": {
+      "outcome": "pass"
+    },
+    "basics/equal.py": {
+      "outcome": "pass"
+    },
+    "basics/equal_class.py": {
+      "outcome": "pass"
+    },
+    "basics/errno1.py": {
+      "outcome": "pass"
+    },
+    "basics/except_match_tuple.py": {
+      "outcome": "pass"
+    },
+    "basics/exception1.py": {
+      "outcome": "pass"
+    },
+    "basics/exception_chain.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/exceptpoly.py": {
+      "outcome": "pass"
+    },
+    "basics/exceptpoly2.py": {
+      "outcome": "pass"
+    },
+    "basics/floordivide.py": {
+      "outcome": "pass"
+    },
+    "basics/floordivide_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/for1.py": {
+      "outcome": "pass"
+    },
+    "basics/for2.py": {
+      "outcome": "pass"
+    },
+    "basics/for3.py": {
+      "outcome": "pass"
+    },
+    "basics/for_break.py": {
+      "outcome": "pass"
+    },
+    "basics/for_else.py": {
+      "outcome": "pass"
+    },
+    "basics/for_range.py": {
+      "outcome": "pass"
+    },
+    "basics/for_return.py": {
+      "outcome": "pass"
+    },
+    "basics/frozenset1.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/frozenset_add.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/frozenset_binop.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/frozenset_copy.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/frozenset_difference.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/frozenset_set.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "frozenset"
+        }
+      ]
+    },
+    "basics/fun1.py": {
+      "outcome": "pass"
+    },
+    "basics/fun2.py": {
+      "outcome": "pass"
+    },
+    "basics/fun3.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_annotations.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_calldblstar.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_calldblstar2.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_calldblstar3.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_calldblstar4.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_callstar.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_callstar_kwarg.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_callstardblstar.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_code.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "(lambda: 0).__code__"
+        }
+      ]
+    },
+    "basics/fun_code_colines.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 68,
+          "source": "f1.__code__.co_lines"
+        }
+      ]
+    },
+    "basics/fun_code_full.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "(lambda: 0).__code__.co_code"
+        }
+      ]
+    },
+    "basics/fun_code_lnotab.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "(lambda: 0).__code__.co_code"
+        }
+      ]
+    },
+    "basics/fun_defargs.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_defargs2.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_error.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_error2.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_globals.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 8,
+          "source": "if not hasattr(foo, \"__globals__\"):"
+        }
+      ]
+    },
+    "basics/fun_kwargs.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_kwonly.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_kwonlydef.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_kwvarargs.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_largestate.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_name.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 11,
+          "source": "print(Fun.__name__)"
+        }
+      ]
+    },
+    "basics/fun_str.py": {
+      "outcome": "pass"
+    },
+    "basics/fun_varargs.py": {
+      "outcome": "pass"
+    },
+    "basics/gc1.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_close.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_ducktype.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_exc.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_executing.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_pending.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_send.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_stopped.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_throw.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_throw2.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_throw3.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_throw_multi_arg.py": {
+      "outcome": "pass"
+    },
+    "basics/gen_yield_from_throw_repeat.py": {
+      "outcome": "pass"
+    },
+    "basics/generator1.py": {
+      "outcome": "pass"
+    },
+    "basics/generator2.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_args.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_close.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_closure.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_exc.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_name.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 11,
+          "source": "print(Fun.__name__)"
+        }
+      ]
+    },
+    "basics/generator_pend_throw.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_pep479.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_return.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_send.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_throw.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_throw_multi_arg.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_throw_nested.py": {
+      "outcome": "pass"
+    },
+    "basics/generator_throw_repeat.py": {
+      "outcome": "pass"
+    },
+    "basics/getattr.py": {
+      "outcome": "pass"
+    },
+    "basics/getitem.py": {
+      "outcome": "pass"
+    },
+    "basics/globals_del.py": {
+      "outcome": "pass"
+    },
+    "basics/ifcond.py": {
+      "outcome": "pass"
+    },
+    "basics/ifexpr.py": {
+      "outcome": "pass"
+    },
+    "basics/import_instance_method.py": {
+      "outcome": "pass"
+    },
+    "basics/import_star_nonmodule.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 6,
+          "source": "next(iter([]), 42)"
+        }
+      ]
+    },
+    "basics/int1.py": {
+      "outcome": "pass"
+    },
+    "basics/int2.py": {
+      "outcome": "pass"
+    },
+    "basics/int_64_basics.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big1.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_add.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_and.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_and2.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_and3.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_cmp.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_div.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_error.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_lshift.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_mod.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_mul.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_or.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_or2.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_or3.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_pow.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_rshift.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_to_small.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_to_small_int29.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_unary.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_xor.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_xor2.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_xor3.py": {
+      "outcome": "pass"
+    },
+    "basics/int_big_zeroone.py": {
+      "outcome": "pass"
+    },
+    "basics/int_bytes.py": {
+      "outcome": "pass"
+    },
+    "basics/int_bytes_int64.py": {
+      "outcome": "pass"
+    },
+    "basics/int_bytes_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/int_bytes_optional_args_cp311.py": {
+      "outcome": "pass"
+    },
+    "basics/int_constfolding.py": {
+      "outcome": "pass"
+    },
+    "basics/int_constfolding_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/int_divmod.py": {
+      "outcome": "pass"
+    },
+    "basics/int_divmod_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/int_divzero.py": {
+      "outcome": "pass"
+    },
+    "basics/int_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/int_parse.py": {
+      "outcome": "pass"
+    },
+    "basics/int_small.py": {
+      "outcome": "pass"
+    },
+    "basics/io_buffered_writer.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "import io"
+        }
+      ]
+    },
+    "basics/io_bytesio_cow.py": {
+      "outcome": "pass"
+    },
+    "basics/io_bytesio_ext.py": {
+      "outcome": "pass"
+    },
+    "basics/io_bytesio_ext2.py": {
+      "outcome": "pass"
+    },
+    "basics/io_iobase.py": {
+      "outcome": "pass"
+    },
+    "basics/io_stringio1.py": {
+      "outcome": "pass"
+    },
+    "basics/io_stringio_base.py": {
+      "outcome": "pass"
+    },
+    "basics/io_stringio_with.py": {
+      "outcome": "pass"
+    },
+    "basics/io_write_ext.py": {
+      "outcome": "pass"
+    },
+    "basics/is_isnot.py": {
+      "outcome": "pass"
+    },
+    "basics/is_isnot_literal.py": {
+      "outcome": "pass"
+    },
+    "basics/iter0.py": {
+      "outcome": "pass"
+    },
+    "basics/iter1.py": {
+      "outcome": "pass"
+    },
+    "basics/iter2.py": {
+      "outcome": "pass"
+    },
+    "basics/iter_of_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/lambda1.py": {
+      "outcome": "pass"
+    },
+    "basics/lambda_defargs.py": {
+      "outcome": "pass"
+    },
+    "basics/lexer.py": {
+      "outcome": "pass"
+    },
+    "basics/list1.py": {
+      "outcome": "pass"
+    },
+    "basics/list_clear.py": {
+      "outcome": "pass"
+    },
+    "basics/list_compare.py": {
+      "outcome": "pass"
+    },
+    "basics/list_copy.py": {
+      "outcome": "pass"
+    },
+    "basics/list_count.py": {
+      "outcome": "pass"
+    },
+    "basics/list_extend.py": {
+      "outcome": "pass"
+    },
+    "basics/list_index.py": {
+      "outcome": "pass"
+    },
+    "basics/list_insert.py": {
+      "outcome": "pass"
+    },
+    "basics/list_mult.py": {
+      "outcome": "pass"
+    },
+    "basics/list_pop.py": {
+      "outcome": "pass"
+    },
+    "basics/list_remove.py": {
+      "outcome": "pass"
+    },
+    "basics/list_reverse.py": {
+      "outcome": "pass"
+    },
+    "basics/list_slice.py": {
+      "outcome": "pass"
+    },
+    "basics/list_slice_3arg.py": {
+      "outcome": "pass"
+    },
+    "basics/list_slice_assign.py": {
+      "outcome": "pass"
+    },
+    "basics/list_slice_assign_grow.py": {
+      "outcome": "pass"
+    },
+    "basics/list_sort.py": {
+      "outcome": "pass"
+    },
+    "basics/list_sum.py": {
+      "outcome": "pass"
+    },
+    "basics/logic_constfolding.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryerror.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview1.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview2.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview_gc.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview_itemsize.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "memoryview(b'a').itemsize"
+        },
+        {
+          "line": 7,
+          "source": "from array import array"
+        }
+      ]
+    },
+    "basics/memoryview_slice_assign.py": {
+      "outcome": "pass"
+    },
+    "basics/memoryview_slice_size.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from sys import maxsize"
+        }
+      ]
+    },
+    "basics/module1.py": {
+      "outcome": "pass"
+    },
+    "basics/module2.py": {
+      "outcome": "pass"
+    },
+    "basics/module_dict.py": {
+      "outcome": "pass"
+    },
+    "basics/namedtuple1.py": {
+      "outcome": "pass"
+    },
+    "basics/namedtuple_asdict.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import namedtuple"
+        },
+        {
+          "line": 10,
+          "source": "t._asdict"
+        }
+      ]
+    },
+    "basics/nanbox_smallint.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import micropython"
+        },
+        {
+          "line": 12,
+          "source": "micropython.heap_lock()"
+        },
+        {
+          "line": 21,
+          "source": "if float(\"1e100\") == float(\"inf\"):"
+        }
+      ]
+    },
+    "basics/object1.py": {
+      "outcome": "pass"
+    },
+    "basics/object_dict.py": {
+      "outcome": "pass"
+    },
+    "basics/object_new.py": {
+      "outcome": "pass"
+    },
+    "basics/op_error.py": {
+      "outcome": "pass"
+    },
+    "basics/op_error_bytearray.py": {
+      "outcome": "pass"
+    },
+    "basics/op_error_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/op_error_literal.py": {
+      "outcome": "pass"
+    },
+    "basics/op_error_memoryview.py": {
+      "outcome": "pass"
+    },
+    "basics/op_precedence.py": {
+      "outcome": "pass"
+    },
+    "basics/ordereddict1.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import OrderedDict"
+        }
+      ]
+    },
+    "basics/ordereddict_eq.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "from collections import OrderedDict"
+        }
+      ]
+    },
+    "basics/parser.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "compile"
+        }
+      ]
+    },
+    "basics/python34.py": {
+      "outcome": "pass"
+    },
+    "basics/python36.py": {
+      "outcome": "pass"
+    },
+    "basics/return1.py": {
+      "outcome": "pass"
+    },
+    "basics/scope.py": {
+      "outcome": "pass"
+    },
+    "basics/scope_class.py": {
+      "outcome": "pass"
+    },
+    "basics/scope_implicit.py": {
+      "outcome": "pass"
+    },
+    "basics/self_type_check.py": {
+      "outcome": "pass"
+    },
+    "basics/seq_unpack.py": {
+      "outcome": "pass"
+    },
+    "basics/set_add.py": {
+      "outcome": "pass"
+    },
+    "basics/set_basic.py": {
+      "outcome": "pass"
+    },
+    "basics/set_binop.py": {
+      "outcome": "pass"
+    },
+    "basics/set_clear.py": {
+      "outcome": "pass"
+    },
+    "basics/set_comprehension.py": {
+      "outcome": "pass"
+    },
+    "basics/set_containment.py": {
+      "outcome": "pass"
+    },
+    "basics/set_copy.py": {
+      "outcome": "pass"
+    },
+    "basics/set_difference.py": {
+      "outcome": "pass"
+    },
+    "basics/set_discard.py": {
+      "outcome": "pass"
+    },
+    "basics/set_intersection.py": {
+      "outcome": "pass"
+    },
+    "basics/set_isdisjoint.py": {
+      "outcome": "pass"
+    },
+    "basics/set_isfooset.py": {
+      "outcome": "pass"
+    },
+    "basics/set_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/set_iter_of_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/set_pop.py": {
+      "outcome": "pass"
+    },
+    "basics/set_remove.py": {
+      "outcome": "pass"
+    },
+    "basics/set_specialmeth.py": {
+      "outcome": "pass"
+    },
+    "basics/set_symmetric_difference.py": {
+      "outcome": "pass"
+    },
+    "basics/set_type.py": {
+      "outcome": "pass"
+    },
+    "basics/set_union.py": {
+      "outcome": "pass"
+    },
+    "basics/set_unop.py": {
+      "outcome": "pass"
+    },
+    "basics/set_update.py": {
+      "outcome": "pass"
+    },
+    "basics/slice_attrs.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 9,
+          "source": "t = A()[1:2]"
+        }
+      ]
+    },
+    "basics/slice_indices.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 10,
+          "source": "A()[2:5].indices(10)"
+        }
+      ]
+    },
+    "basics/slice_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/slice_op.py": {
+      "outcome": "pass"
+    },
+    "basics/slice_optimise.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 8,
+          "source": "from collections import OrderedDict"
+        }
+      ]
+    },
+    "basics/slots_bool_len.py": {
+      "outcome": "pass"
+    },
+    "basics/special_comparisons.py": {
+      "outcome": "pass"
+    },
+    "basics/special_comparisons2.py": {
+      "outcome": "pass"
+    },
+    "basics/special_methods.py": {
+      "outcome": "pass"
+    },
+    "basics/special_methods2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 98,
+          "source": "+cud1"
+        }
+      ]
+    },
+    "basics/special_methods_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/stopiteration.py": {
+      "outcome": "pass"
+    },
+    "basics/string1.py": {
+      "outcome": "pass"
+    },
+    "basics/string_center.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "str.center"
+        }
+      ]
+    },
+    "basics/string_compare.py": {
+      "outcome": "pass"
+    },
+    "basics/string_count.py": {
+      "outcome": "pass"
+    },
+    "basics/string_cr_conversion.py": {
+      "outcome": "pass"
+    },
+    "basics/string_crlf_conversion.py": {
+      "outcome": "pass"
+    },
+    "basics/string_endswith.py": {
+      "outcome": "pass"
+    },
+    "basics/string_escape.py": {
+      "outcome": "pass"
+    },
+    "basics/string_escape_invalid.py": {
+      "outcome": "pass"
+    },
+    "basics/string_find.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format2.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_cp310.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_error.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_modulo.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_modulo_int.py": {
+      "outcome": "pass"
+    },
+    "basics/string_format_sep.py": {
+      "outcome": "pass"
+    },
+    "basics/string_fstring.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_fstring_debug.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_fstring_invalid.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_fstring_nested.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_fstring_nested_py312.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_index.py": {
+      "outcome": "pass"
+    },
+    "basics/string_istest.py": {
+      "outcome": "pass"
+    },
+    "basics/string_join.py": {
+      "outcome": "pass"
+    },
+    "basics/string_large.py": {
+      "outcome": "pass"
+    },
+    "basics/string_module_tstring.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_mult.py": {
+      "outcome": "pass"
+    },
+    "basics/string_partition.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "str.partition"
+        }
+      ]
+    },
+    "basics/string_replace.py": {
+      "outcome": "pass"
+    },
+    "basics/string_repr.py": {
+      "outcome": "pass"
+    },
+    "basics/string_rfind.py": {
+      "outcome": "pass"
+    },
+    "basics/string_rindex.py": {
+      "outcome": "pass"
+    },
+    "basics/string_rpartition.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "str.partition"
+        }
+      ]
+    },
+    "basics/string_rsplit.py": {
+      "outcome": "pass"
+    },
+    "basics/string_slice.py": {
+      "outcome": "pass"
+    },
+    "basics/string_split.py": {
+      "outcome": "pass"
+    },
+    "basics/string_splitlines.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "str.splitlines"
+        }
+      ]
+    },
+    "basics/string_startswith.py": {
+      "outcome": "pass"
+    },
+    "basics/string_strip.py": {
+      "outcome": "pass"
+    },
+    "basics/string_tstring_basic.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_basic1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_constructor.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_constructor1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_errors1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_format1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_interpolation1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_operations.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_parser1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_tstring_whitespace.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/string_upperlow.py": {
+      "outcome": "pass"
+    },
+    "basics/struct1.py": {
+      "outcome": "pass"
+    },
+    "basics/struct1_intbig.py": {
+      "outcome": "pass"
+    },
+    "basics/struct2.py": {
+      "outcome": "pass"
+    },
+    "basics/struct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "basics/struct_micropython.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_classmethod.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native1.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native2_list.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native2_tuple.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native3.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native4.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native5.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_buffer.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_call.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 7,
+          "source": "import machine"
+        }
+      ]
+    },
+    "basics/subclass_native_cmp.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_containment.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_exc_new.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_init.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_iter.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_specmeth.py": {
+      "outcome": "pass"
+    },
+    "basics/subclass_native_str.py": {
+      "outcome": "pass"
+    },
+    "basics/syntaxerror.py": {
+      "outcome": "pass"
+    },
+    "basics/syntaxerror_return.py": {
+      "outcome": "pass"
+    },
+    "basics/sys1.py": {
+      "outcome": "pass"
+    },
+    "basics/sys_exit.py": {
+      "outcome": "pass"
+    },
+    "basics/sys_getsizeof.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "sys.getsizeof"
+        }
+      ]
+    },
+    "basics/sys_path.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "if \"__file__\" not in globals() or \"sys_path.py\" not in __file__:"
+        }
+      ]
+    },
+    "basics/sys_stdio.py": {
+      "outcome": "pass"
+    },
+    "basics/sys_stdio_buffer.py": {
+      "outcome": "pass"
+    },
+    "basics/sys_tracebacklimit.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import sys"
+        },
+        {
+          "line": 11,
+          "source": "sys.tracebacklimit = 1000"
+        }
+      ]
+    },
+    "basics/true_value.py": {
+      "outcome": "pass"
+    },
+    "basics/try1.py": {
+      "outcome": "pass"
+    },
+    "basics/try2.py": {
+      "outcome": "pass"
+    },
+    "basics/try3.py": {
+      "outcome": "pass"
+    },
+    "basics/try4.py": {
+      "outcome": "pass"
+    },
+    "basics/try_as_var.py": {
+      "outcome": "pass"
+    },
+    "basics/try_continue.py": {
+      "outcome": "pass"
+    },
+    "basics/try_else.py": {
+      "outcome": "pass"
+    },
+    "basics/try_else_finally.py": {
+      "outcome": "pass"
+    },
+    "basics/try_error.py": {
+      "outcome": "pass"
+    },
+    "basics/try_except_break.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally1.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally2.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_break.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_break2.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_continue.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_loops.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_return.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_return2.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_return3.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_return4.py": {
+      "outcome": "pass"
+    },
+    "basics/try_finally_return5.py": {
+      "outcome": "pass"
+    },
+    "basics/try_reraise.py": {
+      "outcome": "pass"
+    },
+    "basics/try_reraise2.py": {
+      "outcome": "pass"
+    },
+    "basics/try_return.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple1.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_compare.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_count.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_index.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_mult.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_slice.py": {
+      "outcome": "pass"
+    },
+    "basics/tuple_subclass.py": {
+      "outcome": "pass"
+    },
+    "basics/types1.py": {
+      "outcome": "pass"
+    },
+    "basics/types2.py": {
+      "outcome": "pass"
+    },
+    "basics/unary_op.py": {
+      "outcome": "pass"
+    },
+    "basics/unboundlocal.py": {
+      "outcome": "pass"
+    },
+    "basics/unpack1.py": {
+      "outcome": "pass"
+    },
+    "basics/weakref_callback_exception.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 7,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/weakref_finalize_basic.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/weakref_finalize_collect.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/weakref_multiple_refs.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 7,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/weakref_ref_basic.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/weakref_ref_collect.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "import weakref"
+        }
+      ]
+    },
+    "basics/while1.py": {
+      "outcome": "pass"
+    },
+    "basics/while_cond.py": {
+      "outcome": "pass"
+    },
+    "basics/while_nest_exc.py": {
+      "outcome": "pass"
+    },
+    "basics/with1.py": {
+      "outcome": "pass"
+    },
+    "basics/with_break.py": {
+      "outcome": "pass"
+    },
+    "basics/with_continue.py": {
+      "outcome": "pass"
+    },
+    "basics/with_raise.py": {
+      "outcome": "pass"
+    },
+    "basics/with_return.py": {
+      "outcome": "pass"
+    },
+    "extmod/asyncio_basic.py": {
+      "outcome": "pass"
+    },
+    "extmod/asyncio_basic2.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dump.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dump_iobase.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dump_separators.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dumps.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dumps_extra.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dumps_float.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_dumps_ordereddict.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "import json"
+        }
+      ]
+    },
+    "extmod/json_dumps_separators.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_load.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_loads.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "extmod/json_loads_bytes.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_loads_float.py": {
+      "outcome": "pass"
+    },
+    "extmod/json_loads_int_64.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_fileio1.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_fileio2.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_finaliser.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_ilistdir_del.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_more.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_mtime.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import time, os, vfs"
+        }
+      ]
+    },
+    "extmod/vfs_fat_oldproto.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_ramdisk.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_fat_ramdisklarge.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import os, vfs"
+        },
+        {
+          "line": 44,
+          "source": "bdev = RAMBDevSparse(4 * 1024 * 1024 * 1024 // RAMBDevSparse.SEC_SIZE)"
+        }
+      ]
+    },
+    "extmod/vfs_lfs.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import os, vfs"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_corrupt.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import vfs"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_error.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import errno, vfs"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_file.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import vfs"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_ilistdir_del.py": {
+      "outcome": "pass"
+    },
+    "extmod/vfs_lfs_mount.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import os, vfs"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_mtime.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import time, vfs"
+        },
+        {
+          "line": 106,
+          "source": "bdev = RAMBlockDevice(30)"
+        }
+      ]
+    },
+    "extmod/vfs_lfs_superblock.py": {
+      "outcome": "pass"
+    },
+    "float/array_construct.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_abs.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_hash.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_minmax.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_pow.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_round.py": {
+      "outcome": "pass"
+    },
+    "float/builtin_float_round_intbig.py": {
+      "outcome": "pass"
+    },
+    "float/bytearray_construct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/bytes_construct_endian.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/cmath_dunder.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import cmath"
+        }
+      ]
+    },
+    "float/cmath_fun.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from cmath import *"
+        }
+      ]
+    },
+    "float/cmath_fun_special.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from cmath import *"
+        }
+      ]
+    },
+    "float/complex1.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/complex1_intbig.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/complex1_micropython.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/complex_dunder.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/complex_reverse_op.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/complex_special_methods.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float1.py": {
+      "outcome": "pass"
+    },
+    "float/float2int_doubleprec_intbig.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float2int_fp30_intbig.py": {
+      "outcome": "pass"
+    },
+    "float/float2int_intbig.py": {
+      "outcome": "pass"
+    },
+    "float/float_array.py": {
+      "outcome": "pass"
+    },
+    "float/float_compare.py": {
+      "outcome": "pass"
+    },
+    "float/float_divmod.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float_divmod_relaxed.py": {
+      "outcome": "pass"
+    },
+    "float/float_dunder.py": {
+      "outcome": "pass"
+    },
+    "float/float_format.py": {
+      "outcome": "pass"
+    },
+    "float/float_format_accuracy.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 5,
+          "source": "import array, math, random"
+        }
+      ]
+    },
+    "float/float_format_ftoe.py": {
+      "outcome": "pass"
+    },
+    "float/float_format_ints.py": {
+      "outcome": "pass"
+    },
+    "float/float_format_ints_doubleprec.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float_format_ints_power10.py": {
+      "outcome": "pass"
+    },
+    "float/float_parse.py": {
+      "outcome": "pass"
+    },
+    "float/float_parse_doubleprec.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float_struct.py": {
+      "outcome": "pass"
+    },
+    "float/float_struct_e.py": {
+      "outcome": "pass"
+    },
+    "float/float_struct_e_doubleprec.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/float_struct_e_fp30.py": {
+      "outcome": "pass"
+    },
+    "float/inf_nan_arith.py": {
+      "outcome": "pass"
+    },
+    "float/int_64_float.py": {
+      "outcome": "pass"
+    },
+    "float/int_big_float.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/int_divzero.py": {
+      "outcome": "pass"
+    },
+    "float/int_power.py": {
+      "outcome": "pass"
+    },
+    "float/lexer.py": {
+      "outcome": "pass"
+    },
+    "float/list_index.py": {
+      "outcome": "pass"
+    },
+    "float/math_constants.py": {
+      "outcome": "pass"
+    },
+    "float/math_constants_extra.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 3,
+          "source": "import math"
+        }
+      ]
+    },
+    "float/math_domain.py": {
+      "outcome": "pass"
+    },
+    "float/math_domain_python311.py": {
+      "outcome": "pass"
+    },
+    "float/math_domain_special.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import math"
+        }
+      ]
+    },
+    "float/math_dunder.py": {
+      "outcome": "pass"
+    },
+    "float/math_factorial_intbig.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 2,
+          "source": "import math"
+        }
+      ]
+    },
+    "float/math_fun.py": {
+      "outcome": "pass"
+    },
+    "float/math_fun_bool.py": {
+      "outcome": "pass"
+    },
+    "float/math_fun_int.py": {
+      "outcome": "pass"
+    },
+    "float/math_fun_intbig.py": {
+      "outcome": "pass"
+    },
+    "float/math_fun_special.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from math import *"
+        }
+      ]
+    },
+    "float/math_isclose.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "from math import isclose"
+        }
+      ]
+    },
+    "float/python36.py": {
+      "outcome": "pass"
+    },
+    "float/string_format.py": {
+      "outcome": "pass"
+    },
+    "float/string_format2.py": {
+      "outcome": "pass"
+    },
+    "float/string_format_modulo.py": {
+      "outcome": "pass"
+    },
+    "float/string_format_modulo2.py": {
+      "outcome": "pass"
+    },
+    "float/string_format_modulo2_intbig.py": {
+      "outcome": "pass"
+    },
+    "float/string_format_modulo3.py": {
+      "outcome": "pass"
+    },
+    "float/string_fstring.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/true_value.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "float/types.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "micropython/heapalloc.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_bytesio.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_bytesio2.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 4,
+          "source": "import io"
+        }
+      ]
+    },
+    "micropython/heapalloc_exc_compressed.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_exc_compressed_emg_exc.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_exc_raise.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_bytearray.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_dict.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_list.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_memoryview.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_set.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_fail_tstring.py": {
+      "outcome": "skip",
+      "detail": "upstream runner excluded this target configuration"
+    },
+    "micropython/heapalloc_fail_tuple.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_inst_call.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_int_from_bytes.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_iter.py": {
+      "outcome": "skip",
+      "detail": "target test emitted SKIP",
+      "source_guards": [
+        {
+          "line": 3,
+          "source": "frozenset"
+        },
+        {
+          "line": 8,
+          "source": "import array"
+        }
+      ]
+    },
+    "micropython/heapalloc_slice.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_str.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_super.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_traceback.py": {
+      "outcome": "pass"
+    },
+    "micropython/heapalloc_yield_from.py": {
+      "outcome": "pass"
+    }
+  }
+}

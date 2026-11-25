@@ -125,6 +125,15 @@ Check out that commit to reproduce the version string and build date.
 | lean | P2_EDGE | Single VM plus console, small hub footprint, no external memory requirement |
 | threaded | P2_EC32MB | Experimental compute profile, one additional Python worker, GIL and coordinated GC |
 
+The prebuilt flat images, ELFs and matching Linux x86-64 `mpy-cross` are
+in [firmware](firmware/). The [manifest](firmware/manifest.json) gives their
+SHA-256 hashes and sizes. On Windows, verify the Edge download with
+`Get-FileHash ports/p2/firmware/edge.bin -Algorithm SHA256`. To compile
+one module from PowerShell with WSL installed, run
+`wsl -e ports/p2/firmware/mpy-cross-linux-x86_64 mymodule.py` from the
+repository root. Copy the resulting `mymodule.mpy` to a mounted filesystem
+with `mpremote fs cp`.
+
 Both board definitions select a 20 MHz reference and 160 MHz system clock.
 A plain P2-EVAL with other clock or storage wiring requires a matching board
 definition. The checked load paths are serial RAM ELF and flat binary. Cold

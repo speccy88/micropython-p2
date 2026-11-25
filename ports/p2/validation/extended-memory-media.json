@@ -1,0 +1,26 @@
+{
+  "image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "checks": {
+    "tests/fat_names.py": {
+      "passed": true,
+      "elapsed_s": 1.25,
+      "sha256": "b16ce5d59cc096e939352e6f03027f55cdcab77657160383c6d58abbd51bc3e4",
+      "output": "FAT directory verified 40 unique short, lowercase and long entries",
+      "error": ""
+    },
+    "tests/media_readonly.py": {
+      "passed": true,
+      "elapsed_s": 0.7029999999795109,
+      "sha256": "03663651a7ea346716a0975952d9059cb8e23a1affe416deedfe25e6f6c41467",
+      "output": "SD_READ 61132800 512 16384 183360\r\nFAT_ROOT_COUNTS 34 4\r\nJEDEC 0xef7018\r\nFLASH_READ_PASS 256 4096",
+      "error": ""
+    },
+    "tests/drivers/full_capacity.py": {
+      "passed": true,
+      "elapsed_s": 103.45299999997951,
+      "sha256": "9c87f70ace8955f7776d60e4d2f45df522035d82d28d33414435781c190752d9",
+      "output": "P2_PSRAM_FULL_WRITTEN 33554432 write_ms 40476\r\nP2_PSRAM_FULL_PASS bytes 33554432 tile_bytes 4096 tiles 8192 first8 00000000271389c4 last8 41209048ffffff01 write_ms 40476 read_ms 62055 elapsed_ms 102531",
+      "error": ""
+    }
+  }
+}

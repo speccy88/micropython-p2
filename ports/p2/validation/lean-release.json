@@ -1,0 +1,54 @@
+{
+  "flat_image_sha256": "092ddf8062325463ba0e4e178c0a919434aeb7542ea8c4f6f759477d25df3d51",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "1f5a50c680e8fdfba8fa70e8",
+      "nonce": "1f5a50c680e8fdfba8fa70e8",
+      "passed": true
+    },
+    "large_serial_output": {
+      "expected_bytes": 80896,
+      "received_bytes": 80896,
+      "expected_sha256": "ee53bd5ced4670244967408338e815494cc7f680485706c316536ef014ef7795",
+      "received_sha256": "ee53bd5ced4670244967408338e815494cc7f680485706c316536ef014ef7795",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 2, in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 235024
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 235024
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 235024
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 235024
+    },
+    "tests/vm.py": {
+      "sha256": "0b2e240ecbe0de1af0afd25ecf718d29795833be2e0dc92c37b55db5d267ccb7",
+      "seconds": 1.547000000020489,
+      "passed": true,
+      "stdout": "{\"gc_us_median\": 16989, \"integer_loop_1000_us\": 41377, \"gc_us_min\": 16981, \"platform\": \"p2\", \"c_stack_used\": 1380, \"heap_free_after\": 231056, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 232016, \"gc_us_max\": 17013, \"passed\": true}",
+      "stderr": ""
+    },
+    "tests/timer.py": {
+      "sha256": "ac4aade4e85f11e48106fdbdb659cd387817bbb2f1e2e037527723b2562b4f72",
+      "seconds": 0.7809999999590218,
+      "passed": true,
+      "stdout": "Timer passed one-shot, periodic, cancellation, GC, queue and argument checks",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}
