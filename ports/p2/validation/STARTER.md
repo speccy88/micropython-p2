@@ -21,6 +21,17 @@ extracted the compiler as mode 0755, and it compiled a bytecode v6 module
 under x86-64 WSL. The current hashes for all profiles live in the
 [firmware manifest](../firmware/manifest.json).
 
+Kit.2 supersedes kit.1 and packages the three profiles built from
+`ee618817ca5a2f119cabdc8ef567ccdf012ed85d`. The full Edge flat image is
+403,960 bytes. Its SHA-256 is
+`7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052`.
+All six firmware files and the Linux compiler matched the original Linux
+build outputs, the Git blobs in `4a1cc18c9`, and an independent Windows
+checkout with `core.autocrlf=true`. Building a kit from that checkout
+produced byte-for-byte identical output to building it from the development
+checkout at the same commit. The extracted Linux compiler emits .mpy v6.3.
+[Replacement release and download checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.2)
+
 ## Verify a download
 
 Compare the ZIP hash to `SHA256SUMS.txt` using `sha256sum -c SHA256SUMS.txt`

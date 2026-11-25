@@ -4,7 +4,7 @@ The first thing I’d try on this board is an eight-megabyte array. That’s a s
 
 You can also put a cog to work while Python is busy, capture a pulse with a Smart Pin, or use part of PSRAM as a scratch disk. The first three experiments below need just the board, power and a USB serial connection.
 
-**[Open the Propeller 2 workbench](https://speccy88.github.io/micropython-p2/)** · [Download the command-line starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.1/micropython-p2-starter.zip) · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.1) · [Hardware test results](ports/p2/PROGRESS.md)
+**[Open the Propeller 2 workbench](https://speccy88.github.io/micropython-p2/)** · [Download the command-line starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.2/micropython-p2-starter.zip) · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.2) · [Hardware test results](ports/p2/PROGRESS.md)
 
 ## Get a prompt
 
@@ -21,6 +21,8 @@ For a permanent install on a flash-equipped Edge, select **Boot flash** and clic
 ### From a terminal
 
 Extract the **starter ZIP** and open a terminal in the folder containing this README and `ports`. These commands also work from a checkout of the repository. Install Python 3.10 or newer on the host. Python 3.12 was used for the Windows tests.
+
+If you downloaded the first kit, replace it with **kit.2**. The first ZIP damaged four binaries during packaging, including the Linux bytecode compiler. On Windows, Linux or macOS, run `python ports/p2/tools/make_starter.py --check-files` in the extracted kit to check the firmware and compiler before flashing. On Windows you can also use `py -3` in place of `python`. [Original file hashes and ZIP verification](ports/p2/validation/STARTER.md)
 
 **Windows PowerShell**
 
