@@ -1,0 +1,25 @@
+{
+  "source_commit": "ee618817ca5a2f119cabdc8ef567ccdf012ed85d",
+  "sdk_commit": "fc631f268080135e7c13ad27783ee6e1bb6a1c35",
+  "compiler_patch_sha256": "d5e87aeda5ed5f263083321a07a1662b296e104a2ce46535cb4b52e683ff4a86",
+  "profile": "edge",
+  "clock_hz": 160000000,
+  "build": "Use the private LLVM 15.0.7 compiler in P2_BIN. Run bash ports/p2/tools/build_profiles.sh edge in fresh source and build directories for each configuration.",
+  "baseline": {
+    "extra_cflags": "",
+    "flat_bytes": 403960,
+    "flat_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+    "elf_sha256": "0f721ef274f747e16e253a58439d4c0a166acdcd1ff1bf0c205a4b6a059e4f21",
+    "gc_arena_bytes": 73904,
+    "primary_stack_bytes": 16384
+  },
+  "full_lto": {
+    "extra_cflags": "-flto",
+    "flat_bytes": 402284,
+    "flat_sha256": "5dd47bde39606196e06422b1c749fd53197a0bf9504f1f014ca0ae841e5615a1",
+    "elf_sha256": "24f979f582c6603991f8ce494de744bdf1550f0788578d28282d937a21bc33ca",
+    "gc_arena_bytes": 75584,
+    "primary_stack_bytes": 16384
+  },
+  "scope": "Compile, link and section-layout trial. Only the CFLAGS_EXTRA setting was changed. P2 asm and separately built runtime archives retain their ordinary build flags. Preservation of code size, normal execution, GC roots and timing under LTO requires device validation before promotion."
+}

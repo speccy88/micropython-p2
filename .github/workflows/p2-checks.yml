@@ -37,7 +37,7 @@ jobs:
         run: |
           make -C mpy-cross -j3
           python ports/p2/tests/drivers/host_check.py --mpy-cross mpy-cross/build/mpy-cross --output "$RUNNER_TEMP/packages.json"
-          python ports/p2/tests/test_pyboard_socket.py
+          python -m unittest discover -s ports/p2/tests -p 'test_*.py'
       - name: Exercise Web Serial transfers, SoftI2C and NOR storage
         run: |
           node --test ports/p2/web/rom.test.mjs
@@ -46,7 +46,6 @@ jobs:
           "$RUNNER_TEMP/flash-model"
       - name: Verify kit bytes, Unix permissions and packaged compiler
         run: |
-          python ports/p2/tests/test_starter.py
           python ports/p2/tools/make_starter.py "$RUNNER_TEMP/kit"
           python ports/p2/tests/kit_mpy.py "$RUNNER_TEMP/kit/micropython-p2-starter.zip"
       - name: Report release image and heap sizes

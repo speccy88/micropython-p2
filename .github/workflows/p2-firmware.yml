@@ -2,6 +2,11 @@ name: Rebuild P2 firmware
 
 on:
   workflow_dispatch:
+    inputs:
+      reproduce_release:
+        description: Build the source revision in the firmware manifest and verify its images
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,7 +32,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang lld ninja-build zlib1g-dev
-          git submodule update --init --depth=1 lib/micropython-lib
+      - name: Select firmware source
+        env:
+          REPRODUCE: ${{ inputs.reproduce_release }}
+        run: |
+          source_dir="$GITHUB_WORKSPACE"
+          if [[ "$REPRODUCE" == "true" ]]; then
+            revision=$(python -c 'import json; print(json.load(open("ports/p2/firmware/manifest.json"))["source_commit"])')
+            [[ "$revision" =~ ^[0-9a-f]{40}$ ]]
+            git fetch --depth=1 origin "$revision"
+            source_dir="$RUNNER_TEMP/release-source"
+            git worktree add --detach "$source_dir" "$revision"
+          fi
+          git -C "$source_dir" submodule update --init --depth=1 lib/micropython-lib
+          echo "FIRMWARE_SOURCE=$source_dir" >> "$GITHUB_ENV"
       - name: Restore compiled P2 toolchain
         id: compiler
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
@@ -44,7 +62,25 @@ jobs:
           BUILD_ROOT: ${{ runner.temp }}/p2-firmware
         run: |
           python3 ports/p2/toolchain/check-overlay.py "$P2_BIN"
-          bash ports/p2/tools/build_profiles.sh edge lean threaded
+          bash "$FIRMWARE_SOURCE/ports/p2/tools/build_profiles.sh" edge lean threaded
+      - name: Compare freshly linked release images with manifest
+        if: inputs.reproduce_release
+        env:
+          BUILD_ROOT: ${{ runner.temp }}/p2-firmware
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = json.loads(Path("ports/p2/firmware/manifest.json").read_text())
+          for profile, info in manifest["profiles"].items():
+              for kind, suffix in (("flat", "bin"), ("elf", "elf")):
+                  image = (Path(os.environ["BUILD_ROOT"]) / profile / ("firmware." + suffix)).read_bytes()
+                  expected = info[kind]
+                  digest = hashlib.sha256(image).hexdigest()
+                  if (digest, len(image)) != (expected["sha256"], expected["bytes"]):
+                      raise SystemExit(f"{profile}/{suffix}: reproduced {digest} ({len(image)} bytes), expected {expected}")
+                  print(f"{profile}/{suffix}: {digest} ({len(image)} bytes)")
+          PY
       - name: Upload built images and linker maps
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:

@@ -29,3 +29,9 @@ The GitHub API confirmed disabling all 27 retired workflows for this repository 
 Install the versions listed in `p2-checks.yml`, then run `python ports/p2/ci/quality.py` from a checkout containing the v1.29.0 base commit. Use `--fix` to apply formatting. The script selects tracked P2 sources and shared files changed since the upstream release. Firmware, vendor notices and the original loadp2 sources keep their published bytes.
 
 Select **Actions → Rebuild P2 firmware → Run workflow** for a clean toolchain-backed build, or **Starter kit on desktop hosts** for the release matrix. Physical acceptance uses the USB host and the board procedures. Hosted runners exercise only host programs, fixtures and firmware builds. [Hardware validation](../PROGRESS.md)
+
+The firmware workflow defaults to the selected branch's sources. Select **Build the source revision in the firmware manifest and verify its images** to re-create the packaged build, including the embedded source revision and build date. This run compares the sizes and SHA-256 values of the six freshly linked binary and ELF files with the manifest. The host compiler executable is verified separately by the starter checks.
+
+## Cleanup verification
+
+At `2e0db979c`, GitHub recorded three automatic runs. Native Unix and Pages passed. The P2 gate caught an undeclared injected variable in the new threaded fixture, fixed in `fa4d25dda`. The separate manually dispatched kit check passed on Windows, macOS and Ubuntu. [P2 host gate](https://github.com/speccy88/micropython-p2/actions/runs/45548400996) · [Native Unix](https://github.com/speccy88/micropython-p2/actions/runs/45548401051) · [Pages](https://github.com/speccy88/micropython-p2/actions/runs/45548400980) · [Three desktop hosts](https://github.com/speccy88/micropython-p2/actions/runs/45548456032)

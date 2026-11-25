@@ -42,14 +42,13 @@ def main():
         (
             *PORT.glob("modules/*.py"),
             *PORT.glob("packages/*/*.py"),
-            *PORT.glob("examples/*.py"),
+            *PORT.glob("examples/**/*.py"),
             HERE / "api.py",
             HERE / "array_smoke.py",
             HERE / "pwm_capture.py",
             HERE / "bounds32.py",
             HERE / "factorial_bench.py",
             HERE / "borrowed_io.py",
-            PORT / "examples/hubdriver/checksum.py",
             HERE / "adc_ready.py",
         )
     )
