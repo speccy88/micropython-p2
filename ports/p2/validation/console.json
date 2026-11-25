@@ -1,0 +1,16 @@
+{
+  "port": "COM12",
+  "rom": "Prop_Ver G",
+  "elf_sha256": "bf32464eb20b4db976e0e1768c944138f858b3368394fd1cb308432cdab66467",
+  "download": {
+    "loaded_bytes": 3332,
+    "checksum": "640005fe",
+    "checksum_ack": ".",
+    "checksum_prefix": "",
+    "load_mode": "ROM-base64-RAM-only"
+  },
+  "nonce": "e61ecf21ca89deece00d78128013846bceaa90fb2cc781e6f6a90b41e05c843c",
+  "echo_bytes": 16384,
+  "seconds": 2.0305704998318106,
+  "passed": true
+}
