@@ -130,7 +130,7 @@ index a1a0d6a..a3444da 100644
  
  /* The name shrinks (and ellipsizes) before it ever reaches the trailing
 diff --git a/src/app.js b/src/app.js
-index edb3c77..6318ad5 100644
+index edb3c77..34820c8 100644
 --- a/src/app.js
 +++ b/src/app.js
 @@ -35,11 +35,9 @@ import { createBrowserVM, SYSTEM_DIRS } from './emulator.js'
@@ -178,7 +178,7 @@ index edb3c77..6318ad5 100644
              } catch (err) {
                  console.log(err)
              }
-@@ -509,6 +498,35 @@ export async function connectDevice(type) {
+@@ -509,6 +498,42 @@ export async function connectDevice(type) {
          return
      }
  
@@ -200,21 +200,28 @@ index edb3c77..6318ad5 100644
 +    return startSession('usb', transport)
 +}
 +
-+export async function openP2Example(profile, blinker) {
-+    const base = blinker ? '/blink_p2' : '/hello_p2'; let fn = base + '.py', i = 1
-+    while (fsCache.has(fn) || openFiles.has(fn)) fn = base + '_' + (++i) + '.py'
-+    let content = '# Press F5 to run this on your board.\nimport sys\nprint("Hello from", sys.platform)\n'
-+    if (profile === 'edge') {
-+        content += '\nimport p2\nprint("External RAM:", p2.PSRAM().capacity() // (1024 * 1024), "MiB")\n'
++let blinkTab
++
++export async function openBlinkExample() {
++    if (blinkTab && getTabEditorElement(blinkTab.fn) === blinkTab.pane) {
++        displayOpenFile(blinkTab.fn)
++        return
 +    }
-+    await _loadContent(fn, blinker || content, createTab(fn))
++    const response = await fetch('../blink_p2.py')
++    if (!response.ok) throw new Error('Could not load blink_p2.py')
++    const content = await response.text()
++    let fn = '/blink_p2.py', i = 1
++    while (fsCache.has(fn) || getTabEditorElement(fn)) fn = '/blink_p2_' + (++i) + '.py'
++    const pane = createTab(fn)
++    blinkTab = {fn, pane}
++    await _loadContent(fn, content, pane)
 +}
 +
 +async function startSession(type, new_port) {
      port = new_port
      connType = type
      wirePort(port)
-@@ -516,6 +534,7 @@ export async function connectDevice(type) {
+@@ -516,6 +541,7 @@ export async function connectDevice(type) {
      analytics.track('Device Port Connected', Object.assign({ connection: type }, await port.getInfo()))
  
      await initDeviceSession()
@@ -222,7 +229,7 @@ index edb3c77..6318ad5 100644
  }
  
  /*
-@@ -1680,33 +1699,18 @@ export async function saveCurrentFile() {
+@@ -1680,33 +1706,18 @@ export async function saveCurrentFile() {
     tab is closed. It has no file behind it on the device, so it is never saved
     and never reconciled against a board. */
  async function openWelcomeTab() {
@@ -268,7 +275,7 @@ index edb3c77..6318ad5 100644
  }
  
  export function clearTerminal() {
-@@ -2214,19 +2218,6 @@ function showOfflineReadyToast(version) {
+@@ -2214,19 +2225,6 @@ function showOfflineReadyToast(version) {
  (async () => {
      const urlParams = new URLSearchParams(window.location.search)
  
@@ -288,7 +295,7 @@ index edb3c77..6318ad5 100644
      await i18next.use(LanguageDetector).init({
          fallbackLng: 'en',
          //debug: true,
-@@ -2241,84 +2232,7 @@ function showOfflineReadyToast(version) {
+@@ -2241,84 +2239,7 @@ function showOfflineReadyToast(version) {
          applyTranslation()
      })
  
@@ -374,7 +381,7 @@ index edb3c77..6318ad5 100644
  
      onSettingChange('zoom', function(newValue) {
          const size = 14 * parseFloat(newValue)
-@@ -2340,31 +2254,26 @@ function showOfflineReadyToast(version) {
+@@ -2340,31 +2261,26 @@ function showOfflineReadyToast(version) {
      }
  
      const xtermTheme = {
@@ -419,10 +426,13 @@ index edb3c77..6318ad5 100644
          cursorBlink: true,
          convertEol: true,
          allowProposedApi: true,
-@@ -2522,6 +2431,7 @@ function showOfflineReadyToast(version) {
+@@ -2522,6 +2438,10 @@ function showOfflineReadyToast(version) {
  
      /* location.search has been acted on, so anything the launch queue hands
         over from here on is a link followed into this already-running window */
++    if (!urlParams.get('vm')) {
++        try { await openBlinkExample() } catch (err) { toastr.error(err.message) }
++    }
 +    document.documentElement.dataset.p2IdeReady = 'true'
      startupSettled = true
  

@@ -128,19 +128,11 @@ async function start(action) {
         signal.throwIfAborted();
         $("cancel").hidden = true;
         progress("Opening the board in ViperIDE…");
-        const state = await ide.connectInstalledP2(port);
+        await ide.connectInstalledP2(port);
         ownsPort = false;
         lastInstalledPort = port;
         showEditor();
-        if (state === "ready") {
-            if (action === "install" && profile === "threaded") {
-                await ide.openP2Example(profile);
-            } else {
-                const sample = await fetch("./blink_p2.py");
-                if (!sample.ok) throw new Error("Could not load the LED example.");
-                await ide.openP2Example(profile, await sample.text());
-            }
-        }
+        await ide.openBlinkExample();
     } catch (err) {
         progress(describe(err));
         $("status").setAttribute("data-error", "");
@@ -160,6 +152,17 @@ $("cancel").onclick = () => job?.abort();
 $("connect").onclick = () => start("connect");
 $("boot-sd").onclick = () => start("sd");
 $("explore").onclick = () => start("explore");
+$("blink").onclick = async () => {
+    const button = $("blink");
+    button.disabled = true;
+    try {
+        await (await loadEditor()).openBlinkExample();
+    } catch (err) {
+        window.alert(describe(err));
+    } finally {
+        button.disabled = false;
+    }
+};
 $("back").onclick = () => {
     $("workspace").hidden = true;
     $("setup").hidden = false;
