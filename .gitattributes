@@ -16,6 +16,9 @@
 *.mpy binary
 *.der binary
 *.bin binary
+*.elf binary
+*.p2d binary
+ports/p2/firmware/mpy-cross-* binary
 
 # These should also not be modified by git.
 tests/basics/string_cr_conversion.py -text
