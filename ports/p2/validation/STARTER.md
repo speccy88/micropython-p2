@@ -1,0 +1,73 @@
+# Starter kit integrity
+
+The original kit.1 ZIP downloaded from the release is 1,288,579 bytes, SHA-256
+`f39e3e9a193814f43baa3c17fe575818ea0d7f983d8e44cc9ba8cd2bf7cea4be`.
+The three flat images match the firmware manifest. Git normalized CRLF byte
+pairs inside the following four binaries before creating the ZIP.
+
+| File | Bytes in kit.1 | Original bytes | Original SHA-256 |
+| --- | ---: | ---: | --- |
+| edge.elf | 545736 | 545744 | 00af7d1acb3bbf2673c4f48a0b3fbce05b27234b2a11f2e361c8a6cfa6cef334 |
+| lean.elf | 322216 | 322224 | b7a5a97a891f3426a0967a5bad15a8a1df832448c03f793c13a47cfa1d2b49d0 |
+| threaded.elf | 306467 | 306476 | b01f145729824abd19e144302d3f98fd06dfffea31e7ad666d6ba30d4a006ec1 |
+| mpy-cross-linux-x86_64 | 444617 | 444624 | 4c86414b1d66b6fcf1bbfd17fa9df6f118a47f86b0766090a3801b15272f6e68 |
+
+Recovery commit `88a0c3fe1` restores all four blobs from retained outputs of
+source `8432dcbac3aacf072f3b32c424dc4f0c4517f58a`. Each matched the
+original manifest before staging, including the compiler from the Linux build
+and the ELFs from the verified profile builds. P2 ELFs, driver images and
+the extensionless compiler now have Git binary attributes. Linux Info-ZIP
+extracted the compiler as mode 0755, and it compiled a bytecode v6 module
+under x86-64 WSL. The current hashes for all profiles live in the
+[firmware manifest](../firmware/manifest.json).
+
+## Verify a download
+
+Compare the ZIP hash to `SHA256SUMS.txt` using `sha256sum -c SHA256SUMS.txt`
+on Linux, `shasum -a 256 -c SHA256SUMS.txt` on macOS, or
+`Get-FileHash micropython-p2-starter.zip -Algorithm SHA256` in PowerShell.
+From a source checkout, the following checks the archive CRCs, expected
+members, every firmware size and SHA-256, compiler mode and pinned flash loader.
+
+```sh
+python ports/p2/tools/make_starter.py --verify micropython-p2-starter.zip
+```
+
+Inside an extracted kit, use `python ports/p2/tools/make_starter.py --check-files`.
+Download the replacement if verification fails. [Releases](https://github.com/speccy88/micropython-p2/releases)
+
+## Compare original and candidate builds
+
+Use separate Linux build directories, a path without spaces, and the verified
+LLVM overlay. Set `P2_BIN` and `P2_WORK` as in the [toolchain guide](../toolchain/README.md).
+The following rebuilds the original code used by kit.1 alongside the selected
+candidate. Pass the precise candidate **firmware source commit** from its
+manifest. To reproduce the original embedded build date, the port's build
+script derives `SOURCE_DATE_EPOCH` from that checkout.
+
+```sh
+baseline=8432dcbac3aacf072f3b32c424dc4f0c4517f58a
+candidate=$(python -c 'import json; print(json.load(open("ports/p2/firmware/manifest.json"))["source_commit"])')
+for variant in baseline candidate; do
+    if [ "$variant" = baseline ]; then revision=$baseline; else revision=$candidate; fi
+    folder="$(pwd)/../p2-ab-$variant"
+    git worktree add --detach "$folder" "$revision" || exit 1
+    (cd "$folder" && bash ports/p2/tools/build_profiles.sh edge lean threaded) || exit 1
+    python ports/p2/tools/package.py "$folder/ports/p2/build-delivery" --repo "$folder" --output "$folder/ports/p2/build-packaged" || exit 1
+done
+```
+
+Keep benchmark code, board, clock, compiler revision and flags fixed when
+comparing software changes. To check the actual release kit, build it from
+the intended release commit rather than from a directory of loose binaries.
+
+```sh
+python ports/p2/tools/make_starter.py dist
+python ports/p2/tests/test_starter.py
+python ports/p2/tests/kit_mpy.py dist/micropython-p2-starter.zip
+```
+
+The last command runs on x86-64 Linux. On Windows add `--wsl`. With the
+matching Edge image loaded and standard mpremote installed, add
+`--port socket://127.0.0.1:8122 --output kit-mpy.json` to copy the compiled
+module to a fresh PSRAM filesystem, import it and check the result on the P2.

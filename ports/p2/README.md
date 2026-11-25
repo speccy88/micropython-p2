@@ -130,11 +130,19 @@ Check out that commit to reproduce the version string and build date.
 The prebuilt flat images, ELFs and matching Linux x86-64 `mpy-cross` are
 in [firmware](firmware/). The [manifest](firmware/manifest.json) gives their
 SHA-256 hashes and sizes. On Windows, verify the Edge download with
-`Get-FileHash ports/p2/firmware/edge.bin -Algorithm SHA256`. To compile
-one module from PowerShell with WSL installed, run
+`Get-FileHash ports/p2/firmware/edge.bin -Algorithm SHA256`. From the
+extracted kit on Windows, Linux or macOS, run
+`python ports/p2/tools/make_starter.py --check-files` to verify the entire
+firmware set. The bundled compiler runs on x86-64 Linux or x86-64 WSL.
+To compile one module from PowerShell with WSL installed, run
 `wsl -e ports/p2/firmware/mpy-cross-linux-x86_64 mymodule.py` from the
 repository root. Copy the resulting `mymodule.mpy` to a mounted filesystem
-with `mpremote fs cp`.
+with `mpremote fs cp`. On x86-64 Linux use
+`./ports/p2/firmware/mpy-cross-linux-x86_64 mymodule.py`. If the extractor
+discarded executable permission, use `chmod +x ports/p2/firmware/mpy-cross-linux-x86_64`.
+On macOS or ARM Linux use plain Python source or build a host-native compiler
+with `make -C mpy-cross` from the full source checkout at the firmware
+manifest's source revision. [Kit verification and recovery](validation/STARTER.md)
 
 Both board definitions select a 20 MHz reference and 160 MHz system clock.
 A plain P2-EVAL with other clock or storage wiring requires a matching board
