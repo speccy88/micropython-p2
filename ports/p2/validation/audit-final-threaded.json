@@ -1,0 +1,24 @@
+{
+  "image_sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757",
+  "image_bytes": 232824,
+  "scripts": {
+    "threaded.py": {
+      "sha256": "67e350737bef62e0e08bfdaef6daedcf38084ab7a182308c6504304d81dfd1a6",
+      "seconds": 0.4060000000000059,
+      "output": [
+        "{\"gc_25_wall_us\": 53384, \"test\": \"two_threads\", \"passed\": true, \"main_id\": 1, \"worker_id\": 3}"
+      ],
+      "error": ""
+    },
+    "thread-driver.py": {
+      "sha256": "82e04abb21bbf03948b85f8db07e7543e3f66f997830732fb7d822fa1a7ba8c9",
+      "seconds": 0.6089999999999804,
+      "output": [
+        "P2_THREADED_SERVICE_PASS 2 24"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2-EC32MB with Propeller 2', _mpy=774, _build='P2_EC32MB', _thread='GIL') None 188816",
+  "passed": true
+}
