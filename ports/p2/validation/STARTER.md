@@ -32,6 +32,13 @@ produced byte-for-byte identical output to building it from the development
 checkout at the same commit. The extracted Linux compiler emits .mpy v6.3.
 [Replacement release and download checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.2)
 
+The published kit.2 ZIP is 1,428,023 bytes. Its SHA-256 is
+`002e5429ab9aef58ddd1e593184daa5765f33ba6ccd796c33bb2852008571a85`.
+An anonymous download matched the local archive byte for byte. Its Linux
+compiler built a module that the physical Edge imported from a PSRAM filesystem
+and ran on COM12, returning `1938`.
+[Downloaded assets and member hashes](release-kit2-download.json) · [Board import](release-kit2-board.json)
+
 ## Verify a download
 
 Compare the ZIP hash to `SHA256SUMS.txt` using `sha256sum -c SHA256SUMS.txt`
