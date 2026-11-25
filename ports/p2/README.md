@@ -103,6 +103,8 @@ archives independently in each profile directory.
 ```sh
 git submodule update --init --depth 1 lib/micropython-lib
 export P2_WORK="$HOME/tinygo-p2-work"
+bash ports/p2/toolchain/build-overlay.sh /path/to/tinygo-p2/modern "$HOME/p2-micropython-toolchain"
+export P2_BIN="$HOME/p2-micropython-toolchain/build/bin"
 bash ports/p2/tools/build_profiles.sh edge lean threaded
 ```
 
@@ -111,6 +113,11 @@ Each profile produces a ROM-loadable flat image and a native ELF in
 `mpy-cross/build/mpy-cross` on the host. Compile an ordinary module with
 `mpy-cross/build/mpy-cross mymodule.py`, then transfer `mymodule.mpy`
 with mpremote. The selected VM has no P2 native/Viper dynamic-code emitter.
+
+The private compiler build adds the P2 comparison/branch correction and
+assembler changes. Its toolchain check runs before firmware compilation.
+The firmware manifest records the source checkout used for the binaries.
+Check out that commit to reproduce the version string and build date.
 
 | Profile | Board definition | Use |
 | --- | --- | --- |
