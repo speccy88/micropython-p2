@@ -1,5 +1,7 @@
 # Winbond flash and LittleFS2
 
+The [physical acceptance and recovery guide](ACCEPTANCE.md) covers a designated single-sector erase/program test, SD startup scripts and ROM boot from FAT32.
+
 The Edge firmware exposes `p2.Flash` when LittleFS2 is compiled in. Run `p2.Flash.probe()` to read the three-byte JEDEC ID. A supported W25Q128 returns `0xef4018` or `0xef7018`. A successful probe briefly claims P58–P61 and releases them. The flash and onboard SD share data lines and exchange clock and select pins. Flash uses mode 3 and moves P61 only with P60 high, so the SD select is inactive on each SD clock edge. If the SD driver owns these pins, opening flash fails with `OSError(EBUSY)`. Close files and unmount the SD VFS before explicitly deinitialising the SD block device with `sd.ioctl(2, 0)`.
 
 | Byte addresses | Default use |
