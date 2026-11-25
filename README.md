@@ -159,7 +159,8 @@ Press Enter, then run `import p2; print(p2.PSRAM().capacity())`. Seeing `3355443
 | --- | --- |
 | Measure a frequency, drive a servo, or log ADC samples | [Pin map, wiring and runnable examples](ports/p2/drivers/README.md) |
 | Connect a sensor or small display | [TMP102 example](ports/p2/examples/tmp102.py), [SSD1306 example](ports/p2/examples/ssd1306.py), [UART, SoftI2C and SoftSPI](ports/p2/bus/README.md) |
-| Use two Python threads | Select `threaded.bin` for the experimental compute profile. One additional worker shares the GIL. [Threading and GC](ports/p2/VM.md) |
+| Share a peripheral between Python workers | Select `threaded.bin`. The main cog owns the native driver and pins. Both Python workers can submit requests through its mailbox under the GIL. [Threading and GC](ports/p2/VM.md) |
+| Edit on the board, send MIDI, or fetch HTTP data over USB | Install optional packages on a mounted volume with stock mpremote. The examples include a serial line editor, MIDI output, counted edge callbacks and a host HTTP bridge. [Application recipes](ports/p2/packages/APPLICATIONS.md) |
 | Use a plain P2 Edge without PSRAM | Select `lean.bin`. Its larger hub heap suits small programs that need no external memory. [Image sizes and hashes](ports/p2/firmware/manifest.json) |
 | Compile my own firmware or bytecode | [Build from source](ports/p2/README.md#build-from-source). The kit includes Linux x86-64 `mpy-cross`. Plain `.py` files run from all three hosts. |
 | See which peripherals were exercised on silicon | [Coverage, benchmarks and limits](ports/p2/PROGRESS.md). External sensors, displays and calibrated analog measurements need their respective hardware. |
