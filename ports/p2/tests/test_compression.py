@@ -9,7 +9,7 @@ import unittest
 
 class HeaderError(unittest.TestCase):
     def test_incremental_header_error(self):
-        tool = Path(__file__).resolve().parents[4] / "py/makeqstrdefs.py"
+        tool = Path(__file__).resolve().parents[3] / "py/makeqstrdefs.py"
         cpp = (
             '# 1 "service.c"\n# 1 "service.h" 1\n'
             'MP_COMPRESSED_ROM_TEXT("bad service")\n# 2 "service.c" 2\n'
