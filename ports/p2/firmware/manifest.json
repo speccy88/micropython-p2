@@ -1,5 +1,5 @@
 {
-  "source_commit": "8432dcbac3aacf072f3b32c424dc4f0c4517f58a",
+  "source_commit": "ee618817ca5a2f119cabdc8ef567ccdf012ed85d",
   "upstream_release": "v1.29.0",
   "tinygo_p2_commit": "fc631f268080135e7c13ad27783ee6e1bb6a1c35",
   "compiler_patch_sha256": "d5e87aeda5ed5f263083321a07a1662b296e104a2ce46535cb4b52e683ff4a86",
@@ -7,76 +7,76 @@
     "edge": {
       "flat": {
         "file": "edge.bin",
-        "bytes": 404428,
-        "sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520"
+        "bytes": 403960,
+        "sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052"
       },
       "elf": {
         "file": "edge.elf",
-        "bytes": 545744,
-        "sha256": "00af7d1acb3bbf2673c4f48a0b3fbce05b27234b2a11f2e361c8a6cfa6cef334"
+        "bytes": 545528,
+        "sha256": "0f721ef274f747e16e253a58439d4c0a166acdcd1ff1bf0c205a4b6a059e4f21"
       },
       "primary_stack_bytes": 16384,
       "alloc_sections_bytes": {
-        ".text": 349524,
-        ".rodata": 54900,
+        ".text": 350416,
+        ".rodata": 53540,
         ".data": 4,
         ".bss": 12632,
         ".stack.serial": 1024,
         ".stack": 16384
       },
-      "heap_start": 418088,
+      "heap_start": 417616,
       "heap_end": 491520,
-      "gc_arena_bytes": 73432,
+      "gc_arena_bytes": 73904,
       "lut_bytes_per_c_cog": 1172
     },
     "lean": {
       "flat": {
         "file": "lean.bin",
-        "bytes": 238420,
-        "sha256": "092ddf8062325463ba0e4e178c0a919434aeb7542ea8c4f6f759477d25df3d51"
+        "bytes": 238464,
+        "sha256": "c0aea460d3b86d26ff85f6e4834e1d24ac63c53c3523c8ae7abb3b828fe2be59"
       },
       "elf": {
         "file": "lean.elf",
-        "bytes": 322224,
-        "sha256": "b7a5a97a891f3426a0967a5bad15a8a1df832448c03f793c13a47cfa1d2b49d0"
+        "bytes": 322292,
+        "sha256": "e16a6e49b7acd1a046acb1cc4bc2a3c64cca0287c81ba3f30a9bcf074592b5e8"
       },
       "primary_stack_bytes": 16384,
       "alloc_sections_bytes": {
-        ".text": 213988,
-        ".rodata": 24428,
+        ".text": 214016,
+        ".rodata": 24444,
         ".data": 4,
         ".bss": 11192,
         ".stack.serial": 1024,
         ".stack": 16384
       },
-      "heap_start": 250640,
+      "heap_start": 250680,
       "heap_end": 491520,
-      "gc_arena_bytes": 240880,
+      "gc_arena_bytes": 240840,
       "lut_bytes_per_c_cog": 772
     },
     "threaded": {
       "flat": {
         "file": "threaded.bin",
-        "bytes": 228092,
-        "sha256": "c5215c0639ee5906dcca7cf3a6a2a35135ec2a933d0a702e6c52484adb817bc4"
+        "bytes": 232824,
+        "sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757"
       },
       "elf": {
         "file": "threaded.elf",
-        "bytes": 306476,
-        "sha256": "b01f145729824abd19e144302d3f98fd06dfffea31e7ad666d6ba30d4a006ec1"
+        "bytes": 313296,
+        "sha256": "d7539164c864f5e2350c8ef098c7203cf1b3b0ba28788067156af7d653d316c2"
       },
       "primary_stack_bytes": 16384,
       "alloc_sections_bytes": {
-        ".text": 206500,
-        ".rodata": 21580,
+        ".text": 210520,
+        ".rodata": 22292,
         ".data": 12,
-        ".bss": 63576,
+        ".bss": 63664,
         ".stack.serial": 1024,
         ".stack": 16384
       },
-      "heap_start": 292696,
+      "heap_start": 297512,
       "heap_end": 491520,
-      "gc_arena_bytes": 198824,
+      "gc_arena_bytes": 194008,
       "lut_bytes_per_c_cog": 772
     }
   },
