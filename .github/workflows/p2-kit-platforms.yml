@@ -34,6 +34,8 @@ jobs:
         run: |
           mpremote --help
           python ports/p2/tools/ram_session.py --help
+          python ports/p2/tests/sd_boot.py --help
+          python ports/p2/tests/observe_boot.py --help
           python ports/p2/tools/flash_boot.py --profile edge --check
           python -m unittest discover -s ports/p2/tests/drivers
       - name: Compile using the Linux x86-64 binary in the archive
