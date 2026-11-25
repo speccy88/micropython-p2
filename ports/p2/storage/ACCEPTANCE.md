@@ -92,3 +92,16 @@ the bytes the ROM will see. Actual execution has a separate acceptance step.
 3. To recover, power off, remove the card and select P59 serial override.
    Reset, RAM-load the verified image and fix or remove the SD boot file.
    The SD procedure never launches the SPI boot-flash programmer.
+
+For a repeatable observation, leave the USB adapter connected to the host,
+close the RAM relay and use a physically independent target supply:
+
+```sh
+python ports/p2/tests/observe_boot.py --port COM12 --pulse-reset --output sd-warm.json
+python ports/p2/tests/observe_boot.py --port COM12 --await-power-cycle --output sd-cold.json
+```
+
+The second command prints when it is listening. Then switch the **target**
+power off and on, leaving the host serial adapter powered. Both commands
+require a fresh P2 banner and a working REPL with 32 MiB PSRAM and a mounted
+SD. Select the SD boot straps to attribute that observation to the SD image.
