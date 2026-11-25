@@ -1,4 +1,5 @@
 """Check existing media without writing sectors or formatting filesystems."""
+
 import os
 import time
 import vfs

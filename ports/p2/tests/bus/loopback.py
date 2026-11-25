@@ -1,7 +1,9 @@
 """Run through mpremote on a bare P2 Edge with P2_ENABLE_BUSES=1."""
+
 import gc
 import machine
 import p2
+
 
 def raises(exc, fn):
     try:
@@ -9,6 +11,7 @@ def raises(exc, fn):
     except exc:
         return
     raise AssertionError("exception was not raised")
+
 
 # The P2 RX input mux reads the actual driven TX pad on its adjacent pin.
 uart = machine.UART(1, 115200, tx=6, rx=7, timeout=1000, loopback=True)
@@ -28,8 +31,9 @@ assert p2.pin_owner(6) == "free"
 for pol in (0, 1):
     for phase in (0, 1):
         for first in (0, 1):
-            spi = machine.SoftSPI(baudrate=200000, sck=8, mosi=9, miso=9,
-                                  polarity=pol, phase=phase, firstbit=first)
+            spi = machine.SoftSPI(
+                baudrate=200000, sck=8, mosi=9, miso=9, polarity=pol, phase=phase, firstbit=first
+            )
             rx = bytearray(17)
             tx = packet[3:20]
             spi.write_readinto(tx, rx)

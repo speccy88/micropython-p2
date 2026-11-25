@@ -31,7 +31,7 @@ static __attribute__((noinline)) unsigned variadic(unsigned first, ...) {
     unsigned d = va_arg(args, unsigned);
     va_end(args);
     return first == 7 && a == 0x76543210 && b == -2.5 &&
-        c == UINT64_C(0xcafed00ddefaced0) && d == 95;
+           c == UINT64_C(0xcafed00ddefaced0) && d == 95;
 }
 
 struct payload {
@@ -50,9 +50,12 @@ static __attribute__((noinline)) struct payload transform(struct payload p, unsi
 static __attribute__((noinline)) void nested(jmp_buf outer) {
     jmp_buf inner;
     switch (setjmp(inner)) {
-        case 0: longjmp(inner, 0);
-        case 1: longjmp(outer, -37);
-        default: longjmp(outer, 2);
+        case 0:
+            longjmp(inner, 0);
+        case 1:
+            longjmp(outer, -37);
+        default:
+            longjmp(outer, 2);
     }
 }
 
@@ -60,11 +63,17 @@ static int check_context(void) {
     jmp_buf env;
     for (unsigned i = 0; i < 32; ++i) {
         switch (setjmp(env)) {
-            case 0: nested(env); return 0;
-            case -37: break;
-            default: return 0;
+            case 0:
+                nested(env);
+                return 0;
+            case -37:
+                break;
+            default:
+                return 0;
         }
-        if (!p2_check_registers(env)) { return 0; }
+        if (!p2_check_registers(env)) {
+            return 0;
+        }
     }
     return 1;
 }
@@ -111,9 +120,15 @@ static int check_memory(uint8_t seed) {
     return 1;
 }
 
-static __attribute__((noinline)) int32_t quotient(int32_t a, int32_t b) { return a / b; }
-static __attribute__((noinline)) int32_t p2_remainder(int32_t a, int32_t b) { return a % b; }
-static __attribute__((noinline)) _Bool below(int a, int b) { return a < b; }
+static __attribute__((noinline)) int32_t quotient(int32_t a, int32_t b) {
+    return a / b;
+}
+static __attribute__((noinline)) int32_t p2_remainder(int32_t a, int32_t b) {
+    return a % b;
+}
+static __attribute__((noinline)) _Bool below(int a, int b) {
+    return a < b;
+}
 #ifdef P2_TEST_OVERLAY
 int check_overlay(void);
 #endif
@@ -126,19 +141,33 @@ int main(void) {
         challenge = (challenge << 8) | raw_p2_uart_getc();
     }
     unsigned mask = 0;
-    if (check_context()) { mask |= 1; }
-    if (check_memory(challenge)) { mask |= 2; }
-    if (variadic(7, 0x76543210u, -2.5, UINT64_C(0xcafed00ddefaced0), 95u)) { mask |= 4; }
+    if (check_context()) {
+        mask |= 1;
+    }
+    if (check_memory(challenge)) {
+        mask |= 2;
+    }
+    if (variadic(7, 0x76543210u, -2.5, UINT64_C(0xcafed00ddefaced0), 95u)) {
+        mask |= 4;
+    }
     struct payload p = { challenge, 55, -1.25 };
     struct payload q = transform(p, 18);
-    if (q.x == challenge + 18 && q.y == (55 ^ 18) && p.y == 55 && q.d == -2.5) { mask |= 8; }
+    if (q.x == challenge + 18 && q.y == (55 ^ 18) && p.y == 55 && q.d == -2.5) {
+        mask |= 8;
+    }
     if (quotient(-1234567, 91) == -13566 && p2_remainder(-1234567, 91) == -61 &&
         quotient(18, -7) == -2 && p2_remainder(18, -7) == 4 &&
-        below(-2, 1) && !below(1, -2)) { mask |= 16; }
+        below(-2, 1) && !below(1, -2)) {
+        mask |= 16;
+    }
     #ifdef P2_TEST_OVERLAY
-    if (!check_overlay()) { mask &= ~16u; }
+    if (!check_overlay()) {
+        mask &= ~16u;
+    }
     #endif
-    if (sqrtf(16.0f) == 4.0f && fabsf(sinf(0.5f) - 0.47942554f) < 0.000001f) { mask |= 32; }
+    if (sqrtf(16.0f) == 4.0f && fabsf(sinf(0.5f) - 0.47942554f) < 0.000001f) {
+        mask |= 32;
+    }
     send("P2CRT ");
     number(challenge);
     raw_p2_uart_putc(' ');

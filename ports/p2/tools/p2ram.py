@@ -6,6 +6,7 @@ commit c20afedd4253d09da449fa740f8d4304481fc560. This implementation sends
 ELF PT_LOAD file contents; the firmware startup must initialize its own BSS.
 All serial operations share one open handle so capture does not reset the P2.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -58,35 +59,55 @@ def read_image(path: Path) -> tuple[bytes, dict]:
             raise ValueError("invalid/truncated PT_LOAD or segment outside P2 hub RAM")
         if filesz:
             for previous in segments:
-                if paddr < previous["address"] + previous["file_bytes"] and previous["address"] < paddr + filesz:
+                if (
+                    paddr < previous["address"] + previous["file_bytes"]
+                    and previous["address"] < paddr + filesz
+                ):
                     raise ValueError("overlapping PT_LOAD file ranges")
             high = max(high, paddr + filesz)
-        segments.append({"offset": offset, "address": paddr, "file_bytes": filesz, "memory_bytes": memsz})
-    if not segments or not high or not any(s["address"] == 0 and s["file_bytes"] for s in segments):
+        segments.append(
+            {"offset": offset, "address": paddr, "file_bytes": filesz, "memory_bytes": memsz}
+        )
+    if (
+        not segments
+        or not high
+        or not any(s["address"] == 0 and s["file_bytes"] for s in segments)
+    ):
         raise ValueError("ELF has no loadable reset image at address zero")
     if high > HUB_SIZE - 4:
         raise ValueError("no room for ROM checksum word")
     image = bytearray(high)
     for segment in segments:
         start, length = segment["address"], segment["file_bytes"]
-        image[start:start + length] = source[segment["offset"]:segment["offset"] + length]
-    return bytes(image), dict(metadata, format="elf32-p2", file_bytes=high, segments=segments,
-                              bss_policy="firmware-startup")
+        image[start : start + length] = source[segment["offset"] : segment["offset"] + length]
+    return bytes(image), dict(
+        metadata,
+        format="elf32-p2",
+        file_bytes=high,
+        segments=segments,
+        bss_policy="firmware-startup",
+    )
 
 
 class P2Serial:
     def __init__(self, port: str, baud: int = 115200, raw_log: Path | None = None):
         if serial is None:
             raise RuntimeError("Install pyserial first: python -m pip install pyserial==3.5")
-        self.serial = serial.Serial(port=None, baudrate=baud, timeout=.05, write_timeout=5)
+        self.serial = serial.Serial(port=None, baudrate=baud, timeout=0.05, write_timeout=5)
         self.serial.dtr = False
         self.serial.rts = False
         self.serial.port = port
         self.serial.open()
         self.buffer = bytearray()
         self.raw = raw_log.open("wb") if raw_log else None
-        self.port_info = next((dict(device=p.device, description=p.description, hwid=p.hwid)
-                               for p in list_ports.comports() if p.device.lower() == port.lower()), {})
+        self.port_info = next(
+            (
+                dict(device=p.device, description=p.description, hwid=p.hwid)
+                for p in list_ports.comports()
+                if p.device.lower() == port.lower()
+            ),
+            {},
+        )
 
     def close(self):
         self.serial.close()
@@ -117,28 +138,30 @@ class P2Serial:
             for index, value in enumerate(self.buffer):
                 if value in (10, 13):
                     line = bytes(self.buffer[:index])
-                    del self.buffer[:index + 1]
+                    del self.buffer[: index + 1]
                     if line:
                         return line
                     break
             else:
                 if time.monotonic() >= deadline:
-                    raise ProtocolError("timeout waiting for output; buffered=" + repr(bytes(self.buffer)))
+                    raise ProtocolError(
+                        "timeout waiting for output; buffered=" + repr(bytes(self.buffer))
+                    )
                 self.buffer.extend(self.read())
                 if len(self.buffer) > 65536:
                     raise ProtocolError("unterminated output exceeds 64 KiB")
 
     def identify(self) -> str:
         self.serial.dtr = True
-        time.sleep(.002)
+        time.sleep(0.002)
         self.serial.dtr = False
-        time.sleep(.025)
+        time.sleep(0.025)
         self.serial.reset_input_buffer()
         self.buffer.clear()
         for _ in range(3):
             self.send(b"> Prop_Chk 0 0 0 0  ")
             try:
-                line = self.line(.4)
+                line = self.line(0.4)
             except ProtocolError:
                 continue
             if line.startswith(b"Prop_Ver ") and len(line) == 10:
@@ -151,19 +174,21 @@ class P2Serial:
         if encoding not in ("base64", "hex"):
             raise ValueError("RAM encoding must be base64 or hex")
         image += bytes((-len(image)) % 4)
-        checksum = (0x706F7250 - sum(word[0] for word in struct.iter_unpack("<I", image))) & 0xFFFFFFFF
+        checksum = (
+            0x706F7250 - sum(word[0] for word in struct.iter_unpack("<I", image))
+        ) & 0xFFFFFFFF
         self.buffer.clear()
         self.serial.reset_input_buffer()
         if encoding == "base64":
             self.send(b"> Prop_Txt 0 0 0 0 ")
             encoded = base64.b64encode(image + struct.pack("<I", checksum)).rstrip(b"=")
             for offset in range(0, len(encoded), 1024):
-                self.send(encoded[offset:offset + 1024] + b"\n")
+                self.send(encoded[offset : offset + 1024] + b"\n")
             self.send(b" ?")
         else:
             self.send(b"> Prop_Hex 0 0 0 0 ")
             for offset in range(0, len(image), 128):
-                block = image[offset:offset + 128]
+                block = image[offset : offset + 128]
                 self.send(b" " + block.hex(" ").encode("ascii") + b" > ")
             self.send(b" " + struct.pack("<I", checksum).hex(" ").encode("ascii") + b"?")
         deadline = time.monotonic() + 2
@@ -178,9 +203,13 @@ class P2Serial:
                 break
         if reply != b".":
             raise ProtocolError("ROM download checksum failed: " + repr(reply))
-        return {"loaded_bytes": len(image), "checksum": f"{checksum:08x}", "checksum_ack": ".",
-                "checksum_prefix": prefix.decode("ascii"),
-                "load_mode": f"ROM-{encoding}-RAM-only"}
+        return {
+            "loaded_bytes": len(image),
+            "checksum": f"{checksum:08x}",
+            "checksum_ack": ".",
+            "checksum_prefix": prefix.decode("ascii"),
+            "load_mode": f"ROM-{encoding}-RAM-only",
+        }
 
 
 def main() -> int:

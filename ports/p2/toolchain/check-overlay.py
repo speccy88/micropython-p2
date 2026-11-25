@@ -33,15 +33,27 @@ def main():
     parser.add_argument("bin", type=Path)
     tools = parser.parse_args().bin.resolve()
     fixture = Path(__file__).with_name("compare-branch.c")
-    flags = [tools / "clang", "--target=p2", "-Oz", "-ffreestanding", "-fno-builtin",
-             "-mllvm", "-verify-machineinstrs", "-S", "-o", "-"]
+    flags = [
+        tools / "clang",
+        "--target=p2",
+        "-Oz",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-mllvm",
+        "-verify-machineinstrs",
+        "-S",
+        "-o",
+        "-",
+    ]
     assembly = run(flags + [fixture])
     if not re.search(r"cmps\s+r\d+, #4\s+wcz\s+if_z\s+jmp", assembly):
         raise SystemExit("branch did not consume the sentinel comparison's flags")
 
-    divrem = run(flags + ["-x", "c", "-"],
-                 "unsigned rem(unsigned a, unsigned b) { return a%b; }\n"
-                 "unsigned quo(unsigned a, unsigned b) { return a/b; }\n")
+    divrem = run(
+        flags + ["-x", "c", "-"],
+        "unsigned rem(unsigned a, unsigned b) { return a%b; }\n"
+        "unsigned quo(unsigned a, unsigned b) { return a/b; }\n",
+    )
     for name, read in (("rem", "getqy"), ("quo", "getqx")):
         body = divrem.split(name + ":", 1)[1].split("reta", 1)[0]
         if not re.search(r"qdiv\b.*?\b" + read + r"\b", body, re.S):
@@ -57,10 +69,12 @@ def main():
         run(mc + ["-o", obj], "\n".join(statements) + "\n")
         run([tools / "llvm-objcopy", "-O", "binary", obj, raw])
         words = [value for (value,) in struct.iter_unpack("<I", raw.read_bytes())]
-        expected = [(0xf0000000 | (0x58 << 21) | (1 << 18) | (0x1d0 << 9) | value)
-                    for _, value in cases]
-        expected.extend(0xf0000000 | (0x6b << 21) | (effect << 19) | (0x1d3 << 9) | 27
-                        for effect in range(4))
+        expected = [
+            (0xF0000000 | (0x58 << 21) | (1 << 18) | (0x1D0 << 9) | value) for _, value in cases
+        ]
+        expected.extend(
+            0xF0000000 | (0x6B << 21) | (effect << 19) | (0x1D3 << 9) | 27 for effect in range(4)
+        )
         if words != expected:
             raise SystemExit("pointer or GETRND machine words differ")
         listing = run([tools / "llvm-objdump", "-d", "--no-show-raw-insn", obj])
@@ -68,12 +82,15 @@ def main():
         if [" ".join(line.split()) for line in lines] != statements:
             raise SystemExit("pointer or GETRND disassembly differs")
         for expr in ("ptrb[32]", "ptra[-33]", "++ptra[0]", "ptrb--[17]"):
-            result = subprocess.run(mc + ["-o", obj], input=f"rdlong r0, {expr}\n",
-                                    text=True, capture_output=True)
+            result = subprocess.run(
+                mc + ["-o", obj], input=f"rdlong r0, {expr}\n", text=True, capture_output=True
+            )
             if result.returncode == 0:
                 raise SystemExit(f"invalid operand accepted: {expr}")
-    print(f"P2 overlay passed: conditional branch, quotient/remainder, "
-          f"{len(cases)} pointer encodings, four GETRND effects, four invalid operands")
+    print(
+        f"P2 overlay passed: conditional branch, quotient/remainder, "
+        f"{len(cases)} pointer encodings, four GETRND effects, four invalid operands"
+    )
 
 
 if __name__ == "__main__":

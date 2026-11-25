@@ -1008,7 +1008,9 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
 
         if skip_it:
             print("skip ", test_file)
-            test_results.append((test_file, "skip", "upstream runner excluded this target configuration"))
+            test_results.append(
+                (test_file, "skip", "upstream runner excluded this target configuration")
+            )
             return
         elif args.dry_run:
             print("found", test_file)

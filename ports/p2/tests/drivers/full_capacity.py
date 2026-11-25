@@ -1,4 +1,5 @@
 """Overwrite and verify a fresh, full-capacity volatile PSRAM allocation."""
+
 import struct
 import time
 from p2 import PSRAM
@@ -44,10 +45,25 @@ def run():
             if offset == 0:
                 first = bytes(observed[:8]).hex()
         end = time.ticks_ms()
-        print("P2_PSRAM_FULL_PASS", "bytes", size, "tile_bytes", block, "tiles", size // block,
-              "first8", first, "last8", bytes(observed[-8:]).hex(),
-              "write_ms", time.ticks_diff(written, start), "read_ms", time.ticks_diff(end, written),
-              "elapsed_ms", time.ticks_diff(end, start))
+        print(
+            "P2_PSRAM_FULL_PASS",
+            "bytes",
+            size,
+            "tile_bytes",
+            block,
+            "tiles",
+            size // block,
+            "first8",
+            first,
+            "last8",
+            bytes(observed[-8:]).hex(),
+            "write_ms",
+            time.ticks_diff(written, start),
+            "read_ms",
+            time.ticks_diff(end, written),
+            "elapsed_ms",
+            time.ticks_diff(end, start),
+        )
     finally:
         region.close()
 

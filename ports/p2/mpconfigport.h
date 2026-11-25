@@ -72,7 +72,7 @@ void p2_thread_pystack_init(void);
 // as a VLA. A bit-field preserves compile-time rejection of known-false tests
 // while allowing -Werror=vla to reject real dynamic stack frames.
 #define MP_STATIC_ASSERT_NONCONSTEXPR(cond) ((void)sizeof(struct { unsigned p2_check : \
-    __builtin_choose_expr(__builtin_constant_p(cond), (cond), 1) ? 1 : -1; }))
+                                                                   __builtin_choose_expr(__builtin_constant_p(cond), (cond), 1) ? 1 : -1; }))
 
 #if P2_PROFILE_EDGE
 #define MICROPY_PY_ERRNO (1)

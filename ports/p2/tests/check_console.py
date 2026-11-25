@@ -1,4 +1,5 @@
 """Verify the bootstrap and full-duplex console using the pinned TinyGo ROM loader."""
+
 import argparse
 import hashlib
 import json
@@ -28,7 +29,7 @@ with P2Serial(args.port) as dev:
     # Pipeline one USB transaction at a time and verify wraparound in both rings.
     start = time.monotonic()
     for pos in range(0, len(pattern), 512):
-        packet = pattern[pos:pos + 512]
+        packet = pattern[pos : pos + 512]
         dev.send(packet)
         echoed = bytearray()
         deadline = time.monotonic() + 3
@@ -37,8 +38,16 @@ with P2Serial(args.port) as dev:
         if echoed != packet:
             raise RuntimeError(f"echo mismatch at chunk {pos}, received {len(echoed)} bytes")
     elapsed = time.monotonic() - start
-result = dict(port=args.port, rom=rom, elf_sha256=details["sha256"], download=download,
-              nonce=nonce.hex(), echo_bytes=len(pattern), seconds=elapsed, passed=True)
+result = dict(
+    port=args.port,
+    rom=rom,
+    elf_sha256=details["sha256"],
+    download=download,
+    nonce=nonce.hex(),
+    echo_bytes=len(pattern),
+    seconds=elapsed,
+    passed=True,
+)
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text(json.dumps(result, indent=2) + "\n")
 print(json.dumps(result))

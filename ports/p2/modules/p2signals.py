@@ -1,8 +1,10 @@
 """Smart Pin helpers for servo pulses, frequency capture and encoders."""
+
 # SPDX-License-Identifier: MIT
 from machine import PWM, Pin
 from p2 import CLOCK_HZ, SmartPin
 from time import ticks_ms, ticks_diff
+
 
 class Servo:
     def __init__(self, pin, minimum_us=1000, maximum_us=2000):
@@ -19,6 +21,7 @@ class Servo:
 
     def deinit(self):
         self.pwm.deinit()
+
 
 class Frequency:
     def __init__(self, pin, periods=1, source_pin=None):
@@ -50,8 +53,10 @@ class Frequency:
     def deinit(self):
         self.pin.deinit()
 
+
 class Encoder:
     """A/B encoder on adjacent GPIOs. Read signed 32-bit position modulo 2**32."""
+
     def __init__(self, a, b):
         if b == a + 1:
             selector = SmartPin.PLUS1_B
@@ -74,8 +79,10 @@ class Encoder:
         self.a.deinit()
         self.b.deinit()
 
+
 class Counter:
     """Count rising edges on one input, modulo 2**32."""
+
     def __init__(self, pin):
         self.pin = SmartPin(pin, SmartPin.COUNT_RISES, 0)
 

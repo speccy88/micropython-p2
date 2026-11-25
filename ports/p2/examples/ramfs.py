@@ -2,6 +2,7 @@
 import vfs
 import p2
 from p2memory import BlockDevice
+
 region = p2.PSRAM().alloc(512 * 1024)
 mounted = False
 try:

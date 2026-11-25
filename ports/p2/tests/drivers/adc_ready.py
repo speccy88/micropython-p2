@@ -31,5 +31,14 @@ try:
 finally:
     adc.deinit()
 assert p2.pin_owner(4) == "free"
-print("P2_ADC_READY_PASS", "internal_raw_gnd", ground, "internal_raw_vio", vio,
-      "unreferenced_pin_min", min(values), "unreferenced_pin_max", max(values))
+print(
+    "P2_ADC_READY_PASS",
+    "internal_raw_gnd",
+    ground,
+    "internal_raw_vio",
+    vio,
+    "unreferenced_pin_min",
+    min(values),
+    "unreferenced_pin_max",
+    max(values),
+)

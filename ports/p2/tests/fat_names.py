@@ -1,4 +1,5 @@
 """Check directory names/identities across multiple FAT sectors on fresh PSRAM."""
+
 import os
 import p2
 import vfs

@@ -26,17 +26,20 @@ typedef struct {
 
 static void stop_slot(uart_slot_t *s) {
     if (s->cog_plus_one) {
-        __asm__ volatile ("cogstop %0" :: "r"(s->cog_plus_one - 1) : "memory");
+        __asm__ volatile ("cogstop %0" : : "r" (s->cog_plus_one - 1) : "memory");
         s->cog_plus_one = 0;
         uint8_t pins[] = { s->rx_pin, s->tx_pin };
         p2_pins_release(pins, 2, P2_OWNER_UART);
     }
 }
 void p2_buses_reset(void) {
-    for (size_t i = 0; i < MP_ARRAY_SIZE(slots); ++i) { stop_slot(&slots[i]); }
+    for (size_t i = 0; i < MP_ARRAY_SIZE(slots); ++i) { stop_slot(&slots[i]);
+    }
 }
 static uart_slot_t *active(uart_obj_t *s) {
-    if (!s->slot || !s->slot->cog_plus_one) { mp_raise_OSError(MP_ENODEV); }
+    if (!s->slot || !s->slot->cog_plus_one) {
+        mp_raise_OSError(MP_ENODEV);
+    }
     return s->slot;
 }
 static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_obj_t *args) {
@@ -76,7 +79,9 @@ static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_ob
     self->timeout = v[TIMEOUT].u_int;
     self->timeout_char = v[TIMEOUT_CHAR].u_int;
     uart_slot_t *slot = &slots[id - 1];
-    if (slot->cog_plus_one) { mp_raise_OSError(MP_EBUSY); }
+    if (slot->cog_plus_one) {
+        mp_raise_OSError(MP_EBUSY);
+    }
     claim_bus(pins, 2, P2_OWNER_UART);
     memset(slot, 0, sizeof(*slot));
     slot->rx_pin = pins[0];
@@ -101,15 +106,22 @@ static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_ob
 }
 static mp_obj_t release(mp_obj_t o) {
     uart_obj_t *s = MP_OBJ_TO_PTR(o);
-    if (s->slot) { stop_slot(s->slot); s->slot = NULL; }
+    if (s->slot) {
+        stop_slot(s->slot);
+        s->slot = NULL;
+    }
     return mp_const_none;
 }
 static mp_obj_t available(mp_obj_t o) {
     uart_slot_t *s = active(MP_OBJ_TO_PTR(o));
     return MP_OBJ_NEW_SMALL_INT(s->rx_in - s->rx_out);
 }
-static bool drained(uart_slot_t *s) { return s->tx_in == s->tx_out && !s->tx_busy; }
-static mp_obj_t txdone(mp_obj_t o) { return mp_obj_new_bool(drained(active(MP_OBJ_TO_PTR(o)))); }
+static bool drained(uart_slot_t *s) {
+    return s->tx_in == s->tx_out && !s->tx_busy;
+}
+static mp_obj_t txdone(mp_obj_t o) {
+    return mp_obj_new_bool(drained(active(MP_OBJ_TO_PTR(o))));
+}
 static mp_obj_t overrun_count(mp_obj_t o) {
     return mp_obj_new_int_from_uint(active(MP_OBJ_TO_PTR(o))->overruns);
 }
@@ -125,11 +137,16 @@ static mp_uint_t uart_read(mp_obj_t o, void *dst, mp_uint_t n, int *err) {
             start = mp_hal_ticks_ms();
             timeout = self->timeout_char;
         } else {
-            if (mp_hal_ticks_ms() - start >= timeout) { break; }
+            if (mp_hal_ticks_ms() - start >= timeout) {
+                break;
+            }
             p2_poll_borrowed_io();
         }
     }
-    if (!i && n) { *err = MP_EAGAIN; return MP_STREAM_ERROR; }
+    if (!i && n) {
+        *err = MP_EAGAIN;
+        return MP_STREAM_ERROR;
+    }
     return i;
 }
 static mp_uint_t uart_write(mp_obj_t o, const void *src, mp_uint_t n, int *err) {
@@ -142,11 +159,16 @@ static mp_uint_t uart_write(mp_obj_t o, const void *src, mp_uint_t n, int *err) 
             s->tx[s->tx_in & (UART_RING - 1)] = ((const uint8_t *)src)[i++];
             s->tx_in++;
         } else {
-            if (mp_hal_ticks_ms() - start >= self->timeout) { break; }
+            if (mp_hal_ticks_ms() - start >= self->timeout) {
+                break;
+            }
             p2_poll_borrowed_io();
         }
     }
-    if (!i && n) { *err = MP_EAGAIN; return MP_STREAM_ERROR; }
+    if (!i && n) {
+        *err = MP_EAGAIN;
+        return MP_STREAM_ERROR;
+    }
     return i;
 }
 static mp_uint_t uart_ioctl(mp_obj_t o, mp_uint_t req, uintptr_t arg, int *err) {
@@ -154,14 +176,21 @@ static mp_uint_t uart_ioctl(mp_obj_t o, mp_uint_t req, uintptr_t arg, int *err) 
     uart_slot_t *s = active(self);
     if (req == MP_STREAM_POLL) {
         unsigned bits = 0;
-        if (s->rx_in != s->rx_out) { bits |= MP_STREAM_POLL_RD; }
-        if (s->tx_in - s->tx_out < UART_RING) { bits |= MP_STREAM_POLL_WR; }
+        if (s->rx_in != s->rx_out) {
+            bits |= MP_STREAM_POLL_RD;
+        }
+        if (s->tx_in - s->tx_out < UART_RING) {
+            bits |= MP_STREAM_POLL_WR;
+        }
         return arg & bits;
     }
     if (req == MP_STREAM_FLUSH) {
         uint32_t start = mp_hal_ticks_ms();
         while (!drained(s)) {
-            if (mp_hal_ticks_ms() - start >= self->timeout) { *err = MP_ETIMEDOUT; return MP_STREAM_ERROR; }
+            if (mp_hal_ticks_ms() - start >= self->timeout) {
+                *err = MP_ETIMEDOUT;
+                return MP_STREAM_ERROR;
+            }
             mp_event_handle_nowait();
             s = active(self);
         }

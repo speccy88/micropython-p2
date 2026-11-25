@@ -13,7 +13,7 @@ extern int sd_init(BYTE *card_type);
 
 unsigned _cnt(void) {
     unsigned ticks;
-    __asm__ volatile ("getct %0" : "=r"(ticks));
+    __asm__ volatile ("getct %0" : "=r" (ticks));
     return ticks;
 }
 
@@ -24,7 +24,9 @@ static uint8_t names[48][11];
 static const char digits[] = "0123456789abcdef";
 
 static void text(const char *s) {
-    while (*s) { raw_p2_uart_putc(*s++); }
+    while (*s) {
+        raw_p2_uart_putc(*s++);
+    }
 }
 
 static void hexbyte(uint8_t b) {
@@ -45,7 +47,8 @@ static void sha256(const uint8_t *buffer) {
     sha256_init(&ctx);
     sha256_update(&ctx, buffer, 512);
     sha256_final(&ctx, digest);
-    for (unsigned i = 0; i < sizeof(digest); ++i) { hexbyte(digest[i]); }
+    for (unsigned i = 0; i < sizeof(digest); ++i) { hexbyte(digest[i]);
+    }
 }
 
 static int read_sector(uint32_t lba, uint8_t *dest, uint8_t type) {
@@ -59,7 +62,9 @@ static int read_sector(uint32_t lba, uint8_t *dest, uint8_t type) {
 static void directory(void) {
     unsigned live = 0, unique = 0, ended = 0;
     for (unsigned sector = 2; sector < 5; ++sector) {
-        text("DIR "); hexword(lbas[sector]); text(" ");
+        text("DIR ");
+        hexword(lbas[sector]);
+        text(" ");
         for (unsigned slot = 0; slot < 16; ++slot) {
             const uint8_t *entry = first[sector] + 32 * slot;
             char status;
@@ -80,36 +85,65 @@ static void directory(void) {
                 status = 'S';
                 ++live;
                 unsigned i = 0;
-                while (i < unique && memcmp(names[i], entry, 11)) { ++i; }
-                if (i == unique) { memcpy(names[unique++], entry, 11); }
+                while (i < unique && memcmp(names[i], entry, 11)) {
+                    ++i;
+                }
+                if (i == unique) {
+                    memcpy(names[unique++], entry, 11);
+                }
             }
             raw_p2_uart_putc(status);
         }
         text("\r\n");
     }
-    text("SFN "); hexword(live); text(" "); hexword(unique); text(" "); hexword(ended); text("\r\n");
+    text("SFN ");
+    hexword(live);
+    text(" ");
+    hexword(unique);
+    text(" ");
+    hexword(ended);
+    text("\r\n");
 }
 
 int main(void) {
     text("P2SD ready\r\n");
     uint32_t challenge = 0;
-    for (unsigned i = 0; i < 4; ++i) { challenge = (challenge << 8) | raw_p2_uart_getc(); }
-    text("RUN "); hexword(challenge); text("\r\n");
+    for (unsigned i = 0; i < 4; ++i) { challenge = (challenge << 8) | raw_p2_uart_getc();
+    }
+    text("RUN ");
+    hexword(challenge);
+    text("\r\n");
     uint8_t type = 0;
-    if (sd_init(&type) || !type) { text("ERROR INIT\r\n"); return 1; }
+    if (sd_init(&type) || !type) {
+        text("ERROR INIT\r\n");
+        return 1;
+    }
     // Revisit each sector after four different reads, using separate input buffers.
     for (unsigned pass = 0; pass < 2; ++pass) {
         for (unsigned i = 0; i < 5; ++i) {
             uint8_t *buf = pass ? repeat : first[i];
             if (!read_sector(lbas[i], buf, type)) {
-                text("ERROR READ "); hexword(lbas[i]); text("\r\n"); return 1;
+                text("ERROR READ ");
+                hexword(lbas[i]);
+                text("\r\n");
+                return 1;
             }
-            text("SEC "); hexword(pass); text(" "); hexword(lbas[i]); text(" ");
-            sha256(buf); text("\r\n");
-            if (pass && memcmp(buf, first[i], 512)) { text("ERROR UNSTABLE\r\n"); return 1; }
+            text("SEC ");
+            hexword(pass);
+            text(" ");
+            hexword(lbas[i]);
+            text(" ");
+            sha256(buf);
+            text("\r\n");
+            if (pass && memcmp(buf, first[i], 512)) {
+                text("ERROR UNSTABLE\r\n");
+                return 1;
+            }
         }
     }
     directory();
-    text("DONE "); hexword(challenge); text("\r\n");
+    text("DONE ");
+    hexword(challenge);
+    text("\r\n");
     return 0;
 }

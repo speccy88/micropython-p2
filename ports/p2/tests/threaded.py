@@ -1,4 +1,5 @@
 """Volatile, two-cog regression. Run only with PROFILE=threaded."""
+
 import _thread
 import gc
 import json
@@ -50,9 +51,17 @@ def run():
     wait_for(2)
     if (retained[-1], status[1], status[2]) != (211, 114, ident):
         raise AssertionError("cross-cog GC or return identity")
-    print(json.dumps({"test": "two_threads", "passed": True,
-                      "main_id": _thread.get_ident(), "worker_id": ident,
-                      "gc_25_wall_us": gc_elapsed}))
+    print(
+        json.dumps(
+            {
+                "test": "two_threads",
+                "passed": True,
+                "main_id": _thread.get_ident(),
+                "worker_id": ident,
+                "gc_25_wall_us": gc_elapsed,
+            }
+        )
+    )
 
 
 gate = _thread.allocate_lock()

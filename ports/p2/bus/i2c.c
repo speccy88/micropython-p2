@@ -13,7 +13,9 @@ static const mp_machine_i2c_p_t *soft(void) {
     return MP_OBJ_TYPE_GET_SLOT(&mp_machine_soft_i2c_type, protocol);
 }
 static void configure(mp_obj_base_t *base, size_t n, const mp_obj_t *args, mp_map_t *kw) {
-    if (!p2_on_vm_cog()) { mp_raise_OSError(MP_EPERM); }
+    if (!p2_on_vm_cog()) {
+        mp_raise_OSError(MP_EPERM);
+    }
     p2_i2c_t *s = (p2_i2c_t *)base;
     enum { SCL, SDA, FREQ, TIMEOUT };
     static const mp_arg_t fields[] = {
@@ -35,7 +37,9 @@ static void configure(mp_obj_base_t *base, size_t n, const mp_obj_t *args, mp_ma
     if (s->active && (s->pins[0] != pins[0] || s->pins[1] != pins[1])) {
         mp_raise_ValueError(MP_ERROR_TEXT("deinit before moving pins"));
     }
-    if (!s->active) { claim_bus(pins, 2, P2_OWNER_I2C); }
+    if (!s->active) {
+        claim_bus(pins, 2, P2_OWNER_I2C);
+    }
     s->hw.scl = s->pins[0] = pins[0];
     s->hw.sda = s->pins[1] = pins[1];
     s->active = true;
@@ -54,11 +58,19 @@ static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_ob
 }
 static void close_bus(mp_obj_base_t *base) {
     p2_i2c_t *s = (p2_i2c_t *)base;
-    if (s->active) { p2_pins_release(s->pins, 2, P2_OWNER_I2C); s->active = false; }
+    if (s->active) {
+        p2_pins_release(s->pins, 2, P2_OWNER_I2C);
+        s->active = false;
+    }
 }
-static mp_obj_t release(mp_obj_t o) { close_bus(MP_OBJ_TO_PTR(o)); return mp_const_none; }
+static mp_obj_t release(mp_obj_t o) {
+    close_bus(MP_OBJ_TO_PTR(o));
+    return mp_const_none;
+}
 static MP_DEFINE_CONST_FUN_OBJ_1(release_obj, release);
-static void attr(mp_obj_t o, qstr a, mp_obj_t *d) { bus_attr(o, a, d, &release_obj); }
+static void attr(mp_obj_t o, qstr a, mp_obj_t *d) {
+    bus_attr(o, a, d, &release_obj);
+}
 
 static int checked(p2_i2c_t *s, int status) {
     if (status < 0) {
@@ -91,7 +103,9 @@ static int write_bytes(mp_obj_base_t *o, const uint8_t *src, size_t n) {
 static int transfer(mp_obj_base_t *o, uint16_t addr, size_t n, mp_machine_i2c_buf_t *bufs, unsigned flags) {
     p2_i2c_t *s = (p2_i2c_t *)o;
     require_active(s->active);
-    if (addr > 127) { return -MP_EINVAL; }
+    if (addr > 127) {
+        return -MP_EINVAL;
+    }
     return checked(s, soft()->transfer(o, addr, n, bufs, flags));
 }
 static const mp_machine_i2c_p_t protocol = {

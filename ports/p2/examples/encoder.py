@@ -1,5 +1,6 @@
 from p2signals import Encoder
 from time import sleep_ms
+
 encoder = Encoder(2, 3)
 try:
     for _ in range(50):

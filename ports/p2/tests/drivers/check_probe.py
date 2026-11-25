@@ -1,8 +1,10 @@
 """Verify the capture from a native RAM-load probe."""
+
 import argparse
 import json
 from pathlib import Path
 import re
+
 
 def check(report):
     lines = report["output"]
@@ -23,6 +25,7 @@ def check(report):
     if not (2 <= cog_id < 8 and 90 <= count <= 105):
         raise ValueError("counter outside expected 10 ms interval")
     return dict(write_cycles=write, read_cycles=read, driver_cog=cog_id, counter=count)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

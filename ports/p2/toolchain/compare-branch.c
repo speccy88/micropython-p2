@@ -27,4 +27,3 @@ void *probe(void **table, unsigned count, void *key, int add) {
         pos = (pos + 1) % count;
     }
 }
-

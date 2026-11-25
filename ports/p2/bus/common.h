@@ -11,11 +11,17 @@ static inline void claim_bus(const uint8_t *pins, size_t n, unsigned tag) {
     }
 }
 static inline void require_active(bool active) {
-    if (!active) { mp_raise_OSError(MP_ENODEV); }
-    if (!p2_on_vm_cog()) { mp_raise_OSError(MP_EPERM); }
+    if (!active) {
+        mp_raise_OSError(MP_ENODEV);
+    }
+    if (!p2_on_vm_cog()) {
+        mp_raise_OSError(MP_EPERM);
+    }
 }
 static inline uint8_t bus_pin(mp_int_t pin) {
-    if (pin < 0 || pin >= 64) { mp_raise_ValueError(MP_ERROR_TEXT("invalid pin")); }
+    if (pin < 0 || pin >= 64) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid pin"));
+    }
     return pin;
 }
 

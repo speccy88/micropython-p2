@@ -1,4 +1,5 @@
 """Read-only JEDEC, partition geometry and repeatability check; no formatting."""
+
 import p2
 
 device_id = p2.Flash.probe()

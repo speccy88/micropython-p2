@@ -1,8 +1,10 @@
 """External block storage for a region returned by p2.PSRAM().alloc()."""
 # SPDX-License-Identifier: MIT
 
+
 class BlockDevice:
     """512-byte sectors implementing MicroPython simple and extended protocols."""
+
     def __init__(self, region):
         size = region.capacity()
         if size == 0 or size % 512:

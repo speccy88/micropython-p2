@@ -9,10 +9,10 @@
 int p2_is_filesystem_stream(const void *obj) {
     const mp_obj_type_t *type = ((const mp_obj_base_t *)obj)->type;
     return type == &mp_type_vfs_fat_fileio || type == &mp_type_vfs_fat_textio
-        #if MICROPY_VFS_LFS2
-        || type == &mp_type_vfs_lfs2_fileio || type == &mp_type_vfs_lfs2_textio
-        #endif
-        ;
+           #if MICROPY_VFS_LFS2
+           || type == &mp_type_vfs_lfs2_fileio || type == &mp_type_vfs_lfs2_textio
+           #endif
+    ;
 }
 
 void p2_unmount_filesystems(void) {

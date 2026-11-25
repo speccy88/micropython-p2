@@ -2,9 +2,12 @@
 
 Run in an isolated temporary directory created by host_mpy_array.sh.
 """
+
 import os
 
 sequence = 0
+
+
 class Region:
     def __init__(self, size):
         global sequence
@@ -52,6 +55,7 @@ class Region:
             self.file.close()
             os.remove(self.name)
             self.file = None
+
 
 class PSRAM:
     def alloc(self, size):

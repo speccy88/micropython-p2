@@ -1,4 +1,5 @@
 """HIL check: sync dirty native files before soft reset using private PSRAM volumes."""
+
 import argparse
 import json
 from mpremote.transport_serial import SerialTransport
@@ -15,7 +16,8 @@ def main():
             # A newly reset allocator returns the same first 512 KiB region.
             # Only that volatile region is formatted. The test never opens an
             # existing SD/flash filesystem or uses an absolute PSRAM offset.
-            prepare = """
+            prepare = (
+                """
 import p2, vfs
 from p2memory import BlockDevice
 ram = p2.PSRAM()
@@ -35,25 +37,36 @@ class CheckedVolume(BlockDevice):
         return super().ioctl(op, arg)
 volume = CheckedVolume(region)
 fs = getattr(vfs, %r)
-""" % fs
+"""
+                % fs
+            )
             mount = """
 vfs.mount(fs(volume), '/resetcheck')
 """
-            board.exec(prepare + "marker.write(0, b'untested')\nfs.mkfs(volume)\n" + mount + """
+            board.exec(
+                prepare
+                + "marker.write(0, b'untested')\nfs.mkfs(volume)\n"
+                + mount
+                + """
 f = open('/resetcheck/dirty', 'wb')
 assert f.write(b'reset-preserved:' + bytes(range(251)) * 3) == 769
 armed = True
 # Leave f, region and filesystem live. No flush, close or unmount here.
-""")
+"""
+            )
             board.enter_raw_repl(soft_reset=True)
-            board.exec(prepare + mount + """
+            board.exec(
+                prepare
+                + mount
+                + """
 with open('/resetcheck/dirty', 'rb') as f:
     assert f.read() == b'reset-preserved:' + bytes(range(251)) * 3
 assert marker.read(0, 8) == b'blocked!', marker.read(0, 8)
 vfs.umount('/resetcheck')
 region.close()
 marker.close()
-""")
+"""
+            )
             print(json.dumps({"test": "dirty_file_soft_reset", "filesystem": fs, "passed": True}))
             board.enter_raw_repl(soft_reset=True)
     finally:

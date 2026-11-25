@@ -1,4 +1,5 @@
 """Portable header checks; additionally assemble and check ELF when Clang/P2 is installed."""
+
 import importlib.util
 import os
 from pathlib import Path
@@ -27,7 +28,9 @@ class DriverImage(unittest.TestCase):
                 image_tool.verify(truncated)
 
     def test_elf(self):
-        binary = Path(os.getenv("P2_BIN", Path.home() / "tinygo-p2-work/llvm15-build/bin")) / "clang"
+        binary = (
+            Path(os.getenv("P2_BIN", Path.home() / "tinygo-p2-work/llvm15-build/bin")) / "clang"
+        )
         if not binary.exists():
             self.skipTest("P2 Clang unavailable")
         source = (EXAMPLE / "checksum.S").read_text()
@@ -42,13 +45,18 @@ class DriverImage(unittest.TestCase):
             valid = assemble(source)
             self.assertEqual(image_tool.pack(valid, 64), (EXAMPLE / "checksum.p2d").read_bytes())
             idle = Path(__file__).resolve().with_name("neverready.S")
-            self.assertEqual(image_tool.pack(assemble(idle.read_text()), 4), idle.with_suffix(".p2d").read_bytes())
+            self.assertEqual(
+                image_tool.pack(assemble(idle.read_text()), 4),
+                idle.with_suffix(".p2d").read_bytes(),
+            )
             for words in (0, 3, 257):
                 with self.assertRaises(ValueError):
                     image_tool.pack(valid, words)
-            for changed in (source + "\n.long p2_driver_entry\n",
-                            source + "\n.data\n.long 42\n",
-                            source.replace("p2_driver_entry", "other"),
-                            source + "\n.space 4096\n"):
+            for changed in (
+                source + "\n.long p2_driver_entry\n",
+                source + "\n.data\n.long 42\n",
+                source.replace("p2_driver_entry", "other"),
+                source + "\n.space 4096\n",
+            ):
                 with self.assertRaises(ValueError):
                     image_tool.pack(assemble(changed), 64)

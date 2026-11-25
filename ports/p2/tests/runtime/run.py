@@ -1,4 +1,5 @@
 """RAM-load the native C foundation and verify its challenge and every check."""
+
 import argparse
 import json
 import secrets

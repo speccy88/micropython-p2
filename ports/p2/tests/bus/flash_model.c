@@ -15,10 +15,12 @@
 #define MP_ETIMEDOUT 110
 #define P2_CLOCK_HZ 1000u
 static uint8_t cells[GUARD + BLOCKS * SECTOR + GUARD];
-static unsigned cmd, pos, addr, clock_count, selected, wel, protected, stuck, busy_reads;
+static unsigned cmd, pos, addr, clock_count, selected, write_enabled, protected, stuck, busy_reads;
 static unsigned programs, erases;
 
-static uint32_t p2_ct(void) { return ++clock_count; }
+static uint32_t p2_ct(void) {
+    return ++clock_count;
+}
 static void select_chip(void) {
     assert(!selected);
     selected = 1;
@@ -29,20 +31,32 @@ static void select_chip(void) {
 static unsigned shift(unsigned value) {
     assert(selected);
     value &= 255;
-    if (pos++ == 0) { cmd = value; return 255; }
+    if (pos++ == 0) {
+        cmd = value;
+        return 255;
+    }
     if (cmd == 5) {
         if (stuck || busy_reads) {
-            if (busy_reads) { --busy_reads; }
-            return (wel << 1) | 1;
+            if (busy_reads) {
+                --busy_reads;
+            }
+            return (write_enabled << 1) | 1;
         }
-        return wel << 1;
+        return write_enabled << 1;
     }
     if (cmd == 2 || cmd == 3 || cmd == 0x20) {
-        if (pos <= 4) { addr = (addr << 8) | value; return 255; }
+        if (pos <= 4) {
+            addr = (addr << 8) | value;
+            return 255;
+        }
         assert(addr < sizeof(cells));
-        if (cmd == 3) { return cells[addr++]; }
-        assert(cmd == 2 && wel);
-        if (!protected) { cells[addr] &= value; }
+        if (cmd == 3) {
+            return cells[addr++];
+        }
+        assert(cmd == 2 && write_enabled);
+        if (!protected) {
+            cells[addr] &= value;
+        }
         // NOR wraps within a single page when the host crosses a page boundary.
         addr = (addr & ~(PAGE - 1)) | ((addr + 1) & (PAGE - 1));
     }
@@ -51,15 +65,23 @@ static unsigned shift(unsigned value) {
 static void deselect_chip(void) {
     assert(selected);
     selected = 0;
-    if (cmd == 6) { wel = 1; return; }
+    if (cmd == 6) {
+        write_enabled = 1;
+        return;
+    }
     if (cmd == 0x20 || cmd == 2) {
-        assert(wel);
+        assert(write_enabled);
         if (cmd == 0x20) {
             assert(pos == 4 && addr % SECTOR == 0 && addr <= sizeof(cells) - SECTOR);
-            if (!protected) { memset(cells + addr, 255, SECTOR); }
+            if (!protected) {
+                memset(cells + addr, 255, SECTOR);
+            }
             ++erases;
-        } else { assert(pos > 4 && pos <= PAGE + 4); ++programs; }
-        wel = 0;
+        } else {
+            assert(pos > 4 && pos <= PAGE + 4);
+            ++programs;
+        }
+        write_enabled = 0;
         busy_reads = 3;
     }
 }
@@ -73,7 +95,8 @@ static uint32_t location(lfs2_block_t block, lfs2_off_t off, lfs2_size_t size) {
 static int read_cb(const struct lfs2_config *c, lfs2_block_t b, lfs2_off_t off, void *buf, lfs2_size_t n) {
     (void)c;
     address_command(3, location(b, off, n));
-    for (size_t i = 0; i < n; ++i) { ((uint8_t *)buf)[i] = shift(255); }
+    for (size_t i = 0; i < n; ++i) { ((uint8_t *)buf)[i] = shift(255);
+    }
     deselect_chip();
     return 0;
 }
@@ -83,10 +106,16 @@ static int program_cb(const struct lfs2_config *c, lfs2_block_t b, lfs2_off_t of
     const uint8_t *p = buf;
     while (n) {
         size_t chunk = PAGE - addr % PAGE;
-        if (chunk > n) { chunk = n; }
+        if (chunk > n) {
+            chunk = n;
+        }
         int err = program(addr, p, chunk);
-        if (err) { return -err; }
-        addr += chunk; p += chunk; n -= chunk;
+        if (err) {
+            return -err;
+        }
+        addr += chunk;
+        p += chunk;
+        n -= chunk;
     }
     return 0;
 }
@@ -94,7 +123,10 @@ static int erase_cb(const struct lfs2_config *c, lfs2_block_t block) {
     (void)c;
     return -erase(location(block, 0, SECTOR));
 }
-static int sync_cb(const struct lfs2_config *c) { (void)c; return -ready(); }
+static int sync_cb(const struct lfs2_config *c) {
+    (void)c;
+    return -ready();
+}
 
 int main(void) {
     struct lfs2_config cfg = {
@@ -106,7 +138,8 @@ int main(void) {
     lfs2_t fs;
     lfs2_file_t file;
     uint8_t block[591], actual[591];
-    for (unsigned i = 0; i < sizeof(block); ++i) { block[i] = 47 * i + 3; }
+    for (unsigned i = 0; i < sizeof(block); ++i) { block[i] = 47 * i + 3;
+    }
     assert(lfs2_format(&fs, &cfg) == 0);
     assert(lfs2_mount(&fs, &cfg) == 0);
     assert(lfs2_file_open(&fs, &file, "test.bin", LFS2_O_CREAT | LFS2_O_RDWR) == 0);

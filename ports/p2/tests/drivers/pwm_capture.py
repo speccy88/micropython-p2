@@ -4,12 +4,14 @@ from p2 import SmartPin, CLOCK_HZ, pin_owner
 from p2signals import Frequency
 from time import ticks_diff, ticks_ms, sleep_ms
 
+
 def measured_high_ticks(sensor):
     start = ticks_ms()
     while not sensor.ready():
         if ticks_diff(ticks_ms(), start) >= 250:
             raise OSError(110)
     return sensor.read()
+
 
 def run():
     assert pin_owner(0) == pin_owner(1) == pin_owner(2) == "free"
@@ -41,4 +43,6 @@ def run():
     pin = Pin(0)
     pin.deinit()
     print("P2_PWM_CAPTURE_PASS")
+
+
 run()

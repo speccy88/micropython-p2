@@ -34,7 +34,7 @@ static snapshot_t snapshots[2];
 // Index 0 is the primary interpreter; the firmware permits one worker.
 static unsigned worker_index(void) {
     unsigned id;
-    __asm__ volatile ("cogid %0" : "=r"(id));
+    __asm__ volatile ("cogid %0" : "=r" (id));
     return id != 0;
 }
 
@@ -53,12 +53,12 @@ static void guard_enter(void) {
     unsigned ok;
     do {
         check_stop();
-        __asm__ volatile ("locktry %1 wc\n\twrc %0" : "=r"(ok) : "r"(ticket_guard) : "memory");
+        __asm__ volatile ("locktry %1 wc\n\twrc %0" : "=r" (ok) : "r" (ticket_guard) : "memory");
     } while (!ok);
 }
 
 static void guard_exit(void) {
-    __asm__ volatile ("lockrel %0" :: "r"(ticket_guard) : "memory");
+    __asm__ volatile ("lockrel %0" : : "r" (ticket_guard) : "memory");
 }
 
 void *p2_thread_stack_base(void) {
@@ -88,7 +88,7 @@ void p2_thread_init(void) {
         nlr_jump_fail(NULL);
     }
     if (ticket_guard < 0) {
-        __asm__ volatile ("locknew %0 wc\n\tif_c neg %0, #1" : "=r"(ticket_guard));
+        __asm__ volatile ("locknew %0 wc\n\tif_c neg %0, #1" : "=r" (ticket_guard));
         if (ticket_guard < 0) {
             nlr_jump_fail(NULL);
         }
@@ -216,7 +216,7 @@ void p2_thread_stop_other(void) {
         while (!worker_stopped) {
             __asm__ volatile ("waitx #128" ::: "memory");
         }
-        __asm__ volatile ("cogstop %0" :: "r"(worker_id) : "memory");
+        __asm__ volatile ("cogstop %0" : : "r" (worker_id) : "memory");
         worker_id = -1;
     }
     worker_entry = NULL;

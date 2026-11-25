@@ -11,7 +11,9 @@ typedef struct {
     bool active;
 } p2_spi_t;
 static void configure(mp_obj_base_t *base, size_t n, const mp_obj_t *args, mp_map_t *kw) {
-    if (!p2_on_vm_cog()) { mp_raise_OSError(MP_EPERM); }
+    if (!p2_on_vm_cog()) {
+        mp_raise_OSError(MP_EPERM);
+    }
     p2_spi_t *s = (p2_spi_t *)base;
     enum { BAUD, POL, PHASE, BITS, FIRST, SCK, MOSI, MISO };
     static const mp_arg_t fields[] = {
@@ -41,8 +43,11 @@ static void configure(mp_obj_base_t *base, size_t n, const mp_obj_t *args, mp_ma
     }
     // Using the same data pad for MOSI/MISO samples the driven pad. Useful for
     // a wire-free loopback test. SCK always needs a separate physical pad.
-    if (!s->active) { claim_bus(pins, pins[1] == pins[2] ? 2 : 3, P2_OWNER_SPI); }
-    for (unsigned i = 0; i < 3; ++i) { s->pins[i] = pins[i]; }
+    if (!s->active) {
+        claim_bus(pins, pins[1] == pins[2] ? 2 : 3, P2_OWNER_SPI);
+    }
+    for (unsigned i = 0; i < 3; ++i) { s->pins[i] = pins[i];
+    }
     s->polarity = v[POL].u_int;
     s->phase = v[PHASE].u_int;
     s->lsb = v[FIRST].u_int;
@@ -52,7 +57,9 @@ static void configure(mp_obj_base_t *base, size_t n, const mp_obj_t *args, mp_ma
     mp_hal_pin_write(pins[1], 0);
     mp_hal_pin_output(pins[0]);
     mp_hal_pin_output(pins[1]);
-    if (pins[1] != pins[2]) { mp_hal_pin_input(pins[2]); }
+    if (pins[1] != pins[2]) {
+        mp_hal_pin_input(pins[2]);
+    }
 }
 static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_obj_t *args) {
     p2_spi_t *s = mp_obj_malloc_with_finaliser(p2_spi_t, type);
@@ -69,9 +76,14 @@ static void close_bus(mp_obj_base_t *base) {
         s->active = false;
     }
 }
-static mp_obj_t release(mp_obj_t o) { close_bus(MP_OBJ_TO_PTR(o)); return mp_const_none; }
+static mp_obj_t release(mp_obj_t o) {
+    close_bus(MP_OBJ_TO_PTR(o));
+    return mp_const_none;
+}
 static MP_DEFINE_CONST_FUN_OBJ_1(release_obj, release);
-static void attr(mp_obj_t o, qstr a, mp_obj_t *d) { bus_attr(o, a, d, &release_obj); }
+static void attr(mp_obj_t o, qstr a, mp_obj_t *d) {
+    bus_attr(o, a, d, &release_obj);
+}
 
 static void transfer(mp_obj_base_t *base, size_t n, const uint8_t *src, uint8_t *dest) {
     p2_spi_t *s = (p2_spi_t *)base;
@@ -80,15 +92,21 @@ static void transfer(mp_obj_base_t *base, size_t n, const uint8_t *src, uint8_t 
         uint8_t out = src[i], in = 0;
         for (unsigned bit = 0; bit < 8; ++bit) {
             unsigned shift = s->lsb ? bit : 7 - bit;
-            if (s->phase) { mp_hal_pin_write(s->pins[0], !s->polarity); }
+            if (s->phase) {
+                mp_hal_pin_write(s->pins[0], !s->polarity);
+            }
             mp_hal_pin_write(s->pins[1], (out >> shift) & 1);
-            __asm__ volatile ("waitx %0" :: "r"(s->half_cycles));
+            __asm__ volatile ("waitx %0" : : "r" (s->half_cycles));
             mp_hal_pin_write(s->pins[0], s->phase ? s->polarity : !s->polarity);
             in |= mp_hal_pin_read(s->pins[2]) << shift;
-            __asm__ volatile ("waitx %0" :: "r"(s->half_cycles));
-            if (!s->phase) { mp_hal_pin_write(s->pins[0], s->polarity); }
+            __asm__ volatile ("waitx %0" : : "r" (s->half_cycles));
+            if (!s->phase) {
+                mp_hal_pin_write(s->pins[0], s->polarity);
+            }
         }
-        if (dest != NULL) { dest[i] = in; }
+        if (dest != NULL) {
+            dest[i] = in;
+        }
         if ((i & 31) == 31) {
             p2_poll_borrowed_io();
         }

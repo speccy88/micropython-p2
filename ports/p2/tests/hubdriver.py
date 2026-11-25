@@ -1,4 +1,5 @@
 """Record the physical HUBEXEC checksum, GC, pin and full-cog soft-reset tests."""
+
 import argparse
 import hashlib
 import json
@@ -10,7 +11,9 @@ from mpremote.transport_serial import SerialTransport
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True)
-    parser.add_argument("--image", type=Path, required=True, help="running flat MicroPython firmware")
+    parser.add_argument(
+        "--image", type=Path, required=True, help="running flat MicroPython firmware"
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     port = Path(__file__).resolve().parents[1]
@@ -19,11 +22,15 @@ def main():
     source = (example / "checksum.py").read_bytes()
     never_ready = (port / "tests/drivers/neverready.p2d").read_bytes()
     checks = {}
-    report = {"flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(),
-              "driver_sha256": hashlib.sha256(image).hexdigest(),
-              "neverready_sha256": hashlib.sha256(never_ready).hexdigest(),
-              "example_sha256": hashlib.sha256(source).hexdigest(),
-              "serial_endpoint": args.port, "checks": checks, "passed": False}
+    report = {
+        "flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(),
+        "driver_sha256": hashlib.sha256(image).hexdigest(),
+        "neverready_sha256": hashlib.sha256(never_ready).hexdigest(),
+        "example_sha256": hashlib.sha256(source).hexdigest(),
+        "serial_endpoint": args.port,
+        "checks": checks,
+        "passed": False,
+    }
     setup = b"import p2\nDRIVER_IMAGE = " + repr(image).encode() + b"\n"
     occupy = """
 assert p2.pin_owner(5) == 'free'
@@ -49,7 +56,11 @@ print(ids)
         checks["checksum_gc"] = reply
         if not reply.startswith("P2_HUBDRIVER_PASS "):
             raise AssertionError(reply)
-        board.exec(setup + b"T = " + repr(never_ready).encode() + b"""
+        board.exec(
+            setup
+            + b"T = "
+            + repr(never_ready).encode()
+            + b"""
 try:
     p2.Driver(T, pins=(5,))
 except OSError as exc:
@@ -57,7 +68,8 @@ except OSError as exc:
 else:
     raise AssertionError('expected ready timeout')
 assert p2.pin_owner(5) == 'free'
-""")
+"""
+        )
         checks["ready_timeout_released_pin"] = True
         checks["cogs_before_reset"] = json.loads(board.exec(occupy))
         # All six cogs are active while the old Python heap is discarded.

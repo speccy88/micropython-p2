@@ -1,4 +1,5 @@
 """Assemble the static P2 workbench from a built ViperIDE checkout and release images."""
+
 # SPDX-License-Identifier: MIT
 import argparse
 import hashlib
@@ -28,14 +29,21 @@ def write_firmware(dest):
         flat = release["flat"]
         image = (PORT / "firmware" / flat["file"]).read_bytes()
         flash = programmer(profile)  # Also verifies the pinned loadp2 stub and release SHA.
-        if len(image) != flat["bytes"] or sum(w[0] for w in struct.iter_unpack("<I", flash)) & 0xffffffff:
+        if (
+            len(image) != flat["bytes"]
+            or sum(w[0] for w in struct.iter_unpack("<I", flash)) & 0xFFFFFFFF
+        ):
             raise ValueError(f"Invalid {profile} image")
         (dest / flat["file"]).write_bytes(image)
         filename = f"{profile}-flash.bin"
         (dest / filename).write_bytes(flash)
         index["profiles"][profile] = {
             "ram": flat,
-            "flash": {"file": filename, "bytes": len(flash), "sha256": hashlib.sha256(flash).hexdigest()},
+            "flash": {
+                "file": filename,
+                "bytes": len(flash),
+                "sha256": hashlib.sha256(flash).hexdigest(),
+            },
         }
     (dest / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
 
@@ -61,7 +69,7 @@ def write_notices(viper, dest):
         add(title, WEB / "notices" / filename, filename)
     # The FAT license lives in the source header. Preserve it with the binary.
     fat_source = (ROOT / "lib/oofatfs/ff.c").read_text(encoding="utf-8")
-    header = fat_source[:fat_source.index("#include")].strip()
+    header = fat_source[: fat_source.index("#include")].strip()
     (dest / "oofatfs.txt").write_text(header + "\n", encoding="utf-8")
     items.append('<li><a href="oofatfs.txt">ooFatFs / FatFs</a></li>')
     add("ViperIDE (MIT)", viper / "LICENSE", "viperide.txt")
@@ -79,22 +87,32 @@ def write_notices(viper, dest):
         if not path or pkg.get("dev") or not directory.is_dir():
             continue
         label = path.rsplit("node_modules/", 1)[-1] + " " + pkg.get("version", "")
-        licenses = sorted(p for p in directory.iterdir() if p.is_file() and
-                          p.name.upper().startswith(("LICENSE", "LICENCE", "COPYING", "NOTICE", "OFL")))
+        licenses = sorted(
+            p
+            for p in directory.iterdir()
+            if p.is_file()
+            and p.name.upper().startswith(("LICENSE", "LICENCE", "COPYING", "NOTICE", "OFL"))
+        )
         if licenses:
             for license_file in licenses:
                 target = path.replace("/", "_").replace("@", "") + "-" + license_file.name + ".txt"
                 add(label + " — " + license_file.name, license_file, target)
         else:
-            items.append(f'<li>{html.escape(label)} ({html.escape(str(pkg.get("license", "see source package")))})</li>')
-    page = """<!doctype html><html lang="en"><meta charset="utf-8">
+            items.append(
+                f"<li>{html.escape(label)} ({html.escape(str(pkg.get('license', 'see source package')))})</li>"
+            )
+    page = (
+        """<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Licenses · P2 Workbench</title>
 <link rel="stylesheet" href="../style.css"><main class="wrap"><p><a href="../">← Workbench</a></p>
 <h1>Licenses and credits</h1><p>The installer is MIT licensed. ViperIDE, the firmware and their
 dependencies retain their own notices. This list includes packages from the IDE's production lockfile.</p>
 <p><a href="https://github.com/vshymanskyy/ViperIDE">ViperIDE source</a> ·
 <a href="https://github.com/speccy88/micropython-p2/blob/main/ports/p2/SOURCES.md">Firmware credits</a></p>
-<ul>""" + "\n".join(items) + "</ul></main></html>\n"
+<ul>"""
+        + "\n".join(items)
+        + "</ul></main></html>\n"
+    )
     (dest / "index.html").write_text(page, encoding="utf-8")
 
 
@@ -103,9 +121,13 @@ def main():
     parser.add_argument("viper", type=Path, help="Patched and built ViperIDE checkout")
     parser.add_argument("output", type=Path, help="New or empty destination directory")
     args = parser.parse_args()
-    head = subprocess.check_output(["git", "-C", str(args.viper), "rev-parse", "HEAD"], text=True).strip()
+    head = subprocess.check_output(
+        ["git", "-C", str(args.viper), "rev-parse", "HEAD"], text=True
+    ).strip()
     build = args.viper / "build"
-    if head != VIPER_COMMIT or "connectInstalledP2" not in (build / "index.html").read_text(encoding="utf-8"):
+    if head != VIPER_COMMIT or "connectInstalledP2" not in (build / "index.html").read_text(
+        encoding="utf-8"
+    ):
         parser.error("Build the pinned ViperIDE source with viper-p2.patch applied.")
     out = args.output
     out.mkdir(parents=True, exist_ok=True)
@@ -115,9 +137,20 @@ def main():
         shutil.copyfile(WEB / name, out / name)
     ide = out / "ide"
     ide.mkdir()
-    for name in ("index.html", "manifest.json", "translations.json", "bridge.html", "benchmark.html", "webrepl_content.js"):
+    for name in (
+        "index.html",
+        "manifest.json",
+        "translations.json",
+        "bridge.html",
+        "benchmark.html",
+        "webrepl_content.js",
+    ):
         shutil.copyfile(build / name, ide / name)
-    shutil.copytree(build / "assets", ide / "assets", ignore=shutil.ignore_patterns("universal_flash_nuke.uf2", "vendors"))
+    shutil.copytree(
+        build / "assets",
+        ide / "assets",
+        ignore=shutil.ignore_patterns("universal_flash_nuke.uf2", "vendors"),
+    )
     write_firmware(out / "firmware")
     write_notices(args.viper, out / "licenses")
 

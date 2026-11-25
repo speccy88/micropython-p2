@@ -1,4 +1,5 @@
 """Exercise Thonny 4.1.7's generic MicroPython backend against the local RAM relay."""
+
 import argparse
 import hashlib
 import json
@@ -41,30 +42,55 @@ def child(options):
     # process; Thonny still runs its own SerialConnection and entire backend.
     import serial
     from thonny.plugins.micropython.bare_metal_backend import (
-        GenericBareMetalMicroPythonBackend, launch_bare_metal_backend)
+        GenericBareMetalMicroPythonBackend,
+        launch_bare_metal_backend,
+    )
+
     serial.Serial = relay_serial_type()
     sys.argv = [__file__, options]
     launch_bare_metal_backend(GenericBareMetalMicroPythonBackend)
 
 
 def session(args, report, directory):
-    from thonny.common import (InlineCommand, MESSAGE_MARKER, PROCESS_ACK, ToplevelCommand,
-                               ToplevelResponse, parse_message, serialize_message)
-    options = dict(port=args.port, clean=True, sync_time=False, validate_time=False,
-                   local_rtc=False, submit_mode="raw_paste")
+    from thonny.common import (
+        InlineCommand,
+        MESSAGE_MARKER,
+        PROCESS_ACK,
+        ToplevelCommand,
+        ToplevelResponse,
+        parse_message,
+        serialize_message,
+    )
+
+    options = dict(
+        port=args.port,
+        clean=True,
+        sync_time=False,
+        validate_time=False,
+        local_rtc=False,
+        submit_mode="raw_paste",
+    )
     env = dict(os.environ, THONNY_USER_DIR=str(directory), PYTHONIOENCODING="utf-8")
     with (directory / "stderr.txt").open("wb") as err:
-        proc = subprocess.Popen([sys.executable, "-u", __file__, "--child", repr(options)],
-                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=err,
-                                env=env, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        proc = subprocess.Popen(
+            [sys.executable, "-u", __file__, "--child", repr(options)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=err,
+            env=env,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
         lines = Queue()
+
         def read_stdout():
             for line in proc.stdout:
                 lines.put(line.decode("utf8", "replace").rstrip("\r\n"))
             lines.put(None)
+
         reader = threading.Thread(target=read_stdout, daemon=True)
         reader.start()
         output = []
+
         def receive(predicate, seconds):
             deadline = time.monotonic() + seconds
             while True:
@@ -84,16 +110,20 @@ def session(args, report, directory):
                     output.append(msg.data)
                 if predicate(msg):
                     return msg
+
         def send(cmd):
             proc.stdin.write((serialize_message(cmd) + "\n").encode("ascii"))
             proc.stdin.flush()
+
         try:
             ready = receive(lambda m: isinstance(m, ToplevelResponse) and "welcome_text" in m, 40)
             report["welcome"] = ready.welcome_text.strip()
             report["cwd"] = ready.cwd
             nonce = secrets.token_hex(12)
-            code = ("import machine, gc\nassert machine.freq() == 160000000 and gc.mem_free() > 16384\n"
-                    f"p2_ide_probe = {nonce!r}\nprint('TH_P2', p2_ide_probe)\n")
+            code = (
+                "import machine, gc\nassert machine.freq() == 160000000 and gc.mem_free() > 16384\n"
+                f"p2_ide_probe = {nonce!r}\nprint('TH_P2', p2_ide_probe)\n"
+            )
             output.clear()
             send(ToplevelCommand("run", id="script", source=code))
             receive(lambda m: m.get("command_id") == "script", 15)
@@ -116,6 +146,7 @@ def session(args, report, directory):
 
 def main():
     import thonny
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True)
     parser.add_argument("--image", type=Path, required=True)
@@ -124,10 +155,14 @@ def main():
     url = urlparse(args.port)
     if url.scheme != "socket" or url.hostname != "127.0.0.1" or not url.port:
         parser.error("use the local RAM session socket://127.0.0.1:<port>")
-    report = {"thonny": thonny.get_version(), "backend": "GenericBareMetalMicroPythonBackend",
-              "transport": "Thonny SerialConnection over pyserial socket transport",
-              "serial_endpoint": args.port,
-              "flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(), "passed": False}
+    report = {
+        "thonny": thonny.get_version(),
+        "backend": "GenericBareMetalMicroPythonBackend",
+        "transport": "Thonny SerialConnection over pyserial socket transport",
+        "serial_endpoint": args.port,
+        "flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(),
+        "passed": False,
+    }
     with tempfile.TemporaryDirectory() as work:
         directory = Path(work)
         try:

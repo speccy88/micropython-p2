@@ -1,5 +1,6 @@
 from machine import Pin, SoftSPI
 from p2devices import SSD1306Pages
+
 spi = SoftSPI(sck=8, mosi=9, miso=10, baudrate=1000000, polarity=0, phase=0)
 pins = []
 try:

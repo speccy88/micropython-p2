@@ -1,4 +1,5 @@
 """Load a native P2 ELF or flat image into RAM, then switch to console speed."""
+
 import argparse
 import json
 import sys

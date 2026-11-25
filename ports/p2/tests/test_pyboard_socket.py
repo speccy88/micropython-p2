@@ -1,4 +1,5 @@
 """Host-only regression for the binary pyboard socket:// transport."""
+
 from pathlib import Path
 import socket
 import sys

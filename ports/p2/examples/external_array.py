@@ -5,6 +5,7 @@ import struct
 from time import ticks_us, ticks_diff
 from p2array import Array
 
+
 def run():
     gc.collect()
     initial = gc.mem_free()
@@ -15,7 +16,7 @@ def run():
         expected = bytearray(len(chunk))
         tile_words = len(chunk) // a.itemsize
         for i in range(tile_words):
-            struct.pack_into("<I", expected, i * 4, (i * 0x1010101) & 0xffffffff)
+            struct.pack_into("<I", expected, i * 4, (i * 0x1010101) & 0xFFFFFFFF)
         low = gc.mem_free()
         start = ticks_us()
         # Each tile has a distinctive index sentinel on both ends.
@@ -51,10 +52,27 @@ def run():
         random_us = ticks_diff(ticks_us(), start)
         low = min(low, gc.mem_free())
         gc.collect()
-        print("P2_EXT_ARRAY_PASS", "bytes", words * a.itemsize, "cache", a.cache_bytes(),
-              "initial_free", initial, "live_hub_delta", initial - gc.mem_free(),
-              "observed_peak_hub_delta", initial - low, "write_us", write_us,
-              "read_us", read_us, "random_us", random_us)
+        print(
+            "P2_EXT_ARRAY_PASS",
+            "bytes",
+            words * a.itemsize,
+            "cache",
+            a.cache_bytes(),
+            "initial_free",
+            initial,
+            "live_hub_delta",
+            initial - gc.mem_free(),
+            "observed_peak_hub_delta",
+            initial - low,
+            "write_us",
+            write_us,
+            "read_us",
+            read_us,
+            "random_us",
+            random_us,
+        )
     finally:
         a.close()
+
+
 run()

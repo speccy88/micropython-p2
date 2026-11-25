@@ -11,9 +11,13 @@ typedef struct {
 } pin_obj_t;
 
 static pin_obj_t *open_pin(mp_obj_t o) {
-    if (!p2_on_vm_cog()) { mp_raise_OSError(MP_EPERM); }
+    if (!p2_on_vm_cog()) {
+        mp_raise_OSError(MP_EPERM);
+    }
     pin_obj_t *p = MP_OBJ_TO_PTR(o);
-    if (!p->owner) { mp_raise_OSError(MP_ENODEV); }
+    if (!p->owner) {
+        mp_raise_OSError(MP_ENODEV);
+    }
     return p;
 }
 static pin_obj_t *claim_pin(const mp_obj_type_t *type, unsigned pin, unsigned owner) {
@@ -21,7 +25,9 @@ static pin_obj_t *claim_pin(const mp_obj_type_t *type, unsigned pin, unsigned ow
     p->pin = pin;
     p->owner = 0;
     int error = p2_pins_claim(&p->pin, 1, owner);
-    if (error) { mp_raise_OSError(error == -2 ? MP_EBUSY : MP_EPERM); }
+    if (error) {
+        mp_raise_OSError(error == -2 ? MP_EBUSY : MP_EPERM);
+    }
     p->owner = owner;
     return p;
 }
@@ -36,23 +42,36 @@ static mp_obj_t release_pin(mp_obj_t self) {
 static MP_DEFINE_CONST_FUN_OBJ_1(release_pin_obj, release_pin);
 static uint32_t sample(unsigned pin) {
     uint32_t bit;
-    __asm__ volatile ("testp %1 wc\n\twrc %0" : "=r"(bit) : "r"(pin));
+    __asm__ volatile ("testp %1 wc\n\twrc %0" : "=r" (bit) : "r" (pin));
     return bit;
 }
 static void write_latch(unsigned pin, bool high) {
-    if (high) { __asm__ volatile ("outh %0" :: "r"(pin) : "memory"); }
-    else { __asm__ volatile ("outl %0" :: "r"(pin) : "memory"); }
+    if (high) {
+        __asm__ volatile ("outh %0" : : "r" (pin) : "memory");
+    } else {
+        __asm__ volatile ("outl %0" : : "r" (pin) : "memory");
+    }
 }
 static void configure_pin(pin_obj_t *p, int mode, unsigned pull, bool high) {
     unsigned pin = p->pin, config = 0;
     p2_pin_float(pin);
     p->mode = mode;
-    if (mode == PIN_OPEN_DRAIN) { config = 0x3800; } // high drive floats
-    if (pull == PULL_UP) { config = 0x1000; high = true; }
-    if (pull == PULL_DOWN) { config = 0x0200; high = false; }
-    __asm__ volatile ("wrpin %0, %1" :: "r"(config), "r"(pin) : "memory");
+    if (mode == PIN_OPEN_DRAIN) {
+        config = 0x3800;
+    }                                                // high drive floats
+    if (pull == PULL_UP) {
+        config = 0x1000;
+        high = true;
+    }
+    if (pull == PULL_DOWN) {
+        config = 0x0200;
+        high = false;
+    }
+    __asm__ volatile ("wrpin %0, %1" : : "r" (config), "r" (pin) : "memory");
     write_latch(pin, high);
-    if (mode != PIN_IN || pull) { __asm__ volatile ("dirh %0" :: "r"(pin) : "memory"); }
+    if (mode != PIN_IN || pull) {
+        __asm__ volatile ("dirh %0" : : "r" (pin) : "memory");
+    }
 }
 static mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     enum { ARG_id, ARG_mode, ARG_pull, ARG_value };
@@ -76,10 +95,14 @@ static mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
 }
 static mp_obj_t value(size_t n, const mp_obj_t *args) {
     pin_obj_t *p = open_pin(args[0]);
-    if (n == 1) { return MP_OBJ_NEW_SMALL_INT(sample(p->pin)); }
+    if (n == 1) {
+        return MP_OBJ_NEW_SMALL_INT(sample(p->pin));
+    }
     bool high = mp_obj_is_true(args[1]);
     p = open_pin(args[0]);
-    if (p->mode == PIN_IN) { mp_raise_OSError(MP_EPERM); }
+    if (p->mode == PIN_IN) {
+        mp_raise_OSError(MP_EPERM);
+    }
     write_latch(p->pin, high);
     return mp_const_none;
 }
@@ -88,13 +111,19 @@ static mp_obj_t pin_set(mp_obj_t self, bool high) {
     const mp_obj_t args[] = {self, mp_obj_new_bool(high)};
     return value(2, args);
 }
-static mp_obj_t on(mp_obj_t self) { return pin_set(self, true); }
-static mp_obj_t off(mp_obj_t self) { return pin_set(self, false); }
+static mp_obj_t on(mp_obj_t self) {
+    return pin_set(self, true);
+}
+static mp_obj_t off(mp_obj_t self) {
+    return pin_set(self, false);
+}
 static MP_DEFINE_CONST_FUN_OBJ_1(on_obj, on);
 static MP_DEFINE_CONST_FUN_OBJ_1(off_obj, off);
 static mp_obj_t pin_call(mp_obj_t self, size_t n, size_t nk, const mp_obj_t *args) {
     mp_arg_check_num(n, nk, 0, 1, false);
-    if (!n) { return value(1, &self); }
+    if (!n) {
+        return value(1, &self);
+    }
     const mp_obj_t call_args[] = {self, args[0]};
     return value(2, call_args);
 }
@@ -123,30 +152,32 @@ static mp_obj_t smart_make_new(const mp_obj_type_t *type, size_t n, size_t nk, c
     uint32_t x = n > 2 ? p2_arg_word(args[2]) : 0, y = n > 3 ? p2_arg_word(args[3]) : 0;
     pin_obj_t *p = claim_pin(type, id, P2_OWNER_SMARTPIN);
     __asm__ volatile ("dirl %0\n\twrpin %1, %0\n\twxpin %2, %0\n\twypin %3, %0\n\tdirh %0"
-        :: "r"(id), "r"(mode), "r"(x), "r"(y) : "memory");
+        : : "r" (id), "r" (mode), "r" (x), "r" (y) : "memory");
     return MP_OBJ_FROM_PTR(p);
 }
 static mp_obj_t write_x(mp_obj_t self, mp_obj_t value) {
     uint32_t v = p2_arg_word(value);
-    __asm__ volatile ("wxpin %0, %1" :: "r"(v), "r"((unsigned)open_pin(self)->pin) : "memory");
+    __asm__ volatile ("wxpin %0, %1" : : "r" (v), "r" ((unsigned)open_pin(self)->pin) : "memory");
     return mp_const_none;
 }
 static mp_obj_t write_y(mp_obj_t self, mp_obj_t value) {
     uint32_t v = p2_arg_word(value);
-    __asm__ volatile ("wypin %0, %1" :: "r"(v), "r"((unsigned)open_pin(self)->pin) : "memory");
+    __asm__ volatile ("wypin %0, %1" : : "r" (v), "r" ((unsigned)open_pin(self)->pin) : "memory");
     return mp_const_none;
 }
 static mp_obj_t smart_read(mp_obj_t self) {
     uint32_t result;
-    __asm__ volatile ("rdpin %0, %1" : "=r"(result) : "r"((unsigned)open_pin(self)->pin) : "memory");
+    __asm__ volatile ("rdpin %0, %1" : "=r" (result) : "r" ((unsigned)open_pin(self)->pin) : "memory");
     return mp_obj_new_int_from_uint(result);
 }
 static mp_obj_t smart_peek(mp_obj_t self) {
     uint32_t result;
-    __asm__ volatile ("rqpin %0, %1" : "=r"(result) : "r"((unsigned)open_pin(self)->pin));
+    __asm__ volatile ("rqpin %0, %1" : "=r" (result) : "r" ((unsigned)open_pin(self)->pin));
     return mp_obj_new_int_from_uint(result);
 }
-static mp_obj_t smart_ready(mp_obj_t self) { return mp_obj_new_bool(sample(open_pin(self)->pin)); }
+static mp_obj_t smart_ready(mp_obj_t self) {
+    return mp_obj_new_bool(sample(open_pin(self)->pin));
+}
 static MP_DEFINE_CONST_FUN_OBJ_2(write_x_obj, write_x);
 static MP_DEFINE_CONST_FUN_OBJ_2(write_y_obj, write_y);
 static MP_DEFINE_CONST_FUN_OBJ_1(smart_read_obj, smart_read);

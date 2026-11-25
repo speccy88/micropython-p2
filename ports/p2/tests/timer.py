@@ -1,4 +1,5 @@
 """Run on an Edge or lean image using mpremote run."""
+
 import gc
 import micropython
 import time
@@ -17,6 +18,7 @@ once = Timer(-1, mode=Timer.ONE_SHOT, period=25, callback=lambda t: seen.append(
 wait_for(lambda: seen)
 time.sleep_ms(35)
 assert seen == [once]
+
 
 # The timer and its callback must survive collection with no Python reference.
 def arm_unreferenced():

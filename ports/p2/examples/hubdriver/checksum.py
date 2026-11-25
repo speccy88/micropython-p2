@@ -53,7 +53,7 @@ try:
     gc.collect()
     driver = p2.get_driver(cog)
     for sequence in range(1, 33):
-        words = [(sequence * 0x01010101 + i * 397) & 0xffffffff for i in range(58)]
+        words = [(sequence * 0x01010101 + i * 397) & 0xFFFFFFFF for i in range(58)]
         payload = bytearray(58 * 4 + 1)
         for i, value in enumerate(words):
             struct.pack_into("<I", payload, 1 + 4 * i, value)
@@ -64,7 +64,7 @@ try:
         junk = [bytearray(64) for i in range(8)]
         gc.collect()
         status, result = complete(driver, sequence)
-        assert status == 0 and result == sum(words) & 0xffffffff
+        assert status == 0 and result == sum(words) & 0xFFFFFFFF
         checked = bytearray(5)
         assert driver.readinto(5, memoryview(checked)[1:]) == 4
         assert struct.unpack_from("<I", checked, 1)[0] == result

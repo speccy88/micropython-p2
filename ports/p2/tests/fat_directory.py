@@ -1,4 +1,5 @@
 """Compare physical FAT root sectors with P2 listdir and set, without logging names."""
+
 import argparse
 from collections import Counter
 import hashlib
@@ -41,10 +42,18 @@ def boot(data, base, limit):
     active = flags & 15 if flags & 128 else 0
     if active >= copies:
         return None
-    return dict(fat_bits=bits, volume_sector=base, sectors_per_cluster=spc, fat_sectors=fatsz,
-                fat_start=base + reserved + active * fatsz, root_cluster=root, clusters=clusters,
-                root_start=base + reserved + copies * fatsz, root_sectors=root_sectors,
-                data_start=base + systems)
+    return dict(
+        fat_bits=bits,
+        volume_sector=base,
+        sectors_per_cluster=spc,
+        fat_sectors=fatsz,
+        fat_start=base + reserved + active * fatsz,
+        root_cluster=root,
+        clusters=clusters,
+        root_start=base + reserved + copies * fatsz,
+        root_sectors=root_sectors,
+        data_start=base + systems,
+    )
 
 
 def find_volume(read, sectors):
@@ -55,7 +64,7 @@ def find_volume(read, sectors):
     if first[510:] != b"\x55\xaa":
         raise ValueError("missing boot sector or MBR signature")
     for index in range(4):
-        entry = first[446 + 16 * index:462 + 16 * index]
+        entry = first[446 + 16 * index : 462 + 16 * index]
         start, size = u32(entry, 8), u32(entry, 12)
         if entry[4] and 0 < start < sectors and 0 < size <= sectors - start:
             volume = boot(read(start), start, size)
@@ -70,7 +79,7 @@ def root_lbas(volume, read):
         return
     cluster = volume["root_cluster"]
     seen = set()
-    while cluster < 0x0ffffff8:
+    while cluster < 0x0FFFFFF8:
         if cluster in seen or not 2 <= cluster < volume["clusters"] + 2:
             raise ValueError("bad root cluster chain")
         seen.add(cluster)
@@ -78,13 +87,13 @@ def root_lbas(volume, read):
         yield from range(base, base + volume["sectors_per_cluster"])
         if cluster // 128 >= volume["fat_sectors"]:
             raise ValueError("FAT link outside FAT")
-        cluster = u32(read(volume["fat_start"] + cluster // 128), (cluster % 128) * 4) & 0x0fffffff
+        cluster = u32(read(volume["fat_start"] + cluster // 128), (cluster % 128) * 4) & 0x0FFFFFFF
 
 
 def short_name(record, apply_case):
     short = bytearray(record[:11])
     if short[0] == 5:
-        short[0] = 0xe5
+        short[0] = 0xE5
     body, ext = bytes(short[:8]).rstrip(b" "), bytes(short[8:]).rstrip(b" ")
     if apply_case and record[12] & 8:
         body = body.lower()
@@ -104,16 +113,20 @@ def long_name(slots, short):
         checksum = (((checksum >> 1) | (checksum << 7)) + byte) & 255
     text = bytearray()
     for number, slot in enumerate(reversed(slots), 1):
-        if (slot[0] != (number | (64 if number == count else 0)) or slot[13] != checksum
-                or slot[12] or u16(slot, 26)):
+        if (
+            slot[0] != (number | (64 if number == count else 0))
+            or slot[13] != checksum
+            or slot[12]
+            or u16(slot, 26)
+        ):
             return None
         text.extend(slot[1:11] + slot[14:26] + slot[28:32])
     codes = [unit[0] for unit in struct.iter_unpack("<H", text)]
     length = codes.index(0) if 0 in codes else len(codes)
-    if length > 255 or any(c != 0xffff for c in codes[length + 1:]) or 0xffff in codes[:length]:
+    if length > 255 or any(c != 0xFFFF for c in codes[length + 1 :]) or 0xFFFF in codes[:length]:
         return None
     try:
-        return text[:2 * length].decode("utf-16le")
+        return text[: 2 * length].decode("utf-16le")
     except UnicodeDecodeError:
         return None
 
@@ -126,10 +139,10 @@ def directory(volume, read):
         lbas.append(lba)
         data = read(lba)
         for offset in range(0, 512, 32):
-            rec = data[offset:offset + 32]
+            rec = data[offset : offset + 32]
             if rec[0] == 0:
                 return result, lbas
-            if rec[0] == 0xe5:
+            if rec[0] == 0xE5:
                 slots.clear()
             elif rec[11] == 15:
                 if rec[0] & 64:
@@ -161,7 +174,7 @@ def directory(volume, read):
 def name_tag(data, seed):
     h = seed
     for c in data:
-        h = ((h ^ c) * 16777619) & 0xffffffff
+        h = ((h ^ c) * 16777619) & 0xFFFFFFFF
     return (len(data), h)
 
 
@@ -200,12 +213,14 @@ def digest(tags):
 
 def diagnose(board, report, short_only=False):
     import ast
+
     report["stage"] = "active mounted card"
     board.exec(SETUP)
     card_size = int(board.exec("print(_card.ioctl(4,0))"))
     seed = secrets.randbelow(1 << 30) + 1
     sector_hashes = {}
     sector_crc32 = {}
+
     def read(index):
         if not 0 <= index < card_size:
             raise ValueError("read outside card")
@@ -218,57 +233,83 @@ def diagnose(board, report, short_only=False):
         if sector_hashes.setdefault(index, sha) != sha:
             raise ValueError("repeated sector differs")
         return raw
+
     report["stage"] = "volume boot sector"
     volume = find_volume(read, card_size)
     report["stage"] = "raw directory sectors"
     records, lbas = directory(volume, read)
     short = [name_tag(row[0], seed) for row in records]
     preferred = [name_tag(row[1], seed) for row in records]
-    report.update(card_sectors=card_size, fat_bits=volume["fat_bits"], volume_sector=volume["volume_sector"],
-                  sectors_per_cluster=volume["sectors_per_cluster"], raw_entries=len(records),
-                  validated_lfn_entries=sum(row[2] for row in records), raw_unique_sfn=len(set(short)),
-                  raw_unique_preferred=len(set(preferred)), root_sectors=lbas,
-                  sector_sha256=sector_hashes, sector_crc32=sector_crc32)
-    for category, expression in (("listdir_str", "os.listdir('/')"), ("listdir_bytes", "os.listdir(b'/')"),
-                                 ("ilistdir", "[x[0] for x in os.ilistdir('/')]")):
+    report.update(
+        card_sectors=card_size,
+        fat_bits=volume["fat_bits"],
+        volume_sector=volume["volume_sector"],
+        sectors_per_cluster=volume["sectors_per_cluster"],
+        raw_entries=len(records),
+        validated_lfn_entries=sum(row[2] for row in records),
+        raw_unique_sfn=len(set(short)),
+        raw_unique_preferred=len(set(preferred)),
+        root_sectors=lbas,
+        sector_sha256=sector_hashes,
+        sector_crc32=sector_crc32,
+    )
+    for category, expression in (
+        ("listdir_str", "os.listdir('/')"),
+        ("listdir_bytes", "os.listdir(b'/')"),
+        ("ilistdir", "[x[0] for x in os.ilistdir('/')]"),
+    ):
         report["stage"] = category
         board.exec("_names = " + expression)
         counts = ast.literal_eval(board.exec("print(_counts(_names))").decode("ascii"))
-        tags = ast.literal_eval(board.exec(f"print([_tag(n,{seed}) for n in _names])").decode("ascii"))
+        tags = ast.literal_eval(
+            board.exec(f"print([_tag(n,{seed}) for n in _names])").decode("ascii")
+        )
         tags = list(map(tuple, tags))
         report[category] = {
-            "count": counts[0], "pairwise_unique": counts[1], "set_unique": counts[2],
-            "builtin_hash_unique": counts[3], "host_unique_content": len(set(tags)),
+            "count": counts[0],
+            "pairwise_unique": counts[1],
+            "set_unique": counts[2],
+            "builtin_hash_unique": counts[3],
+            "host_unique_content": len(set(tags)),
             "matches_sfn_multiset": Counter(tags) == Counter(short),
             "matches_preferred_multiset": Counter(tags) == Counter(preferred),
             "preferred_position_matches": sum(a == b for a, b in zip(tags, preferred)),
             "ordered_tag_sha256": digest(tags),
         }
     report["expected_preferred_ordered_tag_sha256"] = digest(preferred)
-    report["synthetic_counts"] = ast.literal_eval(board.exec(
-        "print(_counts(['p2check' + str(i) for i in range(64)]))").decode("ascii"))
+    report["synthetic_counts"] = ast.literal_eval(
+        board.exec("print(_counts(['p2check' + str(i) for i in range(64)]))").decode("ascii")
+    )
     expected = "matches_sfn_multiset" if short_only else "matches_preferred_multiset"
     expected_unique = len(set(short if short_only else preferred))
     report["directory_has_duplicate_names"] = len(records) != expected_unique
-    report["passed"] = all(report[key][expected] and
-                           report[key]["count"] == len(records) and
-                           report[key]["pairwise_unique"] == report[key]["set_unique"] == expected_unique
-                           for key in ("listdir_str", "listdir_bytes", "ilistdir"))
+    report["passed"] = all(
+        report[key][expected]
+        and report[key]["count"] == len(records)
+        and report[key]["pairwise_unique"] == report[key]["set_unique"] == expected_unique
+        for key in ("listdir_str", "listdir_bytes", "ilistdir")
+    )
     report["passed"] &= report["synthetic_counts"][:3] == [64, 64, 64]
     report["stage"] = "complete"
 
 
 def main():
     from mpremote.transport_serial import SerialTransport
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True)
     parser.add_argument("--image", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--short-only", action="store_true", help="expect the control firmware's 8.3 names")
+    parser.add_argument(
+        "--short-only", action="store_true", help="expect the control firmware's 8.3 names"
+    )
     args = parser.parse_args()
-    report = {"flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(),
-              "serial_endpoint": args.port, "expected_names": "short" if args.short_only else "long",
-              "passed": False}
+    report = {
+        "flat_image_sha256": hashlib.sha256(args.image.read_bytes()).hexdigest(),
+        "serial_endpoint": args.port,
+        "expected_names": "short" if args.short_only else "long",
+        "passed": False,
+    }
     board = None
     try:
         board = SerialTransport(args.port)
@@ -279,9 +320,14 @@ def main():
         # type here, and expose plain diagnostic messages we generate locally.
         report["error_type"] = type(error).__name__
         if type(error) is ValueError and str(error) in (
-                "repeated sector differs", "short sector reply", "bad root cluster chain",
-                "FAT link outside FAT", "missing boot sector or MBR signature",
-                "no supported primary FAT12/16/32 volume", "diagnostic limit of 128 directory sectors reached"):
+            "repeated sector differs",
+            "short sector reply",
+            "bad root cluster chain",
+            "FAT link outside FAT",
+            "missing boot sector or MBR signature",
+            "no supported primary FAT12/16/32 volume",
+            "diagnostic limit of 128 directory sectors reached",
+        ):
             report["error"] = str(error)
     finally:
         if board:

@@ -1,4 +1,5 @@
 """Run in RAM with mpremote connect COM12 run tests/vm.py."""
+
 import gc
 import json
 import micropython
@@ -91,13 +92,23 @@ def main():
     elapsed = time.ticks_diff(time.ticks_us(), start)
     require(acc == 499500, "VM arithmetic benchmark")
     durations.sort()
-    print(json.dumps({
-        "test": "vm", "passed": True, "platform": sys.platform,
-        "mpy": sys.implementation._mpy, "initial_heap_free": initial,
-        "heap_free_after": gc.mem_free(), "gc_us_min": durations[0],
-        "gc_us_median": durations[len(durations) // 2], "gc_us_max": durations[-1],
-        "integer_loop_1000_us": elapsed, "c_stack_used": micropython.stack_use(),
-    }))
+    print(
+        json.dumps(
+            {
+                "test": "vm",
+                "passed": True,
+                "platform": sys.platform,
+                "mpy": sys.implementation._mpy,
+                "initial_heap_free": initial,
+                "heap_free_after": gc.mem_free(),
+                "gc_us_min": durations[0],
+                "gc_us_median": durations[len(durations) // 2],
+                "gc_us_max": durations[-1],
+                "integer_loop_1000_us": elapsed,
+                "c_stack_used": micropython.stack_use(),
+            }
+        )
+    )
 
 
 main()

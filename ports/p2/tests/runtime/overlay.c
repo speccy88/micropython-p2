@@ -3,8 +3,13 @@
 
 extern void *probe(void **table, unsigned count, void *key, int add);
 
-unsigned hash(void *key) { (void)key; return 0; }
-int equal(void *a, void *b) { return a == b; }
+unsigned hash(void *key) {
+    (void)key;
+    return 0;
+}
+int equal(void *a, void *b) {
+    return a == b;
+}
 
 static int check_ptrb(void) {
     uint32_t words[] = {11, 22, 33, 44, 55, 66, 77};
@@ -18,13 +23,17 @@ static int check_ptrb(void) {
         "rdlong %[last], ptrb[0]\n"
         "mov ptrb, %[saved]"
         : [saved] "=&r" (saved), [indexed] "=&r" (indexed), [before] "=&r" (before),
-          [after] "=&r" (after), [last] "=&r" (last)
+        [after] "=&r" (after), [last] "=&r" (last)
         : [base] "r" (words + 2) : "memory");
     return indexed == 11 && before == 66 && after == 66 && last == 44;
 }
 
-static __attribute__((noinline)) unsigned urem(unsigned n, unsigned d) { return n % d; }
-static __attribute__((noinline)) unsigned udiv(unsigned n, unsigned d) { return n / d; }
+static __attribute__((noinline)) unsigned urem(unsigned n, unsigned d) {
+    return n % d;
+}
+static __attribute__((noinline)) unsigned udiv(unsigned n, unsigned d) {
+    return n / d;
+}
 
 int check_overlay(void) {
     uint32_t first, value, varied = 0;
@@ -36,5 +45,5 @@ int check_overlay(void) {
     int used, key;
     void *slots[] = {&used, (void *)4, 0};
     return varied && check_ptrb() && urem(7001, 31) == 26 && udiv(7550, 41) == 184
-        && probe(slots, 3, &key, 1) == &key && slots[0] == &used && slots[1] == &key;
+           && probe(slots, 3, &key, 1) == &key && slots[0] == &used && slots[1] == &key;
 }

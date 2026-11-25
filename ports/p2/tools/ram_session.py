@@ -1,4 +1,5 @@
 """Keep COM open across stock mpremote calls when DTR is wired to P2 reset."""
+
 import argparse
 import json
 import select
@@ -28,9 +29,18 @@ with socket.socket() as server, P2Serial(args.port, baud=args.baud) as board:
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline and not captured.endswith(b">>> "):
         captured.extend(board.read())
-    print(json.dumps(dict(rom=rom, image=meta, download=download,
-                          console=captured.decode("ascii", "backslashreplace"),
-                          endpoint=f"socket://127.0.0.1:{args.listen}")), flush=True)
+    print(
+        json.dumps(
+            dict(
+                rom=rom,
+                image=meta,
+                download=download,
+                console=captured.decode("ascii", "backslashreplace"),
+                endpoint=f"socket://127.0.0.1:{args.listen}",
+            )
+        ),
+        flush=True,
+    )
     while True:
         peer, _ = server.accept()
         with peer:

@@ -1,41 +1,52 @@
 """Differential tests for dirty eviction, partial pages, bulk coherence and retry."""
+
 import random
 import struct
 import unittest
 from types import SimpleNamespace
 from test_packages import load
 
+
 class Backing:
     def __init__(self, n):
         self.buf = bytearray(n)
         self.closed = False
         self.fail_read = self.fail_write = False
+
     def capacity(self):
         return len(self.buf)
+
     def alloc(self, n):
         return Backing(n)
+
     def fill(self, off, size, value):
-        self.buf[off:off + size] = bytes([value]) * size
+        self.buf[off : off + size] = bytes([value]) * size
+
     def readinto(self, off, buf):
         if off + len(buf) > len(self.buf):
             raise ValueError("bounds")
-        buf[:] = self.buf[off:off + len(buf)]
+        buf[:] = self.buf[off : off + len(buf)]
         if self.fail_read:
             buf[0] = 47
             raise OSError("injected short read")
         return len(buf)
+
     def write(self, off, buf):
         if off + len(buf) > len(self.buf):
             raise ValueError("bounds")
         if self.fail_write:
-            self.buf[off:off + 1] = buf[:1]
+            self.buf[off : off + 1] = buf[:1]
             raise OSError("injected short write")
-        self.buf[off:off + len(buf)] = buf
+        self.buf[off : off + len(buf)] = buf
         return len(buf)
+
     def close(self):
         self.closed = True
 
+
 mod = load("p2array", p2=SimpleNamespace(PSRAM=lambda: Backing(0)))
+
+
 class Arrays(unittest.TestCase):
     def test_eviction_and_bulk(self):
         backing = Backing(174)
@@ -54,12 +65,12 @@ class Arrays(unittest.TestCase):
                 values = [randomizer.randrange(65536) for _ in range(4)]
                 blob = struct.pack("<4H", *values)
                 a.writefrom(pos, blob)
-                ref[pos:pos + 4] = values
+                ref[pos : pos + 4] = values
             if randomizer.randrange(8) == 1:
                 pos = randomizer.randrange(84)
                 dest = bytearray(8)
                 a.readinto(pos, dest)
-                self.assertEqual(dest, struct.pack("<4H", *ref[pos:pos + 4]))
+                self.assertEqual(dest, struct.pack("<4H", *ref[pos : pos + 4]))
         a.close()
         self.assertEqual(backing.buf, struct.pack("<87H", *ref))
         self.assertFalse(backing.closed)
@@ -87,8 +98,15 @@ class Arrays(unittest.TestCase):
         a.close()
 
     def test_bounds_and_formats(self):
-        for code, value in (("b", -128), ("B", 255), ("h", -32000), ("H", 65535),
-                            ("i", -0x80000000), ("I", 0xffffffff), ("f", 1.25)):
+        for code, value in (
+            ("b", -128),
+            ("B", 255),
+            ("h", -32000),
+            ("H", 65535),
+            ("i", -0x80000000),
+            ("I", 0xFFFFFFFF),
+            ("f", 1.25),
+        ):
             a = mod.Array(code, 17)
             self.assertEqual(a[0], 0)
             a[-1] = value
@@ -121,6 +139,7 @@ class Arrays(unittest.TestCase):
             self.assertEqual(a[(k * 65537) % len(a)], k)
         self.assertEqual(a.cache_bytes(), 128)
         a.close()
+
 
 if __name__ == "__main__":
     unittest.main()

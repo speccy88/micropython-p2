@@ -3,12 +3,15 @@ import gc
 from machine import Pin
 from p2 import Cog, PSRAM, SmartPin, pin_owner
 from time import ticks_ms, ticks_diff, ticks_us
+
+
 def rejects(error, call, *args):
     try:
         call(*args)
     except error:
         return
     raise AssertionError(args)
+
 
 assert pin_owner(40) == "psram" and pin_owner(57) == "psram"
 assert pin_owner(58) == "sd" and pin_owner(61) == "sd"

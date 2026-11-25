@@ -1,4 +1,5 @@
 """Check soft reboot while a worker is parked on a lock."""
+
 import argparse
 import json
 from pathlib import Path
@@ -31,6 +32,6 @@ print(t)""")
     ok = board.exec("print(123)").strip() == b"123"
 finally:
     board.close()
-report = {"worker_ids":samples, "passes":len(samples), "recovered":ok}
+report = {"worker_ids": samples, "passes": len(samples), "recovered": ok}
 args.output.write_text(json.dumps(report, indent=2) + "\n")
 print(report)

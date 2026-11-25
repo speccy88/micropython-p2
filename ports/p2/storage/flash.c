@@ -29,19 +29,28 @@ typedef struct {
 
 static void attach(void) {
     int result = p2_pins_claim(pins, 4, P2_OWNER_FLASH);
-    if (result) { mp_raise_OSError(result == -2 ? MP_EBUSY : MP_EPERM); }
+    if (result) {
+        mp_raise_OSError(result == -2 ? MP_EBUSY : MP_EPERM);
+    }
     __asm__ volatile ("drvh #60\n\tdrvh #61\n\tdirl #58\n\tdrvh #59" ::: "memory");
 }
-static inline void select_chip(void) { __asm__ volatile ("drvl #61" ::: "memory"); }
-static inline void deselect_chip(void) { __asm__ volatile ("drvh #61" ::: "memory"); }
+static inline void select_chip(void) {
+    __asm__ volatile ("drvl #61" ::: "memory");
+}
+static inline void deselect_chip(void) {
+    __asm__ volatile ("drvh #61" ::: "memory");
+}
 static unsigned shift(unsigned out) {
     unsigned in = 0;
     for (unsigned bit = 128; bit != 0; bit >>= 1) {
         __asm__ volatile ("drvl #60" ::: "memory");
-        if (out & bit) { __asm__ volatile ("drvh #59" ::: "memory"); }
-        else { __asm__ volatile ("drvl #59" ::: "memory"); }
+        if (out & bit) {
+            __asm__ volatile ("drvh #59" ::: "memory");
+        } else {
+            __asm__ volatile ("drvl #59" ::: "memory");
+        }
         unsigned b;
-        __asm__ volatile ("waitx #12\n\tdrvh #60\n\twaitx #12\n\ttestp #58 wc\n\twrc %0" : "=r"(b) :: "memory");
+        __asm__ volatile ("waitx #12\n\tdrvh #60\n\twaitx #12\n\ttestp #58 wc\n\twrc %0" : "=r" (b) :: "memory");
         in = (in << 1) | b;
     }
     return in;
@@ -94,13 +103,21 @@ static mp_obj_t make(const mp_obj_type_t *type, size_t n, size_t nk, const mp_ob
     return MP_OBJ_FROM_PTR(s);
 }
 static void check(flash_t *s) {
-    if (!s->active) { mp_raise_OSError(MP_ENODEV); }
-    if (!p2_on_vm_cog()) { mp_raise_OSError(MP_EPERM); }
-    if (s->busy) { mp_raise_OSError(MP_EBUSY); }
+    if (!s->active) {
+        mp_raise_OSError(MP_ENODEV);
+    }
+    if (!p2_on_vm_cog()) {
+        mp_raise_OSError(MP_EPERM);
+    }
+    if (s->busy) {
+        mp_raise_OSError(MP_EBUSY);
+    }
 }
 static mp_obj_t close(mp_obj_t o) {
     flash_t *s = MP_OBJ_TO_PTR(o);
-    if (s->busy) { mp_raise_OSError(MP_EBUSY); }
+    if (s->busy) {
+        mp_raise_OSError(MP_EBUSY);
+    }
     if (s->active) {
         p2_pins_release(pins, 4, P2_OWNER_FLASH);
         s->active = false;
@@ -115,7 +132,9 @@ static uint32_t offset(flash_t *s, mp_int_t block, mp_int_t intra, size_t n) {
         mp_raise_ValueError(MP_ERROR_TEXT("flash address out of range"));
     }
     uint32_t off = (uint32_t)block * SECTOR + intra;
-    if (n > s->length - off) { mp_raise_ValueError(MP_ERROR_TEXT("flash length out of range")); }
+    if (n > s->length - off) {
+        mp_raise_ValueError(MP_ERROR_TEXT("flash length out of range"));
+    }
     return s->start + off;
 }
 static mp_obj_t transfer(size_t n, const mp_obj_t *args, bool writing) {
@@ -126,8 +145,12 @@ static mp_obj_t transfer(size_t n, const mp_obj_t *args, bool writing) {
     mp_get_buffer_raise(args[2], &buffer, writing ? MP_BUFFER_READ : MP_BUFFER_WRITE);
     check(s);
     uint32_t addr = offset(s, block, intra, buffer.len);
-    if (n == 3 && buffer.len % SECTOR) { mp_raise_ValueError(MP_ERROR_TEXT("expected full sectors")); }
-    if (writing && !s->writable) { return MP_OBJ_NEW_SMALL_INT(-MP_EROFS); }
+    if (n == 3 && buffer.len % SECTOR) {
+        mp_raise_ValueError(MP_ERROR_TEXT("expected full sectors"));
+    }
+    if (writing && !s->writable) {
+        return MP_OBJ_NEW_SMALL_INT(-MP_EROFS);
+    }
     int err = ready();
     uint8_t *buf = buffer.buf;
     size_t remaining = buffer.len;
@@ -135,13 +158,20 @@ static mp_obj_t transfer(size_t n, const mp_obj_t *args, bool writing) {
     s->busy = true;
     while (remaining && !err) {
         size_t chunk = PAGE - (addr % PAGE);
-        if (chunk > remaining) { chunk = remaining; }
+        if (chunk > remaining) {
+            chunk = remaining;
+        }
         if (writing) {
-            if (n == 3 && addr % SECTOR == 0) { err = erase(addr); }
-            if (!err) { err = program(addr, buf, chunk); }
+            if (n == 3 && addr % SECTOR == 0) {
+                err = erase(addr);
+            }
+            if (!err) {
+                err = program(addr, buf, chunk);
+            }
         } else {
             address_command(3, addr);
-            for (size_t i = 0; i < chunk; ++i) { buf[i] = shift(255); }
+            for (size_t i = 0; i < chunk; ++i) { buf[i] = shift(255);
+            }
             deselect_chip();
         }
         buf += chunk;
@@ -158,8 +188,12 @@ static mp_obj_t transfer(size_t n, const mp_obj_t *args, bool writing) {
     s->busy = false;
     return MP_OBJ_NEW_SMALL_INT(-err);
 }
-static mp_obj_t readblocks(size_t n, const mp_obj_t *args) { return transfer(n, args, false); }
-static mp_obj_t writeblocks(size_t n, const mp_obj_t *args) { return transfer(n, args, true); }
+static mp_obj_t readblocks(size_t n, const mp_obj_t *args) {
+    return transfer(n, args, false);
+}
+static mp_obj_t writeblocks(size_t n, const mp_obj_t *args) {
+    return transfer(n, args, true);
+}
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(read_obj, 3, 4, readblocks);
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(write_obj, 3, 4, writeblocks);
 static mp_obj_t ioctl(mp_obj_t o, mp_obj_t op, mp_obj_t arg) {
@@ -168,17 +202,23 @@ static mp_obj_t ioctl(mp_obj_t o, mp_obj_t op, mp_obj_t arg) {
     check(s);
     switch (operation) {
         case MP_BLOCKDEV_IOCTL_INIT:
-        case MP_BLOCKDEV_IOCTL_SYNC: return MP_OBJ_NEW_SMALL_INT(-ready());
-        case MP_BLOCKDEV_IOCTL_DEINIT: close(o); return MP_OBJ_NEW_SMALL_INT(0);
-        case MP_BLOCKDEV_IOCTL_BLOCK_COUNT: return MP_OBJ_NEW_SMALL_INT(s->length / SECTOR);
-        case MP_BLOCKDEV_IOCTL_BLOCK_SIZE: return MP_OBJ_NEW_SMALL_INT(SECTOR);
+        case MP_BLOCKDEV_IOCTL_SYNC:
+            return MP_OBJ_NEW_SMALL_INT(-ready());
+        case MP_BLOCKDEV_IOCTL_DEINIT:
+            close(o);
+            return MP_OBJ_NEW_SMALL_INT(0);
+        case MP_BLOCKDEV_IOCTL_BLOCK_COUNT:
+            return MP_OBJ_NEW_SMALL_INT(s->length / SECTOR);
+        case MP_BLOCKDEV_IOCTL_BLOCK_SIZE:
+            return MP_OBJ_NEW_SMALL_INT(SECTOR);
         case MP_BLOCKDEV_IOCTL_BLOCK_ERASE: {
             mp_int_t block = mp_obj_get_int(arg);
             check(s);
             uint32_t addr = offset(s, block, 0, SECTOR);
             return MP_OBJ_NEW_SMALL_INT(s->writable ? -erase(addr) : -MP_EROFS);
         }
-        default: return mp_const_none;
+        default:
+            return mp_const_none;
     }
 }
 static MP_DEFINE_CONST_FUN_OBJ_3(ioctl_obj, ioctl);

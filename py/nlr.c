@@ -82,7 +82,7 @@ void nlr_call_jump_callbacks(nlr_buf_t *nlr) {
     while (*top != nlr->callback_top) {
     #else
     while (*top != NULL && (void *)*top < (void *)nlr) {
-    #endif
+        #endif
         nlr_pop_jump_callback(true);
     }
 }

@@ -1,6 +1,7 @@
 from machine import ADC
 from p2 import PSRAM
 from time import sleep_ms
+
 adc = ADC(4)
 try:
     samples = PSRAM().alloc(2000)
