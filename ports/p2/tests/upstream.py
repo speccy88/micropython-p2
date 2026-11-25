@@ -19,7 +19,7 @@ tests = Path(__file__).resolve().parents[3] / "tests"
 out = args.out.resolve()
 out.mkdir(parents=True, exist_ok=True)
 patterns = ["basics/*.py", "float/*.py", "extmod/json*.py", "extmod/asyncio_basic*.py",
-            "extmod/vfs_fat*.py", "extmod/vfs_lfs2*.py", "micropython/heapalloc*.py"]
+            "extmod/vfs_fat*.py", "extmod/vfs_lfs*.py", "micropython/heapalloc*.py"]
 if args.quick:
     patterns = ["basics/int_divmod.py", "basics/try_finally*.py", "basics/generator*.py",
                 "basics/bytes*.py", "basics/fun_*arg*.py", "basics/bignum*.py",

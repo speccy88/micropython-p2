@@ -19,16 +19,20 @@ From `ports/p2` in bash, run `make -f tests/runtime/Makefile -j4`. The output is
 python tests/runtime/run.py build-runtime/foundation.bin --port COM12 --loader-dir /path/to/tinygo-p2/modern/hil --output validation/foundation.json
 ```
 
-The fixture runs nested setjmp/longjmp with zero and negative return values, deliberate clobbering of two preserved registers on an unaligned stack, more than 1,800 permutations of short memory operations, mixed variadic values, aggregate copy/return, signed division/remainder, boolean comparison, and single-precision libm. Roger Loh identified modulus, CORDIC dependencies, stack frames and stdio linkage in the older LLVM 14 port. The modern backend uses different frame, register-save, call and builtins code. The byte-by-byte historical patch comparison requires the original archives. See the port's source matrix for current acquisition status.
+The fixture runs nested setjmp/longjmp with zero and negative return values, deliberate clobbering of two preserved registers on an unaligned stack, more than 1,800 permutations of short memory operations, mixed variadic values, aggregate copy/return, signed division/remainder, boolean comparison, and single-precision libm.
 
-## Original forum attachments
+### Private LLVM overlay
 
-The original HTML of the archived P23 post identifies all three media IDs, filenames and file URLs. On 24 November 2026 the primary server returned HTTP 202 challenge HTML for each download and the browser requested an interactive CAPTCHA. The Wayback Machine retained the post, while requests for the six possible archive-file URLs (download route and stored file for each) returned HTTP 404. ZIP checksums are pending. The archived P24 page from 20 May ends with a 22 April post, and its pagination ends at page 24. The later live state remains unconfirmed. [19 May P23 capture](https://web.archive.org/web/20260519133108/https://forums.parallax.com/discussion/169862/micropython-for-p2/p23) and [20 May P24 capture](https://web.archive.org/web/20260520010039/https://forums.parallax.com/discussion/169862/micropython-for-p2/p24).
+The released SDK miscompiles the sentinel branch in `mp_set_lookup` at `-Oz`. A select can overwrite C/Z after the compare and before its conditional jump. The isolated P2 target patch selects a compare-and-branch terminator which expands after register allocation. It also implements the missing GETRND register instruction, prints signed PTRB offsets, and round-trips PTRA/PTRB counted updates. The signed immediate `[0]` retains its brackets so it reassembles to the exact input register/addressing mode.
 
-| Original name | Original attachment | Stored ZIP |
-| --- | --- | --- |
-| p2-mp-minimal.zip | [148228](https://forums.parallax.com/discussion/download/148228/p2-mp-minimal.zip) | [d2g4tb5o0kms.zip](https://forums.parallax.com/uploads/editor/4g/d2g4tb5o0kms.zip) |
-| llvmfixes.zip | [148229](https://forums.parallax.com/discussion/download/148229/llvmfixes.zip) | [vfug12bxm3uh.zip](https://forums.parallax.com/uploads/editor/yt/vfug12bxm3uh.zip) |
-| p2llvm-fixes.zip | [148230](https://forums.parallax.com/discussion/download/148230/p2llvm-fixes.zip) | [yv6wrlghoj6i.zip](https://forums.parallax.com/uploads/editor/um/yv6wrlghoj6i.zip) |
+From `ports/p2`, with a prepared SDK named by `P2_WORK`, run
 
-Once available, hash each original archive and compare each source file against the P2LLVM commit and LLVM submodule recorded there, then against the prepared LLVM 15 tree. Preserve the old ABI files as reference. The physical C foundation regression tests can be rerun using the commands above.
+```sh
+bash toolchain/build-overlay.sh /path/to/tinygo-p2/modern "$HOME/p2-micropython-toolchain"
+export P2_BIN="$HOME/p2-micropython-toolchain/build/bin"
+bash tools/build_profiles.sh edge lean threaded
+```
+
+The script checks the baseline patch digest and checks out LLVM 15.0.7 into a private Git worktree. Clang, MC, LLD and their support tools use that private target. Runtime archives, VM objects and final firmware are rebuilt for the selected profile. The profile script validates the compiler and selects `-Oz` for maps on the corrected compiler. A stock SDK build uses the `-Os` map workaround.
+
+To check an existing installation, run `python3 toolchain/check-overlay.py "$P2_BIN"`. The regression checks the independent select/branch predicates, the quotient and remainder result registers, all 256 standard (unaugmented) pointer encodings, all four flag effects on GETRND, and invalid offset boundaries. The complete comparison records Roger Loh's contributions and the acceptance evidence. [Original archive comparison](roger-comparison.md) · [Compiler validation](../validation/compiler-overlay.json)

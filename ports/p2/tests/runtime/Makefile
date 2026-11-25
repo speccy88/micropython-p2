@@ -6,6 +6,11 @@ include runtime/runtime.mk
 CC = $(P2_LLVM_BIN)/clang
 CFLAGS = --target=p2 -ffreestanding -fno-builtin -Werror=vla -Os -ffunction-sections -fdata-sections $(P2_RUNTIME_INC)
 SRCS := boot.S startup.c runtime/context.S runtime/memory.S tests/runtime/registers.S tests/runtime/check.c
+ifeq ($(P2_TEST_OVERLAY),1)
+SRCS += toolchain/compare-branch.c tests/runtime/overlay.c
+CFLAGS += -DP2_TEST_OVERLAY
+$(BUILD)/toolchain/compare-branch.c.o: private CFLAGS += -Oz
+endif
 OBJS := $(addprefix $(BUILD)/,$(addsuffix .o,$(SRCS)))
 $(BUILD)/%.o: %
 	@mkdir -p "$(@D)"

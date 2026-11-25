@@ -114,6 +114,9 @@ static int check_memory(uint8_t seed) {
 static __attribute__((noinline)) int32_t quotient(int32_t a, int32_t b) { return a / b; }
 static __attribute__((noinline)) int32_t p2_remainder(int32_t a, int32_t b) { return a % b; }
 static __attribute__((noinline)) _Bool below(int a, int b) { return a < b; }
+#ifdef P2_TEST_OVERLAY
+int check_overlay(void);
+#endif
 
 int main(void) {
     // The host supplies four fresh bytes, then checks the response and mask.
@@ -132,6 +135,9 @@ int main(void) {
     if (quotient(-1234567, 91) == -13566 && p2_remainder(-1234567, 91) == -61 &&
         quotient(18, -7) == -2 && p2_remainder(18, -7) == 4 &&
         below(-2, 1) && !below(1, -2)) { mask |= 16; }
+    #ifdef P2_TEST_OVERLAY
+    if (!check_overlay()) { mask &= ~16u; }
+    #endif
     if (sqrtf(16.0f) == 4.0f && fabsf(sinf(0.5f) - 0.47942554f) < 0.000001f) { mask |= 32; }
     send("P2CRT ");
     number(challenge);

@@ -58,7 +58,7 @@ static mp_obj_t make_driver(const mp_obj_type_t *type, size_t n, size_t nk, cons
         mp_raise_TypeError(MP_ERROR_TEXT("driver image requires bytes"));
     }
     size_t size;
-    const uint8_t *src = mp_obj_str_get_data(image, &size);
+    const uint8_t *src = (const uint8_t *)mp_obj_str_get_data(image, &size);
     if (size < HEADER_BYTES || memcmp(src, "P2D1\x01\x00\x18\x00", 8)) {
         mp_raise_ValueError(MP_ERROR_TEXT("driver header"));
     }

@@ -1,0 +1,34 @@
+--- a/tests/driver/performance-division.test
++++ b/tests/driver/performance-division.test
+@@ -7,11 +7,11 @@
+ # CHECK-LABEL: updated:
+ # CHECK: mov [[COUNT:r[0-9]+]], #0
+ # CHECK: [[LOOP:.LBB[0-9_]+]]:
++# CHECK: mov [[BEFORE:r[0-9]+]], [[COUNT]]
+ # CHECK: calla #\__udivmoddi4
+ # CHECK-NOT: calla
+-# CHECK: add [[NEXT:r[0-9]+]], #1
+-# CHECK: cmp [[COUNT]], #63
+-# CHECK: mov [[COUNT]], [[NEXT]]
++# CHECK: add [[COUNT]], #1
++# CHECK: cmp [[BEFORE]], #63 wcz
+ # CHECK: if_c{{[ \t]+}}jmp #[[LOOP]]
+ # CHECK: getct
+ # CHECK: reta
+--- a/tests/driver/performance-memset.test
++++ b/tests/driver/performance-memset.test
+@@ -7,11 +7,11 @@
+ # CHECK-LABEL: updated:
+ # CHECK: mov [[COUNT:r[0-9]+]], #0
+ # CHECK: [[LOOP:.LBB[0-9_]+]]:
++# CHECK: mov [[BEFORE:r[0-9]+]], [[COUNT]]
+ # CHECK: calla #\memset
+ # CHECK-NOT: calla
+-# CHECK: add [[NEXT:r[0-9]+]], #1
+-# CHECK: cmp [[COUNT]], #63
+-# CHECK: mov [[COUNT]], [[NEXT]]
++# CHECK: add [[COUNT]], #1
++# CHECK: cmp [[BEFORE]], #63 wcz
+ # CHECK: if_c{{[ \t]+}}jmp #[[LOOP]]
+ # CHECK: getct
+ # CHECK: reta

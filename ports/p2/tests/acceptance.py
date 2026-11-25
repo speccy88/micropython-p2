@@ -28,6 +28,17 @@ try:
     reply = board.exec(script).decode().strip()
     checks["large_raw_paste"] = {"bytes":len(script), "reply":reply, "nonce":nonce,
                                  "passed":reply == nonce and board.use_raw_paste}
+    # An intact raw prompt can follow a damaged output stream. Check every
+    # byte in more than sixty TX ring lengths, including ordered line IDs.
+    payload = nonce * 3
+    expected = "".join("%04x %s\r\n" % (i, payload) for i in range(1024)).encode()
+    received = board.exec(f"for i in range(1024):\n print('%04x ' % i + {payload!r})")
+    checks["large_serial_output"] = {
+        "expected_bytes": len(expected), "received_bytes": len(received),
+        "expected_sha256": hashlib.sha256(expected).hexdigest(),
+        "received_sha256": hashlib.sha256(received).hexdigest(),
+        "passed": received == expected,
+    }
     board.exec_raw_no_follow("while True:\n pass")
     time.sleep(.1)
     board.serial.write(b"\x03")

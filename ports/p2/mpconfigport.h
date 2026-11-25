@@ -40,6 +40,8 @@
 int p2_is_filesystem_stream(const void *obj);
 #endif
 #define MICROPY_PY_MACHINE (0)
+// Translate MP_STREAM_ERROR/EAGAIN to None or a partial count on UART timeout.
+#define MICROPY_STREAMS_NON_BLOCK (P2_ENABLE_BUSES)
 #define MICROPY_PY_OS (1)
 #define MICROPY_PY_TIME (1)
 #define MICROPY_PY_SYS_STDFILES (1)
@@ -73,6 +75,7 @@ void p2_thread_pystack_init(void);
     __builtin_choose_expr(__builtin_constant_p(cond), (cond), 1) ? 1 : -1; }))
 
 #if P2_PROFILE_EDGE
+#define MICROPY_PY_ERRNO (1)
 #define MICROPY_FLOAT_IMPL MICROPY_FLOAT_IMPL_FLOAT
 #define MICROPY_PY_BUILTINS_COMPLEX (0)
 #define MICROPY_PY_MATH (1)
