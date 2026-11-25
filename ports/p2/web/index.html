@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#123d33">
+  <meta name="theme-color" content="#002942">
   <meta name="description" content="Load MicroPython on a Propeller 2 Edge over USB and start coding in ViperIDE.">
   <title>Propeller 2 Workbench · MicroPython</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23192c26'/%3E%3Ctext x='3' y='23' font-family='sans-serif' font-size='21' font-weight='bold' fill='%23c4f084'%3EP₂%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23002942'/%3E%3Ctext x='3' y='23' font-family='sans-serif' font-size='21' font-weight='bold' fill='%23ffffff'%3EP₂%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -21,13 +21,7 @@
       </div>
       <div class="bench">
         <section class="hardware" aria-labelledby="board-name">
-          <div class="diagram" role="img" aria-label="Resource diagram of the eight Propeller 2 cogs around shared hub RAM">
-            <div class="pcb" aria-hidden="true">
-              <div class="silk"><b>P2</b><span>PROPELLER 2</span></div>
-              <div class="chip"><div class="cogs"><i>0</i><i>1</i><i>2</i><i>3</i></div><div class="hub">HUB RAM</div><div class="cogs"><i>4</i><i>5</i><i>6</i><i>7</i></div></div>
-              <div class="banks"><i></i><i></i><i></i><i></i></div>
-            </div>
-          </div>
+          <div class="board-photo"><img id="board-photo" src="./p2-ec32mb.png" width="1000" height="1000" alt="P2-EC32MB with 32 MB PSRAM and LEDs P38 and P39"></div>
           <div class="board-info"><div><h2 id="board-name">P2 Edge</h2><span id="board-code" class="code">P2-EC32MB</span></div>
             <dl><div><dt>Clock</dt><dd>160 MHz</dd></div><div><dt>Hub RAM</dt><dd>512 KiB</dd></div><div><dt id="extra-label">PSRAM</dt><dd id="extra-value">32 MiB</dd></div></dl>
           </div>

@@ -8,6 +8,9 @@ You can also put a cog to work while Python is busy, capture a pulse with a Smar
 
 ## Get a prompt
 
+<img src="ports/p2/web/p2-ec32mb.png" width="185" alt="P2 Edge with 32 MB PSRAM, LEDs P38 and P39"> <img src="ports/p2/web/p2-edge.png" width="185" alt="Plain P2 Edge, LEDs P56 and P57">
+
+
 Use a P2-EC32MB Edge, a powered carrier, and a Prop Plug or equivalent 3.3 V USB serial connection with reset. Set the board for serial-capable boot. The names on the switches vary by revision. For the first run, a RAM download lets you try Python and return to the board’s previous boot program with a power cycle. [Parallax board guide](https://www.parallax.com/package/p2-edge-module-with-32mb-ram-product-guide/)
 
 ### From your browser

@@ -14,6 +14,8 @@ function updateForm() {
         ? "Overwrites your current boot program. Keep a recovery copy and leave power connected until Python starts."
         : "Runs until the next hardware reset or power cycle. Your boot flash stays intact.";
     $("board-code").textContent = profile === "lean" ? "P2 EDGE" : "P2-EC32MB";
+    $("board-photo").src = profile === "lean" ? "./p2-edge.png" : "./p2-ec32mb.png";
+    $("board-photo").alt = profile === "lean" ? "Plain P2 Edge with LEDs P56 and P57" : "P2-EC32MB with 32 MB PSRAM and LEDs P38 and P39";
     $("extra-label").textContent = profile === "edge" ? "PSRAM" : "GC arena";
     const option = $("profile").selectedOptions[0];
     $("extra-value").textContent = profile === "edge" ? "32 MiB" : option.dataset.gcKib + " KiB";

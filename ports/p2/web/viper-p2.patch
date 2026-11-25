@@ -12,7 +12,7 @@ index e765650..b2865df 100644
                      <div><a href="#" onclick="app.pyMinify()" id="py-minify">🤏 Minify current file</a></div>
                      <div><a href="#" onclick="app.saveAndCompile()" id="py-save-compile">🛠️ Save &amp; compile to .mpy</a></div>
 diff --git a/src/app.js b/src/app.js
-index edb3c77..541104d 100644
+index edb3c77..fd664f1 100644
 --- a/src/app.js
 +++ b/src/app.js
 @@ -35,11 +35,9 @@ import { createBrowserVM, SYSTEM_DIRS } from './emulator.js'
@@ -104,16 +104,53 @@ index edb3c77..541104d 100644
  }
  
  /*
-@@ -1695,7 +1714,7 @@ Connect your device and start creating! 🤖👨‍💻🕹️
- > 👉 Open a [virtual device](${VIPER_IDE_BASE_URL}/?vm=1) and explore some examples.
- 
- > **New board, no MicroPython on it yet?**  
+@@ -1680,33 +1699,18 @@ export async function saveCurrentFile() {
+    tab is closed. It has no file behind it on the device, so it is never saved
+    and never reconciled against a board. */
+ async function openWelcomeTab() {
+-    const fn = 'ViperIDE.md'
+-    const content = `
+-# ViperIDE - MicroPython Web IDE
+-
+-[![GitHub Repo stars](https://img.shields.io/github/stars/vshymanskyy/ViperIDE?style=flat-square&color=green)](https://github.com/vshymanskyy/ViperIDE/stargazers) 
+-[![GitHub issues](https://img.shields.io/github/issues-raw/vshymanskyy/ViperIDE?style=flat-square&label=issues&color=green)](https://github.com/vshymanskyy/ViperIDE/issues) 
+-[![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/vshymanskyy/ViperIDE) 
+-[![Support vshymanskyy](https://img.shields.io/static/v1?style=flat-square&label=support&message=%E2%9D%A4&color=%23fe8e86)](https://gist.github.com/vshymanskyy/840e6fa41ea6b028b91b333b6e4542ed) 
+-
+-Connect your device and start creating! 🤖👨‍💻🕹️
+-
+-> **No device?**  
+-> 👉 Open a [virtual device](${VIPER_IDE_BASE_URL}/?vm=1) and explore some examples.
+-
+-> **New board, no MicroPython on it yet?**  
 -> 👉 Use the [Firmware Flasher](${VIPER_IDE_BASE_URL}/flasher.html) to install it.
-+> 👉 Use the [Firmware Flasher](${VIPER_IDE_BASE_URL}/../) to install it.
+-
+-## More about ViperIDE
+-
+-- [README](https://github.com/vshymanskyy/ViperIDE/blob/main/README.md)
+-- [Features and device support](https://github.com/vshymanskyy/ViperIDE/blob/main/docs/Features.md)
+-- [Documentation](https://github.com/vshymanskyy/ViperIDE/tree/main/docs)
+-- [Discussions](https://github.com/orgs/micropython/discussions?discussions_q=ViperIDE)
+-- [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md) 
+-
+-`
+-    await _loadContent(fn, content, createTab(fn))
++    const fn = 'README.md'
++    const repo = 'https://github.com/speccy88/micropython-p2/blob/main/'
++    const response = await fetch('./README.md')
++    const content = response.ok ? await response.text() : '[Read the P2 tutorial](' + repo + fn + ')'
++    const pane = createTab(fn)
++    await _loadContent(fn, content, pane)
++    for (const link of pane.querySelectorAll('a[href^="ports/"]')) {
++        link.href = repo + link.getAttribute('href')
++    }
++    for (const img of pane.querySelectorAll('img[src^="ports/p2/web/"]')) {
++        img.src = '../' + img.getAttribute('src').split('/').pop()
++    }
+ }
  
- ## More about ViperIDE
- 
-@@ -2214,19 +2233,6 @@ function showOfflineReadyToast(version) {
+ export function clearTerminal() {
+@@ -2214,19 +2218,6 @@ function showOfflineReadyToast(version) {
  (async () => {
      const urlParams = new URLSearchParams(window.location.search)
  
@@ -133,7 +170,7 @@ index edb3c77..541104d 100644
      await i18next.use(LanguageDetector).init({
          fallbackLng: 'en',
          //debug: true,
-@@ -2241,84 +2247,7 @@ function showOfflineReadyToast(version) {
+@@ -2241,84 +2232,7 @@ function showOfflineReadyToast(version) {
          applyTranslation()
      })
  
@@ -219,7 +256,7 @@ index edb3c77..541104d 100644
  
      onSettingChange('zoom', function(newValue) {
          const size = 14 * parseFloat(newValue)
-@@ -2522,6 +2451,7 @@ function showOfflineReadyToast(version) {
+@@ -2522,6 +2436,7 @@ function showOfflineReadyToast(version) {
  
      /* location.search has been acted on, so anything the launch queue hands
         over from here on is a link followed into this already-running window */
@@ -227,21 +264,69 @@ index edb3c77..541104d 100644
      startupSettled = true
  
      if (typeof webrepl_url !== 'undefined') {
+diff --git a/src/app_common.css b/src/app_common.css
+index d8f5b66..d62974f 100644
+--- a/src/app_common.css
++++ b/src/app_common.css
+@@ -8,14 +8,14 @@
+ 
+ :root {
+     --fg-color: white;
+-    --fg-color-highlight: orange;
+-    --accent-color: #0a84ff;
+-    --bg-color: #2a2e32;
+-    --bg-color-menu: #2a2e32ee;
+-    --bg-color-edit: #111314;
++    --fg-color-highlight: #ffe093;
++    --accent-color: #dbe1ff;
++    --bg-color: #002942;
++    --bg-color-menu: #002942ee;
++    --bg-color-edit: #072835;
+     --font-size: 14px;
+-    --connected-passive: #87c244;
+-    --connected-active: #0a84ff;
++    --connected-passive: #ffe093;
++    --connected-active: #dbe1ff;
+     --connected-color: var(--connected-passive);
+     --animation: 0.3s ease-in-out;
+ }
+@@ -259,7 +259,7 @@ option {
+ 
+ .fa-power-off { color: #ffcc4d; }
+ .fa-bug { color: #ffcc4d; }
+-.fa-download { color: #87c244; }
++.fa-download { color: #ffe093; }
+ .fa-circle-play { color: #3b88c3; }
+ .fa-circle-stop { color: #ff7272; }
+ .fa-circle-info { color: #3b88c3; }
+@@ -269,7 +269,7 @@ option {
+ .fa-certificate { color: #ba0311; }
+ .fa-cube { color: #ba9066; }
+ .fa-cubes { color: #ba9066; }
+-.fa-gauge-high { color: #87c244; }
++.fa-gauge-high { color: #ffe093; }
+ .fa-tools { color: #ccd6dd; }
+ /*.fa-arrows-rotate { color: #3b88c3; }*/
+ .fa-sliders { color: #ccd6dd }
 diff --git a/src/manifest.json b/src/manifest.json
-index 048f42a..8925052 100644
+index 048f42a..2da577c 100644
 --- a/src/manifest.json
 +++ b/src/manifest.json
-@@ -3,8 +3,8 @@
+@@ -3,10 +3,10 @@
      "name": "ViperIDE",
      "short_name": "ViperIDE",
      "description": "MicroPython Web IDE",
 -    "start_url": "/index.html",
 -    "scope": "/",
+-    "background_color": "#2a2e32",
+-    "theme_color": "#2a2e32",
 +    "start_url": "./index.html",
 +    "scope": "./",
-     "background_color": "#2a2e32",
-     "theme_color": "#2a2e32",
++    "background_color": "#002942",
++    "theme_color": "#002942",
      "display": "standalone",
+     "handle_links": "preferred",
+     "launch_handler": {
 diff --git a/src/transports/web_serial.js b/src/transports/web_serial.js
 index a738590..5093fe6 100644
 --- a/src/transports/web_serial.js

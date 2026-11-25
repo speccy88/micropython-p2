@@ -40,3 +40,5 @@ Once Python starts, the loader releases its stream locks and hands the open port
 The workbench and P2 integration use the MIT license. ViperIDE and its dependencies keep their upstream notices. The deployed site includes a license index. [Workbench license](LICENSE) · [Pinned ViperIDE source](https://github.com/vshymanskyy/ViperIDE/tree/6bbfb5036248312b8b2b4e7d81735acedaa8c9b6) · [Firmware sources and credits](../SOURCES.md)
 
 The USB reset and base64 protocol were checked against the supplied Propeller Bench implementation, this port's RAM loader, and the loadp2 programmer. The site ships the published MicroPython images and the pinned loadp2 stub. [RAM loader](../tools/p2ram.py) · [loadp2 license](../tools/loadp2/LICENSE)
+
+The board selector uses supplied Parallax product photos of the [plain P2 Edge](https://www.parallax.com/products/p2-edge-module/) and the [32 MB Edge](https://www.parallax.com/products/p2-edge-module-with-32mb-ram). The workbench and editor use the navy, white and pale blue from [Parallax](https://www.parallax.com/). The editor's welcome tab loads the repository README bundled with each Pages deployment.

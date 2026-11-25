@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'README.md'
       - 'ports/p2/web/**'
       - 'ports/p2/firmware/**'
       - 'ports/p2/tools/flash_boot.py'
