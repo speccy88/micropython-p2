@@ -38,9 +38,10 @@ jobs:
           make -C mpy-cross -j3
           python ports/p2/tests/drivers/host_check.py --mpy-cross mpy-cross/build/mpy-cross --output "$RUNNER_TEMP/packages.json"
           python ports/p2/tests/test_pyboard_socket.py
-      - name: Exercise Web Serial transfers and NOR storage
+      - name: Exercise Web Serial transfers, SoftI2C and NOR storage
         run: |
           node --test ports/p2/web/rom.test.mjs
+          python ports/p2/tests/bus/i2c_model.py
           cc -std=c11 -Wall -Wextra -Ilib/littlefs ports/p2/tests/bus/flash_model.c lib/littlefs/lfs2.c lib/littlefs/lfs2_util.c -o "$RUNNER_TEMP/flash-model"
           "$RUNNER_TEMP/flash-model"
       - name: Verify kit bytes, Unix permissions and packaged compiler
