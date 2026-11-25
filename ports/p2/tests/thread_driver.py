@@ -5,6 +5,10 @@ import gc
 import p2
 import time
 
+image = globals().get("DRIVER_IMAGE")
+if image is None:
+    raise ValueError("Prepend DRIVER_IMAGE with the bytes from checksum.p2d")
+
 
 def wait(predicate, label):
     start = time.ticks_ms()
@@ -43,7 +47,7 @@ def worker():
     try:
         client = p2.get_driver(cog)
         rejected(1, client.stop)
-        rejected(1, p2.Driver, DRIVER_IMAGE)
+        rejected(1, p2.Driver, image)
         requests(client, 7000)
         status.append("ready")
         wait(lambda: len(status) == 2, "stop timeout")
@@ -55,7 +59,7 @@ def worker():
 
 gate = _thread.allocate_lock()
 status = []
-driver = p2.Driver(DRIVER_IMAGE, pins=(5,))
+driver = p2.Driver(image, pins=(5,))
 cog = driver.id()
 del driver
 gc.collect()
