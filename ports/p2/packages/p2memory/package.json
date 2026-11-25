@@ -1,0 +1,9 @@
+{
+  "version": "0.1.0",
+  "urls": [
+    [
+      "p2memory.py",
+      "../../modules/p2memory.py"
+    ]
+  ]
+}

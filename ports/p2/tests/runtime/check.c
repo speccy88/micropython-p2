@@ -49,23 +49,22 @@ static __attribute__((noinline)) struct payload transform(struct payload p, unsi
 
 static __attribute__((noinline)) void nested(jmp_buf outer) {
     jmp_buf inner;
-    int value = setjmp(inner);
-    if (value == 0) {
-        longjmp(inner, 0);
+    switch (setjmp(inner)) {
+        case 0: longjmp(inner, 0);
+        case 1: longjmp(outer, -37);
+        default: longjmp(outer, 2);
     }
-    longjmp(outer, value == 1 ? -37 : 2);
 }
 
 static int check_context(void) {
     jmp_buf env;
     for (unsigned i = 0; i < 32; ++i) {
-        int result = setjmp(env);
-        if (result == 0) {
-            nested(env);
+        switch (setjmp(env)) {
+            case 0: nested(env); return 0;
+            case -37: break;
+            default: return 0;
         }
-        if (result != -37 || !p2_check_registers(env)) {
-            return 0;
-        }
+        if (!p2_check_registers(env)) { return 0; }
     }
     return 1;
 }

@@ -1,0 +1,14 @@
+{
+  "seed": 74139,
+  "modules": 36,
+  "operations": 23040,
+  "mpy_bytes": 237971,
+  "mpy_sha256": "0265ac296ceb38ffba189a8b9e8b73d0895f63982645af0b140d2f653077ce96",
+  "initial_free_heap": 92256,
+  "upload_seconds": 116.89100000006147,
+  "run_ms": 4980,
+  "free_after": 88416,
+  "actual": 41735,
+  "expected": 41735,
+  "passed": true
+}

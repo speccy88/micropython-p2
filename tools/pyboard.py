@@ -284,6 +284,15 @@ class Pyboard:
             self.serial = ProcessToSerial(device[len("exec:") :])
         elif device.startswith("execpty:"):
             self.serial = ProcessPtyToTerminal(device[len("execpty:") :])
+        elif device.startswith("socket://"):
+            # Keep reset-sensitive RAM targets alive across test invocations
+            # through a local serial relay. Binary streams use pySerial's
+            # socket transport without telnet control-byte interpretation.
+            import serial
+
+            self.serial = serial.serial_for_url(
+                device, baudrate=baudrate, timeout=timeout, write_timeout=write_timeout
+            )
         elif device and device[0].isdigit() and device[-1].isdigit() and device.count(".") == 3:
             # device looks like an IP address
             self.serial = TelnetToSerial(device, user, password, read_timeout=10)

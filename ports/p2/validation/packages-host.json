@@ -1,0 +1,101 @@
+{
+  "scope": "CPython recording devices and host bytecode compilation",
+  "mpy_cross": "MicroPython v1.29.0 on 2026-11-24; mpy-cross emitting mpy v6.3",
+  "tests": {
+    "test_array.Arrays.test_8_mib_random_offsets": "pass",
+    "test_array.Arrays.test_bounds_and_formats": "pass",
+    "test_array.Arrays.test_eviction_and_bulk": "pass",
+    "test_array.Arrays.test_failed_eviction": "pass",
+    "test_packages.Packages.test_install_payloads": "pass",
+    "test_packages.Packages.test_legacy_pin_and_pwm": "pass",
+    "test_packages.Packages.test_sensor_and_display": "pass",
+    "test_packages.Packages.test_signals": "pass",
+    "test_packages.Packages.test_simple_extended_block_io": "pass"
+  },
+  "compiled": {
+    "examples/adc_log.py": {
+      "bytes": 352,
+      "sha256": "9445e35f59fbc73637190b80d4d5c67e356036f2da6c3e5b442aae409e47954a"
+    },
+    "examples/counter.py": {
+      "bytes": 176,
+      "sha256": "916def67ca1941dbf8d973f918ff969171ca243a8d6a3dff736e8e20b17bf231"
+    },
+    "examples/encoder.py": {
+      "bytes": 185,
+      "sha256": "d060f30c99235a33e37c6d407ffe23061b0e0f35b36f66c6c549c6c4a9ac4e07"
+    },
+    "examples/external_array.py": {
+      "bytes": 999,
+      "sha256": "07a4be66be179535b9a5f2b4762be8b8e42505eed89ae3fcd3ce399248dc5658"
+    },
+    "examples/frequency.py": {
+      "bytes": 225,
+      "sha256": "70050c0117f3b10a8b1f634c7ba7b0ff2e95095272f4024800095edfb4b940dd"
+    },
+    "examples/legacy_led.py": {
+      "bytes": 225,
+      "sha256": "989f0e6a378e71f37e106d354e140ea8bde311b72f5dcd4ba10ed92a1153dfe7"
+    },
+    "examples/ramfs.py": {
+      "bytes": 346,
+      "sha256": "7755868b09f3afcb6b9825e7ff0ab21d2f350f0082ce0216407a745794ff89e6"
+    },
+    "examples/servo.py": {
+      "bytes": 194,
+      "sha256": "ce9a9e6a5794ac791b435826f5bc293e6cc8a43a00d3c5f741e27c135b8dc6d0"
+    },
+    "examples/signal_tiles.py": {
+      "bytes": 391,
+      "sha256": "ed05f6b64b26e7a3f88ba5bb22cd29bd769a7f295831f273428f3322352f4f63"
+    },
+    "examples/ssd1306.py": {
+      "bytes": 383,
+      "sha256": "f8f50d24f27d9f853bdde2f09ec979c39aa324d0e19f0466d3eb745067410f03"
+    },
+    "examples/tmp102.py": {
+      "bytes": 201,
+      "sha256": "de1121b06166f3b6ca165f7225befbedc5c9b80a023ded0bf1036eb671f6f11a"
+    },
+    "modules/p2array.py": {
+      "bytes": 2751,
+      "sha256": "04f0dc48cd46af632be8a610761390fdde8eccda9b25719e1fd367d5068ad48a"
+    },
+    "modules/p2devices.py": {
+      "bytes": 799,
+      "sha256": "9402f1b992bccdd097acd8ac14d137c5a6d44a69e165dc7018541ada652b293c"
+    },
+    "modules/p2memory.py": {
+      "bytes": 683,
+      "sha256": "86b6ba6a6fb37d5098c175f3a9ad6ef49abcc068685cdf3821b27c0c28043296"
+    },
+    "modules/p2overlay.py": {
+      "bytes": 625,
+      "sha256": "0a003fd533c5e9e9bf385723ddd3dab5700f3cbd5f22cb6bfb03704214e2f6cd"
+    },
+    "modules/p2signals.py": {
+      "bytes": 1473,
+      "sha256": "77c356f370b3645a75ffa8da0dba636743d26fe5161fdb6a87a2de37b750e406"
+    },
+    "packages/p2legacy/p2legacy.py": {
+      "bytes": 712,
+      "sha256": "0c6af9a2eebe565db4c45aeaff11b2a7276d1038ede096f1964589d4a8f580ff"
+    },
+    "tests/drivers/api.py": {
+      "bytes": 1533,
+      "sha256": "89d3df4a9e0c245fcf89982d7602e424682c7cf871fc4256920f4326dd9bbcf5"
+    },
+    "tests/drivers/array_smoke.py": {
+      "bytes": 544,
+      "sha256": "08091b7a79c27ed82f3c65e35ce5b269d1ebf71a95fee3b46470d0d17ec0086b"
+    },
+    "tests/drivers/bounds32.py": {
+      "bytes": 657,
+      "sha256": "bdc4309ff6c1116208d274363161f95ec331c83520399e6570c2a310db0f9b06"
+    },
+    "tests/drivers/pwm_capture.py": {
+      "bytes": 821,
+      "sha256": "9367fcec32c5e5fbf6c2d889dff2764081c076291393d06636bb1b247845732b"
+    }
+  }
+}

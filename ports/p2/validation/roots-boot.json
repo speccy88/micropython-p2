@@ -1,0 +1,23 @@
+{
+  "image": {
+    "file": "C:\\Users\\fred_\\OneDrive\\One Note\\ChatGPT\\Propeller 2\\micropython-p2\\ports\\p2\\build-P2_EC32MB-edge\\vm-roots.bin",
+    "sha256": "6fa83c396b5d90f324486c2e35807fe16da9dc118abc0d4d43a86506536455ab",
+    "format": "binary",
+    "file_bytes": 359008
+  },
+  "device": {
+    "device": "COM12",
+    "description": "USB Serial Port (COM12)",
+    "hwid": "USB VID:PID=0403:6001 SER=A500507HA"
+  },
+  "rom": "Prop_Ver G",
+  "download": {
+    "loaded_bytes": 359008,
+    "checksum": "ca24fade",
+    "checksum_ack": ".",
+    "checksum_prefix": "",
+    "load_mode": "ROM-base64-RAM-only"
+  },
+  "console": "P2 GC roots: 7/7\r\nMicroPython v1.29.0 on 2026-11-24; P2-EC32MB with Propeller 2\r\n>>> ",
+  "friendly_prompt": true
+}

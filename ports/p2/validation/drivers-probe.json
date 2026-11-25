@@ -1,0 +1,24 @@
+{
+  "port": "COM12",
+  "rom": "Prop_Ver G",
+  "image": {
+    "file": "C:\\Users\\fred_\\OneDrive\\One Note\\ChatGPT\\Propeller 2\\micropython-p2\\ports\\p2\\build-probe\\drivers.bin",
+    "sha256": "a317e959b08364c167d7dfd5ef6327fe307dac77c35a006ff870c098f3358c02",
+    "format": "binary",
+    "file_bytes": 6140
+  },
+  "download": {
+    "loaded_bytes": 6140,
+    "checksum": "b5c8a7b0",
+    "checksum_ack": ".",
+    "checksum_prefix": "",
+    "load_mode": "ROM-base64-RAM-only"
+  },
+  "output": [
+    "RAM_ID 0d0d0d0d 5d5d5d5d",
+    "RAM_DATA fca75123 1352c7ba TICKS 0000008a 000000d6",
+    "SMART 8321badc",
+    "COG 00000002 00000001 00000063",
+    "END"
+  ]
+}

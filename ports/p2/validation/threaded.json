@@ -1,0 +1,40 @@
+{
+  "flat_image_sha256": "2bf510ebb56ca2bddaa9da3fb7d0bbc4f00ec4cff8d286172dc8acf107989df6",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "b837741d6727aed86e971742",
+      "nonce": "b837741d6727aed86e971742",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 179600
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 179600
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 179600
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 179600
+    },
+    "tests/threaded.py": {
+      "sha256": "1fc2777d7c55e7491d7028fcb48686325182b4203a47a9195802fa98ab093566",
+      "seconds": 0.40699999989010394,
+      "passed": true,
+      "stdout": "{\"gc_25_wall_us\": 77684, \"test\": \"two_threads\", \"passed\": true, \"main_id\": 1, \"worker_id\": 3}",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

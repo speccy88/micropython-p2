@@ -167,7 +167,11 @@ void mp_call_function_1_from_nlr_jump_callback(void *ctx_in);
 static inline void mp_thread_init_state(mp_state_thread_t *ts, size_t stack_size, mp_obj_dict_t *locals, mp_obj_dict_t *globals) {
     mp_thread_set_state(ts);
 
+    #ifdef MICROPY_THREAD_CSTACK_BASE
+    mp_cstack_init_with_top(MICROPY_THREAD_CSTACK_BASE(), stack_size);
+    #else
     mp_cstack_init_with_top(ts + 1, stack_size); // need to include ts in root-pointer scan
+    #endif
 
     // GC starts off unlocked
     ts->gc_lock_depth = 0;

@@ -40,6 +40,9 @@ __attribute__((used)) unsigned int nlr_push_tail(nlr_buf_t *nlr);
 unsigned int nlr_push_tail(nlr_buf_t *nlr) {
     nlr_buf_t **top = &MP_STATE_THREAD(nlr_top);
     nlr->prev = *top;
+    #if MICROPY_CSTACK_GROWS_UP
+    nlr->callback_top = MP_STATE_THREAD(nlr_jump_callback_top);
+    #endif
     MP_NLR_SAVE_PYSTACK(nlr);
     *top = nlr;
     return 0; // normal return
@@ -75,7 +78,11 @@ void nlr_pop_jump_callback(bool run_callback) {
 // the `nlr` pointer on the C stack (and so pushed before `nlr` was pushed).
 void nlr_call_jump_callbacks(nlr_buf_t *nlr) {
     nlr_jump_callback_node_t **top = &MP_STATE_THREAD(nlr_jump_callback_top);
+    #if MICROPY_CSTACK_GROWS_UP
+    while (*top != nlr->callback_top) {
+    #else
     while (*top != NULL && (void *)*top < (void *)nlr) {
+    #endif
         nlr_pop_jump_callback(true);
     }
 }

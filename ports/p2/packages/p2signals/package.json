@@ -1,0 +1,9 @@
+{
+  "version": "0.1.0",
+  "urls": [
+    [
+      "p2signals.py",
+      "../../modules/p2signals.py"
+    ]
+  ]
+}

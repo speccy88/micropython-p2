@@ -1,0 +1,27 @@
+# Earlier P2 examples
+
+The bundled source targets the native LLVM 15 ABI and the current MicroPython
+object model. The optional `p2legacy` package implements a small set of LED
+helpers in Python. Each open output uses one claimed Smart Pin or GPIO and
+one retained handle in hub RAM, with no added cog. Call `freepin(pin)` before
+switching from digital output to PWM or handing its pin to another driver.
+
+| Original example or API | Compatibility and required edit |
+| --- | --- |
+| Rayman LED examples 0–1, `pinh`, `pinl`, `pint`, millisecond `delay` | Provided by `import p2legacy as p2`. Choose P0 plus an external LED/330 Ω resistor. Original SimpleP2 P52/P53 and EVAL P56/P57 are wired to PSRAM on the EC32MB and cannot be selected. |
+| Rayman LED examples 2–6, `startled`, `setled` | The wrapper accepts brightness 0..255 and scales to the Smart Pin PWM duty. Example 3 can keep `time.ticks_ms`; compare wrapped counters with `time.ticks_diff`. Exact legacy PWM carrier and active-low board wiring require adaptation. |
+| Team Oz `Pin(57, Pin.IN, Pin.PULL_UP).value()` | The input constructor and read are implemented. Select an available header pin on EC32MB. The pull uses the P2's nominal 15 kΩ pad drive. |
+| Team Oz `Pin.Out_PP`, `p_out.high()/low()/toggle()` | Use `Pin.OUT`, `on()`, `off()`, or the optional helper's `pint`. Passing an integer pin number is supported. |
+| Team Oz `machine.freq()` / `machine.freq(252000000)` | Frequency readout returns 160 MHz. Setting the system clock is unsupported. |
+| Team Oz `DAC(Pin(1)).write(77)` and assumed 123 Ω, 1 V output | Use `DAC(1).write_u16(77 * 257)` to request the same digital fraction. The chosen nominal 990 Ω DAC drive and actual load change the voltage. Verify the transfer function on the physical circuit before interpreting volts. |
+| Team Oz BS2 extensions, standalone editor, VGA and USB keyboard | The port supplies named portable operations and a small LED wrapper. The BS2 interpreter extensions, editor, VGA engine, USB stack and legacy binary images are unsupported. |
+| Total Spectrum / Rayman cog launch, video or RISC-V binaries | Those loaders target other formats. The native counter uses the version-1 built-in HUBEXEC driver and a permanent mailbox. Legacy cog binaries require a driver-specific port and resource declaration. |
+| Rayman display, Wi-Fi module, MQTT, WebREPL | The SPI SSD1306 example streams one 128-byte page. VGA, external network transports and the legacy Wi-Fi module are unimplemented. Sensor and screen operation on external peripherals remains unverified. |
+
+The legacy wrapper was checked with recording PWM/GPIO objects on the host.
+The current hardware PWM and frequency-capture primitives have a separate
+no-jumper P2 test. `examples/legacy_led.py` is finite and releases its pin.
+
+Sources: [Rayman's LED examples](https://www.rayslogic.com/Propeller2/upy/Micropy_LEDs.html),
+[Team Oz P2 quick reference at the inspected commit](https://github.com/team-oz/p2-native-micropython/blob/1ccb02008146d5fa87b491eefc20d3ebe763c818/docs/p2/quickref.rst)
+and [Parallax's description of Team Oz's distribution](https://classic.parallax.com/propeller-2/get-started/micropython/).

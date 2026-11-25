@@ -49,9 +49,12 @@ void mp_stack_set_top(void *top) {
 }
 
 mp_uint_t mp_stack_usage(void) {
-    // Assumes descending stack
+    #if MICROPY_CSTACK_GROWS_UP
+    return MICROPY_CSTACK_GET_SP() - (uintptr_t)MP_STATE_THREAD(stack_top);
+    #else
     volatile int stack_dummy;
     return MP_STATE_THREAD(stack_top) - (char *)&stack_dummy;
+    #endif
 }
 
 #if MICROPY_STACK_CHECK

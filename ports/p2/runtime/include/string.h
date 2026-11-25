@@ -9,6 +9,8 @@ void *memset(void *dst, int ch, size_t n);
 int memcmp(const void *a, const void *b, size_t n);
 void *memchr(const void *src, int ch, size_t n);
 size_t strlen(const char *s);
+size_t strspn(const char *s, const char *accept);
+size_t strcspn(const char *s, const char *reject);
 char *strchr(const char *s, int ch);
 char *strrchr(const char *s, int ch);
 char *strstr(const char *s, const char *needle);

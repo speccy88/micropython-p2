@@ -1,7 +1,7 @@
 # Included from ports/p2/Makefile. BUILD should be specific to this profile.
 P2_WORK ?= $(HOME)/tinygo-p2-work
 P2_LLVM_BIN ?= $(P2_WORK)/llvm15-build/bin
-P2_RUNTIME_C :=
+P2_RUNTIME_C := runtime/nan.c
 P2_RUNTIME_S := runtime/context.S runtime/memory.S
 P2_RUNTIME_INC := -Iruntime/include -idirafter $(P2_WORK)/p2llvm/libc/include
 P2_SUPPORT := $(BUILD)/support
@@ -13,7 +13,7 @@ $(P2_BUILTINS): $(wildcard $(P2_WORK)/p2llvm/libp2/lib/builtins/*)
 	cmake -S "$(P2_WORK)/p2llvm/libp2" -B "$(P2_SUPPORT)/builtins" -G Ninja -Dllvm="$(P2_LLVM_BIN)"
 	cmake --build "$(P2_SUPPORT)/builtins" --target compiler_builtins
 
-P2_STRING_NAMES := memchr memcmp strchr strcmp strcpy strlen strncmp strncpy strrchr strstr
+P2_STRING_NAMES := memchr memcmp strchr strcmp strcpy strcspn strlen strncmp strncpy strrchr strspn strstr
 P2_C_SOURCES := $(addprefix $(P2_WORK)/p2llvm/libc/string/,$(addsuffix .c,$(P2_STRING_NAMES)))
 P2_MATH_SOURCES := $(filter-out %/thumb_vfp_sqrtf.c,$(wildcard $(TOP)/lib/libm/*.c)) $(P2_WORK)/p2llvm/libc/math/s_fabsf.c
 P2_SUPPORT_SOURCES := $(P2_C_SOURCES) $(P2_MATH_SOURCES)

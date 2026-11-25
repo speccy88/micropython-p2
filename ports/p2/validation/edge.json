@@ -1,0 +1,89 @@
+{
+  "flat_image_sha256": "aa362fb3854c04603ebddf26e40cd0e95eb5302ee76092459b903c6e95b6690a",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "a681ac48b8a2d9ae48a161c9",
+      "nonce": "a681ac48b8a2d9ae48a161c9",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "tests/vm.py": {
+      "sha256": "0b2e240ecbe0de1af0afd25ecf718d29795833be2e0dc92c37b55db5d267ccb7",
+      "seconds": 1.5309999999590218,
+      "passed": true,
+      "stdout": "{\"gc_us_median\": 8404, \"integer_loop_1000_us\": 40427, \"gc_us_min\": 8396, \"platform\": \"p2\", \"c_stack_used\": 1384, \"heap_free_after\": 90192, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 90880, \"gc_us_max\": 8428, \"passed\": true}",
+      "stderr": ""
+    },
+    "tests/bus/loopback.py": {
+      "sha256": "bb114b37bca31033599cf24165bb4996b9d552c125a308ce615265291128462a",
+      "seconds": 0.3440000000409782,
+      "passed": true,
+      "stdout": "P2 bus loopbacks and ownership OK",
+      "stderr": ""
+    },
+    "tests/drivers/api.py": {
+      "sha256": "e4e053cc3d682cff2689c8823ee686aa9988d2ecfab1c731ae9b2e26c7630709",
+      "seconds": 5.577999999979511,
+      "passed": true,
+      "stdout": "soak 32 2452\r\nsoak 64 4057\r\nsoak 96 5662\r\nsoak 128 7266\r\nsoak 160 8871\r\nsoak 192 10476\r\nsoak 224 12081\r\nsoak 256 13686\r\nsoak 288 15291\r\nsoak 320 16895\r\nsoak 352 18500\r\nsoak 384 20105\r\nsoak 416 21710\r\nsoak 448 23315\r\nsoak 480 24920\r\nsoak 512 26525\r\nsoak 544 28129\r\nsoak 576 29734\r\nsoak 608 31339\r\nsoak 640 32944\r\nsoak 672 34549\r\nsoak 704 36154\r\nsoak 736 37759\r\nsoak 768 39363\r\nsoak 800 40968\r\nsoak 832 42573\r\nsoak 864 44178\r\nsoak 896 45783\r\nsoak 928 47388\r\nsoak 960 48992\r\nsoak 992 50597\r\nP2_DRIVER_PASS 997 5000 2 7151 7254 {'max_cycles': 214, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 513}\r\ncleanup pass",
+      "stderr": ""
+    },
+    "tests/drivers/pwm_capture.py": {
+      "sha256": "eda2069756e74828380fe046722d37f3939ce229544199acf5bbb32b06d3d91c",
+      "seconds": 0.45300000021234155,
+      "passed": true,
+      "stdout": "PWM_CAPTURE 1000 40000 40000\r\nPWM_CAPTURE 2000 60001 59999\r\nP2_PWM_CAPTURE_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/array_smoke.py": {
+      "sha256": "c5fc3e4622050725af74ccf352941df29e3abe069bbee58af403da968ebc2ec5",
+      "seconds": 0.43799999984912574,
+      "passed": true,
+      "stdout": "P2_ARRAY_SMOKE_PASS",
+      "stderr": ""
+    },
+    "examples/ramfs.py": {
+      "sha256": "2160a49f425b3c37491391f0666a8975d634a534958267857ca0f71dd3e14584",
+      "seconds": 0.18799999984912574,
+      "passed": true,
+      "stdout": "P2 PSRAM volume",
+      "stderr": ""
+    },
+    "tests/media_readonly.py": {
+      "sha256": "ba8eb1d21bf91a98a92b4d6410184494a1c190c4bcdf234c4e8d9d6e487da663",
+      "seconds": 0.7029999999795109,
+      "passed": false,
+      "stdout": "SD_READ 61132800 512 16384 189613\r\nFAT_ROOT_COUNTS 34 34\r\nJEDEC 0xef7018",
+      "stderr": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nOSError: 19"
+    },
+    "examples/external_array.py": {
+      "sha256": "89c2d850a9d353bd02e7e375fbdb8b459163679721f44cf521905b5feabdcc4f",
+      "seconds": 45.437999999849126,
+      "passed": true,
+      "stdout": "P2_EXT_ARRAY_PASS bytes 8388608 cache 512 initial_free 91824 live_hub_delta 5024 observed_peak_hub_delta 82816 write_us 18948061 read_us 23082369 random_us 2479608",
+      "stderr": ""
+    }
+  },
+  "passed": false
+}

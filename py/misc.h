@@ -81,6 +81,7 @@ typedef unsigned int uint;
 // do, others only with -Werror=vla, msvc always does.
 // The (void) is needed to avoid "left operand of comma operator has no effect [-Werror=unused-value]"
 // when using this macro on the left-hand side of a comma.
+#ifndef MP_STATIC_ASSERT_NONCONSTEXPR
 #if defined(_MSC_VER) || defined(__cplusplus)
 #define MP_STATIC_ASSERT_NONCONSTEXPR(cond) ((void)1)
 #else
@@ -88,6 +89,7 @@ typedef unsigned int uint;
 #pragma GCC diagnostic ignored "-Wgnu-folding-constant"
 #endif
 #define MP_STATIC_ASSERT_NONCONSTEXPR(cond) ((void)sizeof(char[1 - 2 * !(cond)]))
+#endif
 #endif
 
 // Round-up integer division

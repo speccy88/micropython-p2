@@ -41,9 +41,13 @@ void mp_cstack_init_with_sp_here(size_t stack_size) {
 }
 
 mp_uint_t mp_cstack_usage(void) {
-    // Assumes descending stack
+    #if MICROPY_CSTACK_GROWS_UP
+    // The port reads the architectural SP, including compiler spills.
+    return MICROPY_CSTACK_GET_SP() - (uintptr_t)MP_STATE_THREAD(stack_top);
+    #else
     volatile int stack_dummy;
     return MP_STATE_THREAD(stack_top) - (char *)&stack_dummy;
+    #endif
 }
 
 #if MICROPY_STACK_CHECK

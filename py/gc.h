@@ -57,6 +57,11 @@ void gc_collect_end(void);
 
 // Use this function to sweep the whole heap and run all finalisers
 void gc_sweep_all(void);
+#ifdef MICROPY_GC_RESET_FINALISER
+// Called with the VM quiescent, before disconnecting I/O or discarding the
+// heap. The port must suppress recursive collections during this pass.
+void gc_run_reset_finalisers(void);
+#endif
 
 // These functions are used to manage weakrefs.
 void gc_weakref_mark(void *ptr);

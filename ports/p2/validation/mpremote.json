@@ -1,0 +1,75 @@
+{
+  "image_sha256": "aa362fb3854c04603ebddf26e40cd0e95eb5302ee76092459b903c6e95b6690a",
+  "commands": [
+    {
+      "args": [
+        "exec",
+        "import gc,os,vfs,p2;from p2memory import BlockDevice;r=p2.PSRAM().alloc(1048576);d=BlockDevice(r);vfs.VfsLfs2.mkfs(d);vfs.mount(vfs.VfsLfs2(d),'/p2tools');os.mkdir('/p2tools/lib')"
+      ],
+      "returncode": 0,
+      "output": "",
+      "error": ""
+    },
+    {
+      "args": [
+        "resume",
+        "fs",
+        "cp",
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\probe.dat",
+        ":/p2tools/probe.dat"
+      ],
+      "returncode": 0,
+      "output": "cp C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\probe.dat :/p2tools/probe.dat",
+      "error": ""
+    },
+    {
+      "args": [
+        "resume",
+        "fs",
+        "cp",
+        ":/p2tools/probe.dat",
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\roundtrip.dat"
+      ],
+      "returncode": 0,
+      "output": "cp :/p2tools/probe.dat C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\roundtrip.dat",
+      "error": ""
+    },
+    {
+      "args": [
+        "resume",
+        "mip",
+        "install",
+        "--target",
+        "/p2tools/lib",
+        "C:/Users/fred_/OneDrive/One Note/ChatGPT/Propeller 2/micropython-p2/ports/p2/packages/p2array/package.json"
+      ],
+      "returncode": 0,
+      "output": "Install C:/Users/fred_/OneDrive/One Note/ChatGPT/Propeller 2/micropython-p2/ports/p2/packages/p2array/package.json\nInstalling: /p2tools/lib/p2array.py\nDone",
+      "error": ""
+    },
+    {
+      "args": [
+        "resume",
+        "fs",
+        "cp",
+        ":/p2tools/lib/p2array.py",
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpppq1xmm7\\p2array.py"
+      ],
+      "returncode": 0,
+      "output": "cp :/p2tools/lib/p2array.py C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpppq1xmm7\\p2array.py",
+      "error": ""
+    },
+    {
+      "args": [
+        "resume",
+        "exec",
+        "import sys;sys.path.insert(0,'/p2tools/lib');import p2array;print(p2array.__file__);a=p2array.Array('I',40000);a[-1]=123456;print(a[-1]);a.close()"
+      ],
+      "returncode": 0,
+      "output": "/p2tools/lib/p2array.py\n123456",
+      "error": ""
+    }
+  ],
+  "roundtrip_sha256": "e481a3e1e28bca1fa370f301cc293cbe9fbafcfe2c18a17760f4bf5bbd989a2c",
+  "passed": true
+}

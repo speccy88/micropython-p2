@@ -139,7 +139,7 @@ static void gc_mark_subtree(mp_state_mem_area_t *area, size_t block);
 static void gc_mark_subtree(size_t block);
 #endif
 static void gc_deal_with_stack_overflow(void);
-static void gc_sweep_run_finalisers(void);
+static void gc_sweep_run_finalisers(bool reset_streams_only);
 static void gc_sweep_free_blocks(void);
 
 // TODO waste less memory; currently requires that all entries in alloc_table have a corresponding block in pool
@@ -603,7 +603,7 @@ void gc_sweep_all(void) {
 
 void gc_collect_end(void) {
     gc_deal_with_stack_overflow();
-    gc_sweep_run_finalisers();
+    gc_sweep_run_finalisers(false);
     gc_sweep_free_blocks();
     #if MICROPY_GC_SPLIT_HEAP
     MP_STATE_MEM(gc_last_free_area) = &MP_STATE_MEM(area);
@@ -640,7 +640,14 @@ static void gc_deal_with_stack_overflow(void) {
 }
 
 // Run finalisers for all to-be-freed blocks
-static void gc_sweep_run_finalisers(void) {
+#ifdef MICROPY_GC_RESET_FINALISER
+void gc_run_reset_finalisers(void) {
+    gc_sweep_run_finalisers(true);
+}
+#endif
+
+static void gc_sweep_run_finalisers(bool reset_streams_only) {
+    (void)reset_streams_only;
     #if MICROPY_ENABLE_FINALISER || MICROPY_PY_WEAKREF
     #if MICROPY_ENABLE_FINALISER && MICROPY_PY_WEAKREF
     MP_STATIC_ASSERT(BLOCKS_PER_FTB == BLOCKS_PER_WTB);
@@ -656,7 +663,11 @@ static void gc_sweep_run_finalisers(void) {
             while (ftb) {
                 MICROPY_GC_HOOK_LOOP(block);
                 if (ftb & 1) { // FTB_GET(area, block) shortcut
-                    if (ATB_GET_KIND(area, block) == AT_HEAD) {
+                    if (ATB_GET_KIND(area, block) == AT_HEAD
+                        #ifdef MICROPY_GC_RESET_FINALISER
+                        && (!reset_streams_only || MICROPY_GC_RESET_FINALISER((const void *)PTR_FROM_BLOCK(area, block)))
+                        #endif
+                        ) {
                         mp_obj_base_t *obj = (mp_obj_base_t *)PTR_FROM_BLOCK(area, block);
                         if (obj->type != NULL) {
                             // if the object has a type then see if it has a __del__ method
@@ -682,6 +693,9 @@ static void gc_sweep_run_finalisers(void) {
             }
             #endif
             #if MICROPY_PY_WEAKREF
+            if (reset_streams_only) {
+                continue;
+            }
             byte wtb = area->gc_weakref_table_start[ftb_idx];
             block = ftb_idx * BLOCKS_PER_WTB;
             while (wtb) {

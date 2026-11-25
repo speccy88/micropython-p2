@@ -162,9 +162,13 @@ static void *thread_entry(void *args_in) {
     mp_thread_init_state(&ts, args->stack_size, args->dict_locals, args->dict_globals);
 
     #if MICROPY_ENABLE_PYSTACK
+    #ifdef MICROPY_THREAD_PYSTACK_INIT
+    MICROPY_THREAD_PYSTACK_INIT();
+    #else
     // TODO threading and pystack is not fully supported, for now just make a small stack
     mp_obj_t mini_pystack[128];
     mp_pystack_init(mini_pystack, &mini_pystack[128]);
+    #endif
     #endif
 
     MP_THREAD_GIL_ENTER();

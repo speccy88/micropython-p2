@@ -133,6 +133,11 @@ struct _nlr_buf_t {
     // - otherwise it's always a concrete object (an exception instance)
     void *ret_val;
 
+    #if MICROPY_CSTACK_GROWS_UP
+    // Snapshot the callback chain: C does not order locals within a frame.
+    struct _nlr_jump_callback_node_t *callback_top;
+    #endif
+
     #if MICROPY_NLR_SETJMP
     jmp_buf jmpbuf;
     #else
