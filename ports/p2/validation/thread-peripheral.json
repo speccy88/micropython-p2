@@ -1,0 +1,15 @@
+{
+  "flat_image_sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757",
+  "inputs_sha256": {
+    "ws2812.p2d": "79a0520a93515c51809c71a2c0703d617a51545ec7d29894cd7c6c088a9c9068",
+    "ws2812.py": "9641d1f6a017e0f2b9510d5f2750d56eec704964120eb9f13eaa70252eb6ae5e",
+    "edgecount.p2d": "19b01a431cebd263453c2bfad16340dc688f31157a8cb41d8e1a34bb3c014379",
+    "edgecount.py": "3c597e95c7d520d8b422afe204140f4cbb0103ee889b6266c97760c99afa8683",
+    "thread_pulses.py": "8b3cf8759408c580ce50ba4cf6d3e9fec7a0d09fb4261831cb52ab0cb11466ee"
+  },
+  "output": "P2_THREADED_PULSES_PASS 160000000 24 48",
+  "pins_released": [
+    0,
+    1
+  ]
+}

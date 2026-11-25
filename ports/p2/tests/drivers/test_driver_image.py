@@ -17,6 +17,7 @@ SPEC.loader.exec_module(image_tool)
 class DriverImage(unittest.TestCase):
     def test_image(self):
         self.assertEqual(image_tool.verify((EXAMPLE / "ws2812.p2d").read_bytes()), (216, 0, 38))
+        self.assertEqual(image_tool.verify((EXAMPLE / "edgecount.p2d").read_bytes()), (124, 0, 7))
         image = (EXAMPLE / "checksum.p2d").read_bytes()
         self.assertEqual(image_tool.verify(image), (140, 0, 64))
         for offset in (0, 4, 5, 6, 8, 12, 16, 20, len(image) - 1):
@@ -45,10 +46,11 @@ class DriverImage(unittest.TestCase):
 
             valid = assemble(source)
             self.assertEqual(image_tool.pack(valid, 64), (EXAMPLE / "checksum.p2d").read_bytes())
-            self.assertEqual(
-                image_tool.pack(assemble((EXAMPLE / "ws2812.S").read_text()), 38),
-                (EXAMPLE / "ws2812.p2d").read_bytes(),
-            )
+            for name, words in (("ws2812", 38), ("edgecount", 7)):
+                self.assertEqual(
+                    image_tool.pack(assemble((EXAMPLE / (name + ".S")).read_text()), words),
+                    (EXAMPLE / (name + ".p2d")).read_bytes(),
+                )
             idle = Path(__file__).resolve().with_name("neverready.S")
             self.assertEqual(
                 image_tool.pack(assemble(idle.read_text()), 4),

@@ -3,18 +3,40 @@
 import p2
 import time
 
+try:
+    import _thread
+except ImportError:
+    _thread = None
+
 
 class Strip:
-    """One producer per strip. Serialize show() calls when sharing across threads."""
+    """Share a strip between Python workers. A concurrent call raises EBUSY."""
 
     def __init__(self, image, pin):
         if not isinstance(pin, int) or not 0 <= pin < 40 or p2.CLOCK_HZ != 160000000:
             raise ValueError("requires GPIO 0..39 and 160 MHz")
+        self._lock = _thread.allocate_lock() if _thread is not None else None
         self.driver = p2.Driver(image, pins=(pin,))
-        self.driver.word(4, pin)
+        try:
+            self.driver.word(4, pin)
+        except BaseException:
+            self.driver.stop()
+            raise
+
+    def _claim(self):
+        if self._lock is not None and not self._lock.acquire(False):
+            raise OSError(16)
 
     def show(self, colors):
         """Send up to 32 packed 0xGGRRBB colors and wait for the latch interval."""
+        self._claim()
+        try:
+            self._show(colors)
+        finally:
+            if self._lock is not None:
+                self._lock.release()
+
+    def _show(self, colors):
         count = len(colors)
         if not 1 <= count <= 32:
             raise ValueError("expected 1..32 pixels")
@@ -37,4 +59,9 @@ class Strip:
             raise OSError(22)
 
     def close(self):
-        self.driver.stop()
+        self._claim()
+        try:
+            self.driver.stop()
+        finally:
+            if self._lock is not None:
+                self._lock.release()

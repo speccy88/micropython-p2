@@ -181,6 +181,28 @@ On the experimental Threaded image, the primary Python cog creates and stops `p2
 
 The driver root retains the image and its private mailbox until stop. External hub buffers are copied while the GIL is held and never handed to the native cog. Worker attempts to create or stop drivers raise `EPERM`. A soft reboot first parks the worker and stops its cog, then stops remaining native services before the heap is released. The hardware test forced GC while both Python cogs submitted a total of 24 checked requests to one service, rejected worker lifecycle changes and verified the released pin. [Test](../tests/thread_driver.py) · [Result](../validation/audit-threadservice.json)
 
+### Count pulses from either Python cog
+
+Copy `edgecount.py` and `edgecount.p2d` from the HUBEXEC examples. On the primary Python cog, start a counter on a free Smart Pin. With `source` omitted it reads its own pad. To monitor another service's output internally, select a source within three GPIOs of the counting pin. Both must be in P0–P39. Only the counting pin is claimed. [Example files](../examples/hubdriver/) · [Parallax Smart Pin input selectors](https://forums.parallax.com/uploads/editor/ge/amusmwzpxzd9.pdf)
+
+```python
+from edgecount import EdgeCounter
+
+with open("edgecount.p2d", "rb") as f:
+    edges = EdgeCounter(f.read(), pin=1, source=0)
+try:
+    before = edges.count()
+    strip.show([0x100000])  # a Strip on P0 sends 24 pulses
+    # The native cog publishes snapshots. Allow time for its next read.
+    import time
+    time.sleep_ms(1)
+    print((edges.count() - before) & 0xffffffff)
+finally:
+    edges.close()
+```
+
+The hardware counter runs continuously and wraps at 2³². Either Python cog can read its latest snapshot without clearing it. Each native polling loop includes a 1,600-cycle wait (10 µs at 160 MHz). The service takes one cog, one Smart Pin, 124 hub code bytes and 28 mailbox bytes, plus the driver object and Python wrapper. It uses no PSRAM. Close it on the primary Python cog. Full Edge also offers direct `p2.SmartPin.COUNT_RISES` counting without the extra service cog.
+
 ### WS2812 pixels
 
 Copy `ws2812.py` and `ws2812.p2d` from the HUBEXEC examples to a mounted volume. Use a free GPIO from P0 through P39. Connect that pin through a suitable 3.3 V-to-5 V logic buffer to the first pixel's DIN, power the strip from a supply sized for its pixel count, and connect grounds. Confirm the timing requirements of the exact strip revision. The example targets the WS2812B-V5/W at the default 160 MHz. [Source and driver image](../examples/hubdriver) · [Worldsemi timing specification](https://www.world-semi.com/web/userfiles/productfile/WS2812B_V5WDatasheet_V6.1_EN.pdf)
@@ -196,7 +218,9 @@ finally:
     strip.close()
 ```
 
-One native cog sends 1–32 packed GRB pixels per frame. Its hub allocation holds 216 code bytes and a 152-byte mailbox plus the driver header and GC rounding. It uses one pin and zero PSRAM. There is one outstanding frame per strip. With multiple Python clients, hold a shared lock around each call to `show()`. The submitted sequence is acknowledged after the final low latch interval. The wait times out after 100 ms; once a pending frame finishes, a later call can submit a new one.
+One native cog sends 1–32 packed GRB pixels per frame. Its hub allocation holds 216 code bytes and a 152-byte mailbox plus the driver header and GC rounding. It uses one pin and zero PSRAM. On the Threaded image, share the same `Strip` object between callers. Its lock covers payload preparation through the final latch acknowledgement. An overlapping `show()` or `close()` raises `OSError(16)` (busy) immediately. Only the primary Python cog can close an idle strip. A frame acknowledgement times out after 100 ms. Once the native cog finishes that frame, the wrapper can accept a new one.
+
+On the Threaded release the P1 counter measured 24 edges from a worker frame and 48 from a main-cog frame on P0. The check exercised overlapping calls, GC, worker ownership and pin release. To repeat it, leave P0/P1 free, RAM-load `firmware/threaded.bin`, and use the relay address printed by the loader. From `ports/p2`, run `python tests/thread_peripheral.py --image firmware/threaded.bin --port socket://127.0.0.1:8122 --output result.json`. [Board result and tested image hashes](../validation/thread-peripheral.json)
 
 On the final Edge firmware a second Smart Pin counted all 768 rising edges in each 32-pixel frame. Another measured a high width of 49 cycles for zero and 105 for one (306 and 656 ns at 160 MHz). No jumper was needed for the on-chip input selectors. The test checked the signal at P0. A physical strip and independent oscilloscope were unavailable. [Waveform test](../tests/drivers/ws2812_timing.py) · [Board record](../validation/audit-final-bench.json)
 
