@@ -32,15 +32,17 @@ finally:
 | `read(offset, n)` | Copy into a newly allocated hub `bytes` object. Hub heap size limits this request. |
 | `readinto(offset, writable_buffer)`, `write(offset, buffer)` | Copy through a hub buffer and return its length. An unaligned write preserves adjacent bytes. |
 | `fill(offset, length, byte)`, `copy(dest, source, length)` | Fill or move within a single receiver. Copy supports overlapping ranges in both directions. Maximum staging allocation is 64 stack bytes. |
-| `diagnostics()` | `ids` contains four concatenated, bank-ordered eight-byte IDs. `max_cycles` reports the longest observed word transaction. `completed` counts confirmed destination bytes in the most recent transfer. |
+| `diagnostics()` | `ids` contains four concatenated, bank-ordered eight-byte IDs. `max_cycles` reports the longest observed transaction in P2 clock cycles. `completed` counts confirmed destination bytes in the most recent transfer. |
 
-The device handle refuses direct access into an allocated region. Nested allocations are unsupported. Bounds checks use subtraction before address addition. Timing failures raise `ETIMEDOUT` and leave `completed` excluding the word whose write timing was uncertain. During a backward overlapping copy, completed writes start at the high end. Transfer-level serialization uses the single VM cog. Scheduled Python callbacks are deferred until borrowed buffers are released. Transfers poll for Ctrl-C between batches. Other cogs cannot invoke this pin-owning service directly. A future native PSRAM client on another cog needs a mailbox to the owner.
+The device handle refuses direct access into an allocated region. Nested allocations are unsupported. Bounds checks use subtraction before address addition. Timing failures raise `ETIMEDOUT` and leave `completed` excluding the word or four-word burst whose timing was uncertain. During a backward overlapping copy, completed writes start at the high end. Transfer-level serialization uses the single VM cog. Scheduled Python callbacks are deferred until borrowed buffers are released. Transfers poll for Ctrl-C between batches. Other cogs cannot invoke this pin-owning service directly. A future native PSRAM client on another cog needs a mailbox to the owner.
 
 Python buffers, the GC heap and the VM stack are in hub RAM. External offsets require read/write transactions. Filesystems retain their block-device reference while mounted. Unmount a volume before closing its region. Its contents are volatile. After a soft reset the allocator is empty and previously issued handles are gone.
 
-The native probe saved, tested and restored distinct words at offsets 0 and 33,554,428. It measured 138 cycles for one write and 214 cycles for one read at 160 MHz (0.86 and 1.34 microseconds). Both include instructions outside the active chip-select interval and are below the 1,280-cycle acceptance limit. Four devices returned manufacturer 0x0d and known-good-die 0x5d. Those latencies measure individual bus transactions. Use the Python test's `write_us` and `read_us` for its 8 × 513-byte transfers. The shipped service uses the VM cog and one bounded chip-select interval per word. A future burst implementation would need measured chip-select margins at page boundaries. A dedicated service-cog design would trade one of six application cogs for concurrency and would need a measured mailbox round-trip cost.
+The Edge service uses four-word bursts for a 16-byte-aligned logical offset, an aligned hub buffer and at least 16 bytes remaining. Each chip transfers four consecutive physical bytes. Even the shortest 32-byte wrap window fits the whole transaction. Head, tail and skewed buffer transfers use a single-word transaction, including read-modify-write for partial words. Interrupts are stalled only inside a native transaction, and the C loop polls pending Ctrl-C at most every 256 transferred bytes.
 
-One COM12 API run completed 997 GC/PSRAM/driver iterations over five seconds.
+On the 160 MHz Edge the largest observed transaction took 533 cycles in the compact trial and 550 in the final image, including overhead outside chip select. The driver rejects durations of 1,280 cycles or greater. The 32 MiB write/read/full verification finished in 50.648 seconds on the compact trial. Adjacent-byte preservation was checked around 16, 128 and 4096 logical bytes with both aligned and skewed views. [Measured tradeoffs and memory costs](MEMORY.md) · [Hardware record](../validation/audit-compact.json)
+
+The historical short run completed 997 GC/PSRAM/driver iterations. The sustained runner also records progress, heap and native service responsiveness throughout a configurable run. [Sustained validation](../tests/sustained.py)
 Eight 513-byte writes took 7,151 µs and reads took 7,254 µs (0.55 and 0.54
 MiB/s). The sequence verified unaligned RMW, forward and backward overlapping
 copies, closed handles and raw/allocated region exclusion. See the per-script
@@ -172,6 +174,31 @@ cmp /tmp/checksum.p2d examples/hubdriver/checksum.p2d
 ```
 
 The checksum driver uses 140 bytes of hub code, 256 bytes of private mailbox and one worker cog per instance. It consumes zero locks, LUT words or I/O pins. The test declares P5 to exercise the registry without driving it. Copy `checksum.p2d` and `checksum.py` into the same working directory on a mounted filesystem and run `checksum.py`. The host acceptance runner can load both over raw REPL entirely in RAM. It verifies two independently placed drivers, GC, 32 checksum requests, timeout cleanup and recovery of all six cogs across an active-driver soft reset. [Example and source](../examples/hubdriver/) · [Physical acceptance runner](../tests/hubdriver.py)
+
+### A native service shared with a Python worker
+
+On the experimental Threaded image, the primary Python cog creates and stops `p2.Driver` instances. The other Python cog can retrieve a running service by ID and read/write its mailbox. Each service owns its native cog and claimed pins. The GIL serializes Python bytecode. The native service runs independently. A multiword request needs an application lock covering the payload, request sequence and matching completion; release that lock in a `with` block. Bound the completion wait. A separately scheduled Python producer can otherwise change the payload before the native cog is finished.
+
+The driver root retains the image and its private mailbox until stop. External hub buffers are copied while the GIL is held and never handed to the native cog. Worker attempts to create or stop drivers raise `EPERM`. A soft reboot first parks the worker and stops its cog, then stops remaining native services before the heap is released. The hardware test forced GC while both Python cogs submitted a total of 24 checked requests to one service, rejected worker lifecycle changes and verified the released pin. [Test](../tests/thread_driver.py) · [Result](../validation/audit-threadservice.json)
+
+### WS2812 pixels
+
+Copy `ws2812.py` and `ws2812.p2d` from the HUBEXEC examples to a mounted volume. Use a free GPIO from P0 through P39. Connect that pin through a suitable 3.3 V-to-5 V logic buffer to the first pixel's DIN, power the strip from a supply sized for its pixel count, and connect grounds. Confirm the timing requirements of the exact strip revision. The example targets the WS2812B-V5/W at the default 160 MHz. [Source and driver image](../examples/hubdriver) · [Worldsemi timing specification](https://www.world-semi.com/web/userfiles/productfile/WS2812B_V5WDatasheet_V6.1_EN.pdf)
+
+```python
+from ws2812 import Strip
+
+with open("ws2812.p2d", "rb") as f:
+    strip = Strip(f.read(), 5)
+try:
+    strip.show([0x001000, 0x100000, 0x000010])  # dim red, green, blue
+finally:
+    strip.close()
+```
+
+One native cog sends 1–32 packed GRB pixels per frame. Its hub allocation holds 216 code bytes and a 152-byte mailbox plus the driver header and GC rounding. It uses one pin and zero PSRAM. There is one outstanding frame per strip. With multiple Python clients, hold a shared lock around each call to `show()`. The submitted sequence is acknowledged after the final low latch interval. The wait times out after 100 ms; once a pending frame finishes, a later call can submit a new one.
+
+On the final Edge firmware a second Smart Pin counted all 768 rising edges in each 32-pixel frame. Another measured a high width of 49 cycles for zero and 105 for one (306 and 656 ns at 160 MHz). No jumper was needed for the on-chip input selectors. The test checked the signal at P0. A physical strip and independent oscilloscope were unavailable. [Waveform test](../tests/drivers/ws2812_timing.py) · [Board record](../validation/audit-final-bench.json)
 
 ## Packages and wiring
 

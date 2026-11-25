@@ -130,7 +130,7 @@ cd tests
 python run-tests.py --test-instance port:socket://127.0.0.1:8122 basics/int_divmod.py basics/try_finally1.py
 ```
 
-## Threaded compute profile
+## Threaded profile and native services
 
 `PROFILE=threaded` builds the standard `_thread` module with one main Python
 cog and one worker. A separate console cog continues serving UART. A second
@@ -138,10 +138,14 @@ concurrent worker raises `OSError(EBUSY)`. The bytecode interpreter uses a
 GIL with ticket ordering; VM checkpoints and millisecond delays give another
 runnable thread an opportunity to acquire it. A Python mutex releases the
 GIL while waiting. The worker runs standard MicroPython thread entry,
-exception and termination paths. Pin, PSRAM, storage and native peripheral
-bindings are confined to the Edge and lean profiles to preserve cog-local
-electrical ownership. This profile exposes no unrestricted native callback
-that executes outside the GIL.
+exception and termination paths. The primary cog constructs and stops
+`p2.Driver` instances and reserves their pins. Both Python cogs can submit
+bounded mailbox operations to a rooted driver under the GIL. Use a Python
+lock around a multiword request spanning several calls. The service runs
+concurrently in its own native cog. A worker attempting to launch or stop a
+service is rejected, and an old handle raises ENODEV after stop. Direct
+GPIO, external memory and mounted storage still use their single-interpreter
+configurations. [Contention, GC and shutdown test](tests/thread_driver.py)
 
 One P2 hardware lock serialises ticket updates for all Python locks. An
 idle worker remains available for another task until soft reset. Reset on
