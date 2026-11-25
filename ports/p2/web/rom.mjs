@@ -52,12 +52,12 @@ function watch(port) {
             const deadline = performance.now() + timeout;
             do {
                 signal.throwIfAborted();
-                if (failure) throw failure;
                 const found = pattern.exec(text);
                 if (found) {
                     text = text.slice(found.index + found[0].length);
                     return found;
                 }
+                if (failure) throw failure;
                 await delay(15);
             } while (performance.now() < deadline);
             return null;
@@ -70,9 +70,8 @@ function watch(port) {
     };
 }
 
-// The caller owns the already-open 115200-baud port and closes it on error.
-// Returns only after the running interpreter identifies itself.
-export async function install(port, {bytes, mode, signal, report}) {
+// RAM and flash start in the ROM at upload speed. SD starts at console speed.
+async function transfer(port, {bytes, mode, signal, report}) {
     if (!["ram", "flash", "sd"].includes(mode)) throw Error("Unknown P2 boot mode.");
     const flash = mode === "flash";
     if (flash) verifyFlashImage(bytes);
@@ -108,7 +107,7 @@ export async function install(port, {bytes, mode, signal, report}) {
         }
         if (!version) throw Error("No P2 ROM answered. Check power, reset wiring and the serial-boot switch settings, then retry.");
         if (mode === "sd") {
-            report("Starting _BOOT_P2.BIX from your SD card…");
+            report("Starting _BOOT_P2.BIX from your SD cardâ€¦");
             await send("\x04");
             if (!await input.until(/P2-MONITOR [^\r\n]+\r?\n/, 3000, signal)) {
                 throw Error("The P2 ROM monitor did not answer. Check the serial-boot settings and retry.");
@@ -136,18 +135,49 @@ export async function install(port, {bytes, mode, signal, report}) {
             // ROM checksum word would invalidate the programmer's own checksum.
             report("Programming boot flash. Keep power connected.", 1, true);
             await send("~");
+            if (!await input.until(/P2OK/, 60000, signal)) {
+                throw Error("Flash completion was not confirmed. Keep the board powered.");
+            }
         } else {
             await send(" ?");
             const ack = await input.until(/[.!]/, 12000, signal);
             if (ack?.[0] !== ".") throw Error("RAM download checksum was not acknowledged. Check the cable and retry.");
             report("Starting MicroPython", 1);
         }
-        if (!await input.until(/MicroPython v1\.29\.0[^\r\n]* with Propeller 2/, flash ? 60000 : 12000, signal)) {
-            throw Error("No MicroPython startup banner received. Check the board and boot switches, or try loading RAM.");
-        }
         return version[1];
     } finally {
         output.releaseLock();
         await input?.release();
+    }
+}
+
+export const UPLOAD_BAUD = 2000000;
+export const CONSOLE_BAUD = 115200;
+
+export async function install(port, options) {
+    const version = await transfer(port, options);
+    if (options.mode === "sd") return version;
+    // Web Serial can only change baud on open. For flash, P2OK is sent
+    // after the final BUSY check, before the application takes over.
+    await port.close();
+    await port.open({baudRate: CONSOLE_BAUD, bufferSize: 65536, flowControl: "none"});
+    const input = watch(port);
+    const writer = port.writable.getWriter();
+    try {
+        // The first banner bytes can arrive while the adapter changes speed.
+        // A carriage return asks an idle friendly REPL to repeat its prompt.
+        for (let i = 0; i < 12; i++) {
+            options.signal.throwIfAborted();
+            await writer.write(encoder.encode("\r"));
+            if (await input.until(/>>> /, 1000, options.signal)) {
+                await writer.write(encoder.encode("import sys; print('P2LINK', sys.platform)\r"));
+                if (await input.until(/\r?\nP2LINK p2\r?\n/, 2000, options.signal)) return version;
+                break;
+            }
+        }
+        throw Error("No P2 MicroPython reply at 115200 baud after the upload.");
+    } finally {
+        writer.releaseLock();
+        await input.release();
     }
 }

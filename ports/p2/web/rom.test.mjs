@@ -36,12 +36,21 @@ function emulateROM({ ack = ".", silicon = "G", sdReply = banner } = {}) {
             } else if (text.trim() === "?" || text === "~") {
                 commands.push(text.trim());
                 if (text.trim() === "?") reply(ack);
-                reply(banner);
+                if (text === "~") {
+                    reply("P2");
+                    setTimeout(() => reply("OK"), 25);
+                }
+            } else if (text === "\r") {
+                reply(">>> ");
+            } else if (text.startsWith("import sys;")) {
+                reply("\r\nP2LINK p2\r\n>>> ");
             } else {
                 assert.match(text, /^[A-Za-z0-9+/]+\n$/);
                 chunks.push(text.trim());
             }
         }}),
+        async close() { assert.equal(this.readable.locked || this.writable.locked, false); },
+        async open(options) { assert.equal(options.baudRate, 115200); },
         async setSignals(s) { signals.push(s); },
     };
     return { port, commands, chunks, signals };
@@ -83,8 +92,8 @@ for (const [profile, {flat}] of Object.entries(profiles)) {
         assert.equal(port.readable.locked || port.writable.locked, false);
     });
 
-    test(profile + " flash stream matches the CLI programmer including its self-checksum", async () => {
-        const script = "import sys; from flash_boot import programmer; sys.stdout.buffer.write(programmer(sys.argv[1]))";
+    test(profile + " flash stream matches the fast programmer and carries unmodified firmware", async () => {
+        const script = "import sys; from flash_boot import programmer; sys.stdout.buffer.write(programmer(sys.argv[1], web=True))";
         const built = spawnSync("python", ["-c", script, profile], {
             cwd: fileURLToPath(new URL("../tools/", import.meta.url)),
         });
@@ -95,7 +104,7 @@ for (const [profile, {flat}] of Object.entries(profiles)) {
         const received = Buffer.from(chunks.join(""), "base64");
         assert.deepEqual(received, built.stdout);
         assert.equal(sum32(received), 0);
-        assert.deepEqual(received.subarray(496), image);
+        assert.deepEqual(received.subarray(built.stdout.length - image.length), image);
         assert.deepEqual(commands, ["Prop_Chk", "Prop_Txt", "~"]);
         assert.equal(progress.at(-1)[2], true);
     });

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-import {digest, install} from "./rom.mjs";
+import {CONSOLE_BAUD, UPLOAD_BAUD, digest, install} from "./rom.mjs";
 
 const $ = id => document.getElementById(id);
 const form = $("install-form");
@@ -53,7 +53,10 @@ async function loadFirmware(profile, mode, signal) {
     };
     const manifest = await (await get("./firmware/index.json")).json();
     const info = manifest.profiles[profile][mode];
-    const bytes = new Uint8Array(await (await get("./firmware/" + info.file)).arrayBuffer());
+    if (mode === "flash" && info.completion !== "P2OK") {
+        throw Error("The flash programmer is out of date. Reload the workbench and retry.");
+    }
+    const bytes = new Uint8Array(await (await get("./firmware/" + info.file + "?v=" + info.sha256)).arrayBuffer());
     if (bytes.length !== info.bytes || await digest(bytes) !== info.sha256) {
         throw Error("The firmware download failed its SHA-256 check. Reload the page and try again.");
     }
@@ -121,7 +124,7 @@ async function start(action) {
         await ide.disconnectDevice(false);
         lastInstalledPort = null;
         signal.throwIfAborted();
-        await port.open({baudRate: 115200, bufferSize: 65536, flowControl: "none"});
+        await port.open({baudRate: action === "install" ? UPLOAD_BAUD : CONSOLE_BAUD, bufferSize: 65536, flowControl: "none"});
         ownsPort = true;
         if (action === "install") await install(port, {bytes, mode, signal, report: progress});
         if (action === "sd") await install(port, {mode: "sd", signal, report: progress});

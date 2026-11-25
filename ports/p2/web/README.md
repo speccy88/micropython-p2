@@ -28,17 +28,20 @@ Open `http://localhost:8000/micropython-p2/`. Web Serial requires HTTPS or a loo
 
 ## How a transfer works
 
-The click opens the browser's native port chooser. The workbench verifies the selected binary's SHA-256, opens the adapter at 115200 baud, pulses DTR and waits for the P2 ROM's silicon identifier. Data travels in unpadded base64 using `Prop_Txt`.
+RAM and boot-flash uploads use **2,000,000 baud**, 8N1. The browser sends Base64 through the P2 ROM's `Prop_Txt` command. On the test Edge and FTDI adapter on COM12, the 403,960-byte Edge image transferred in 2.73 and 2.89 seconds using the Python loader. The same image took 5.87 seconds at 921,600 baud. Browser setup and flash programming take additional time.
 
-- **RAM** appends the ROM checksum, requests verification with `?`, and waits for both the positive acknowledgement and the MicroPython banner.
-- **Boot flash** sends the self-checksummed programmer built by the port's existing Python tool. Only the final `~` starts the programmer. At that point the page asks the user to keep power connected and waits for MicroPython to start. A reset with flash boot selected checks persistence. [Programmer source](../tools/flash_boot.py)
+- **RAM** waits for the ROM's checksum acknowledgement.
+- **Boot flash** checks the programmer and image before transmission. The final `~` starts programming. Keep power connected. Once the final page clears BUSY, the programmer sends `P2OK` at 2 Mbaud. The browser waits for this marker before changing baud.
+- **SD boot** and **Connect to the IDE** open directly at the console speed of **115,200 baud**.
 
-Once Python starts, the loader releases its stream locks and hands the open port to the same-origin ViperIDE frame. A second open can reset a Prop Plug board and lose the RAM session. The bundled example runs through the raw REPL and does not need a writable filesystem.
+After an upload, Web Serial releases its stream locks and reopens the same adapter at console speed. The workbench checks the P2 MicroPython REPL and hands that open connection to ViperIDE. For an adapter that needs a lower transfer speed, the current command-line RAM and flash tools accept `--baud 921600` or `--baud 115200`.
+
+The web-only programmer can be rebuilt from `ports/p2/tools/loadp2` with `flexspin -2 -c -D WEB_FAST_UPLOAD -o flash_loader_2m.bin flash_loader.spin2` (FlexSpin source revision `6d371da09a7680cec7ace00d85672d6d3e5b1e42`). Omitting the define reproduces the original 496-byte programmer. The browser variant adds a serial completion message to the downloaded programmer; the Python firmware installed in flash keeps its release bytes.
 
 ## Sources and licenses
 
 The workbench and P2 integration use the MIT license. ViperIDE and its dependencies keep their upstream notices. The deployed site includes a license index. [Workbench license](LICENSE) · [Pinned ViperIDE source](https://github.com/vshymanskyy/ViperIDE/tree/6bbfb5036248312b8b2b4e7d81735acedaa8c9b6) · [Firmware sources and credits](../SOURCES.md)
 
-The USB reset and base64 protocol were checked against the supplied Propeller Bench implementation, this port's RAM loader, and the loadp2 programmer. The site ships the published MicroPython images and the pinned loadp2 stub. [RAM loader](../tools/p2ram.py) · [loadp2 license](../tools/loadp2/LICENSE)
+The USB reset and base64 protocol were checked against the supplied Propeller Bench implementation, this port's RAM loader, and the loadp2 programmer. The site ships the published MicroPython images and the loadp2-derived programmer. [RAM loader](../tools/p2ram.py) · [loadp2 license](../tools/loadp2/LICENSE)
 
 The board selector uses supplied Parallax product photos of the [plain P2 Edge](https://www.parallax.com/products/p2-edge-module/) and the [32 MB Edge](https://www.parallax.com/products/p2-edge-module-with-32mb-ram). The workbench and editor use the navy, white and pale blue from [Parallax](https://www.parallax.com/). The editor's welcome tab loads the repository README bundled with each Pages deployment.

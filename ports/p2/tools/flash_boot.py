@@ -1,6 +1,7 @@
 """Prepare a checksum-guarded loadp2 SPI programmer and optionally send it to an Edge."""
 
 import argparse
+import base64
 import hashlib
 import json
 import struct
@@ -12,17 +13,20 @@ from p2ram import P2Serial
 PORT = Path(__file__).resolve().parents[1]
 
 
-def programmer(profile):
+def programmer(profile, *, web=False):
     fw = PORT / "firmware"
     info = json.loads((fw / "manifest.json").read_text())["profiles"][profile]["flat"]
     app = (fw / info["file"]).read_bytes()
     if hashlib.sha256(app).hexdigest() != info["sha256"]:
         raise ValueError("firmware differs from the release manifest")
-    stub = (PORT / "tools/loadp2/flash_loader.bin").read_bytes()
-    if (
-        hashlib.sha256(stub).hexdigest()
-        != "ca938b18576dc94f3b26911aab8c527d9f8fb787d928380223263abd7085f436"
-    ):
+    if web:
+        filename = "flash_loader_2m.bin"
+        expected = "2d7a36a4e694f2d721f2c2a439370ebff504e1a4193dd64f7f91c822ff17f9f8"
+    else:
+        filename = "flash_loader.bin"
+        expected = "ca938b18576dc94f3b26911aab8c527d9f8fb787d928380223263abd7085f436"
+    stub = (PORT / "tools/loadp2" / filename).read_bytes()
+    if hashlib.sha256(stub).hexdigest() != expected:
         raise ValueError("unexpected flash programmer")
     image = bytearray(stub + app)
     if len(image) % 4 or len(image) + 1024 > 512 * 1024:
@@ -37,6 +41,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--profile", choices=["edge", "lean", "threaded"], default="edge")
     p.add_argument("--port", help="serial port connected to the P2")
+    p.add_argument("--baud", type=int, default=2000000, help="ROM upload baud rate")
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument(
         "--check", action="store_true", help="check the image without accessing hardware"
@@ -53,17 +58,18 @@ def main():
         return
     if not args.port:
         p.error("supply --port when programming flash")
-    with P2Serial(args.port, baud=115200) as target:
+    with P2Serial(args.port, baud=args.baud) as target:
         print(target.identify(), flush=True)
         print(
             "Sending SPI programmer. Keep power connected until the firmware starts.", flush=True
         )
-        target.send(b"> Prop_Hex 0 0 0 0 ")
+        target.send(b"> Prop_Txt 0 0 0 0 ")
         # Match loadp2's single-image flash mode. The stub checks its own
         # checksum and uses the ROM download length to locate the application.
-        for start in range(0, len(image), 128):
-            target.send(image[start : start + 128].hex(" ").encode("ascii") + b" > ")
+        for start in range(0, len(image), 3072):
+            target.send(base64.b64encode(image[start : start + 3072]).rstrip(b"=") + b"\n")
         target.send(b"~")
+        target.serial.baudrate = 115200
         tail = bytearray()
         deadline = time.monotonic() + 60
         while time.monotonic() < deadline:

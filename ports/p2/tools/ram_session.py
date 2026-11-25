@@ -13,7 +13,7 @@ parser.add_argument("image", type=Path)
 parser.add_argument("--loader-dir", default=Path(__file__).resolve().parent, type=Path)
 parser.add_argument("--port", required=True)
 parser.add_argument("--listen", type=int, default=8122)
-parser.add_argument("--baud", type=int, default=921600)
+parser.add_argument("--baud", type=int, default=2000000)
 args = parser.parse_args()
 sys.path.insert(0, str(args.loader_dir.resolve()))
 from p2ram import P2Serial, read_image

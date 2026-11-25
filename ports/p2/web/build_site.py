@@ -28,7 +28,9 @@ def write_firmware(dest):
     for profile, release in manifest["profiles"].items():
         flat = release["flat"]
         image = (PORT / "firmware" / flat["file"]).read_bytes()
-        flash = programmer(profile)  # Also verifies the pinned loadp2 stub and release SHA.
+        flash = programmer(
+            profile, web=True
+        )  # Also verifies the pinned loadp2 stub and release SHA.
         if (
             len(image) != flat["bytes"]
             or sum(w[0] for w in struct.iter_unpack("<I", flash)) & 0xFFFFFFFF
@@ -136,6 +138,11 @@ def main():
         parser.error("Use an empty output directory.")
     for name in ("style.css", "app.mjs", "rom.mjs", "blink_p2.py", "p2-edge.png", "p2-ec32mb.png"):
         shutil.copyfile(WEB / name, out / name)
+    rom_digest = hashlib.sha256((WEB / "rom.mjs").read_bytes()).hexdigest()[:16]
+    app = (WEB / "app.mjs").read_text(encoding="utf-8")
+    (out / "app.mjs").write_text(
+        app.replace('"./rom.mjs"', f'"./rom.mjs?v={rom_digest}"'), encoding="utf-8"
+    )
     ide = out / "ide"
     ide.mkdir()
     shutil.copyfile(ROOT / "README.md", ide / "README.md")

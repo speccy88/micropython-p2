@@ -34,6 +34,12 @@ CON	spi_cs = 61
 '*  Programmer  *
 '****************
 '
+#ifdef WEB_FAST_UPLOAD
+#define APP_ADDRESS ##@app_start
+#else
+#define APP_ADDRESS #@app_start
+#endif
+
 DAT		org
 
 s		skip	#1			'skip checksum						(reused as s)
@@ -72,7 +78,7 @@ t		wrpin	#%01_11110_0,#62-62	'@008: make tx high (NOP'd by compiler if not DEBUG
 		wrlong	s,ptra++		'write app_longs in loader
 		wrlong	s,ptra++		'write app_longs2 in loader
 
-		rdfast	#0,#@app_start		'calculate app checksum
+		rdfast	#0,APP_ADDRESS		'calculate app checksum
 		rep	#2,s
 		rflong	v
 		sub	@zerob/4,v
@@ -139,10 +145,31 @@ t		wrpin	#%01_11110_0,#62-62	'@008: make tx high (NOP'd by compiler if not DEBUG
 
 .done		wrpin	#0,#spi_ck		'done, clear spi_ck smart pin mode
 '
+#ifdef WEB_FAST_UPLOAD
+' The browser must reopen USB to change baud. Signal only after the final
+' page BUSY check, so a reset-sensitive adapter cannot interrupt programming.
+' Both Edge modules have a 20 MHz crystal. Use it directly for 2 Mbaud TX.
+                hubset  #$f4
+                waitx   ##400000
+                hubset  #$f6
+                dirl    #62
+                wrpin   #$7c,#62
+                wxpin   ##$000a0007,#62
+                dirh    #62
+                waitx   #100
+                mov     v,##$4b4f3250           'P2OK, least significant byte first
+.tx_done        wypin   v,#62
+                waitx   ##400
+                shr     v,#8 wz
+        if_nz   jmp     #.tx_done
+                dirl    #62
+                wrpin   #0,#62
+                hubset  #$f0
+#endif
 '
 ' Move application down to $00000+
 '
-		mov	ptra,#@app_start
+		mov	ptra,APP_ADDRESS
 		mov	ptrb,#0
 		shr	t,#9
 .move		setq2	#$200-1
