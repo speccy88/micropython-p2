@@ -15,6 +15,40 @@ BOOTFILE = "/_BOOT_P2.BIX"
 SHORT_NAME = b"_BOOT_P2BIX"
 
 
+def read_sectors(board, index, count=1):
+    """Keep the physical read fixed while retrying only incomplete serial frames."""
+    size = count * 512
+    board.exec(
+        f"sector_buf=bytearray({size}); "
+        f"assert sd.readblocks({index},sector_buf)==0, 'readblocks LBA {index}, {count} sectors'"
+    )
+    data = bytearray()
+    for start in range(0, size, 256):
+        prefix = f"{index}:{start}:".encode()
+        command = f"print('{prefix.decode()}'+bytes(sector_buf[{start}:{start + 256}]).hex())"
+        for attempt in range(3):
+            reply = board.exec(command).strip()
+            try:
+                if not reply.startswith(prefix):
+                    raise ValueError("missing frame identifier")
+                payload = reply[len(prefix) :]
+                if len(payload) != 512:
+                    raise ValueError(f"expected 512 hex digits, received {len(payload)}")
+                block = bytes.fromhex(payload.decode("ascii"))
+                if len(block) != 256:
+                    raise ValueError(f"expected 256 bytes, decoded {len(block)}")
+            except ValueError as exc:
+                if attempt == 2:
+                    raise ValueError(
+                        f"SD readback frame at LBA {index + start // 512}, "
+                        f"sector offset {start % 512}, failed three times: {exc}"
+                    ) from exc
+            else:
+                data.extend(block)
+                break
+    return bytes(data)
+
+
 def geometry(read, capacity):
     mbr = read(0)
     entry = mbr[446:462]
@@ -97,18 +131,11 @@ def main():
         board.enter_raw_repl(soft_reset=True)
         board.exec("""import os,p2sd
 sd=p2sd.active()
-assert sd is not None and sd.ioctl(5,0)==512
-def read_sectors(start,n):
- b=bytearray(512*n)
- assert sd.readblocks(start,b)==0
- print(bytes(b).hex())""")
+assert sd is not None and sd.ioctl(5,0)==512""")
         capacity = int(board.exec("print(sd.ioctl(4,0))"))
 
         def sectors(index, count=1):
-            result = bytes.fromhex(board.exec(f"read_sectors({index},{count})").decode())
-            if len(result) != 512 * count:
-                raise ValueError("short physical sector read")
-            return result
+            return read_sectors(board, index, count)
 
         from functools import lru_cache
 

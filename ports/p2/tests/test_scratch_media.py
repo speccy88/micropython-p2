@@ -45,6 +45,35 @@ class Board:
 
 
 class MediaTests(unittest.TestCase):
+    def test_sector_read_retries_only_the_serial_frame(self):
+        class Card:
+            reads = 0
+
+            def readblocks(self, index, buf):
+                self.reads += 1
+                buf[:] = bytes(range(256)) * 2
+                return 0
+
+        class TruncatingBoard(Board):
+            def __init__(self, truncations):
+                self.globals = {"sd": Card()}
+                self.truncations = truncations
+
+            def exec(self, code):
+                result = super().exec(code)
+                if self.truncations and code.startswith("print("):
+                    self.truncations -= 1
+                    return result[:-4]
+                return result
+
+        target = TruncatingBoard(1)
+        self.assertEqual(sd_boot.read_sectors(target, 900), bytes(range(256)) * 2)
+        self.assertEqual(target.globals["sd"].reads, 1)
+        target = TruncatingBoard(3)
+        with self.assertRaisesRegex(ValueError, "LBA 900.*expected 512 hex digits, received 509"):
+            sd_boot.read_sectors(target, 900)
+        self.assertEqual(target.globals["sd"].reads, 1)
+
     def test_scratch_bounds(self):
         for addr in ("0", "0xFF000", "0x100001", "0x1000000", "-4096"):
             with self.assertRaises(argparse.ArgumentTypeError):
