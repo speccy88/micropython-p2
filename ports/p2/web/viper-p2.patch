@@ -428,10 +428,10 @@ index edb3c77..6318ad5 100644
  
      if (typeof webrepl_url !== 'undefined') {
 diff --git a/src/app_common.css b/src/app_common.css
-index d8f5b66..08f379f 100644
+index d8f5b66..03db70f 100644
 --- a/src/app_common.css
 +++ b/src/app_common.css
-@@ -7,15 +7,15 @@
+@@ -7,15 +7,16 @@
   */
  
  :root {
@@ -441,6 +441,7 @@ index d8f5b66..08f379f 100644
 -    --bg-color: #2a2e32;
 -    --bg-color-menu: #2a2e32ee;
 -    --bg-color-edit: #111314;
++    color-scheme: only light;
 +    --fg-color: #202124;
 +    --fg-color-highlight: #185e8e;
 +    --accent-color: #19689b;
@@ -455,7 +456,7 @@ index d8f5b66..08f379f 100644
      --connected-color: var(--connected-passive);
      --animation: 0.3s ease-in-out;
  }
-@@ -257,24 +257,24 @@ option {
+@@ -257,24 +258,24 @@ option {
      font-family: system-ui,Ubuntu,Droid Sans,sans-serif;
  }
  
