@@ -43,6 +43,14 @@ jobs:
             git fetch --depth=1 origin "$revision"
             source_dir="$RUNNER_TEMP/release-source"
             git worktree add --detach "$source_dir" "$revision"
+            # Kit.2 froze a directory in filesystem order. Pin that build input
+            # while keeping its interpreter sources, build date and Git hash.
+            recipe=$(python -c 'import json; print(json.load(open("ports/p2/firmware/manifest.json")).get("frozen_manifest_commit", ""))')
+            if [[ -n "$recipe" ]]; then
+              [[ "$recipe" =~ ^[0-9a-f]{40}$ ]]
+              git fetch --depth=1 origin "$recipe"
+              git -C "$source_dir" restore --source="$recipe" --worktree -- ports/p2/manifest.py
+            fi
           fi
           git -C "$source_dir" submodule update --init --depth=1 lib/micropython-lib
           echo "FIRMWARE_SOURCE=$source_dir" >> "$GITHUB_ENV"
@@ -56,6 +64,7 @@ jobs:
         if: steps.compiler.outputs.cache-hit != 'true'
         run: bash ports/p2/ci/prepare-compiler.sh _sdk/modern "$RUNNER_TEMP/p2-sdk"
       - name: Validate and build all release profiles
+        id: build
         env:
           P2_WORK: ${{ runner.temp }}/p2-sdk
           P2_BIN: ${{ runner.temp }}/p2-sdk/bin
@@ -72,16 +81,21 @@ jobs:
           import hashlib, json, os
           from pathlib import Path
           manifest = json.loads(Path("ports/p2/firmware/manifest.json").read_text())
+          differences = []
           for profile, info in manifest["profiles"].items():
               for kind, suffix in (("flat", "bin"), ("elf", "elf")):
                   image = (Path(os.environ["BUILD_ROOT"]) / profile / ("firmware." + suffix)).read_bytes()
                   expected = info[kind]
                   digest = hashlib.sha256(image).hexdigest()
                   if (digest, len(image)) != (expected["sha256"], expected["bytes"]):
-                      raise SystemExit(f"{profile}/{suffix}: reproduced {digest} ({len(image)} bytes), expected {expected}")
-                  print(f"{profile}/{suffix}: {digest} ({len(image)} bytes)")
+                      differences.append(f"{profile}/{suffix}: reproduced {digest} ({len(image)} bytes), expected {expected}")
+                  else:
+                      print(f"{profile}/{suffix}: {digest} ({len(image)} bytes)")
+          if differences:
+              raise SystemExit("\n".join(differences))
           PY
       - name: Upload built images and linker maps
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: p2-images-${{ github.sha }}

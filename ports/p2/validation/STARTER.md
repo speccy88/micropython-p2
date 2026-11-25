@@ -62,14 +62,23 @@ The following rebuilds the original code used by kit.1 alongside the selected
 candidate. Pass the precise candidate **firmware source commit** from its
 manifest. To reproduce the original embedded build date, the port's build
 script derives `SOURCE_DATE_EPOCH` from that checkout.
+Kit.2 froze the five port modules in the order returned by the original
+Linux filesystem. The release metadata now pins a second commit for that
+one build recipe. GitHub's manual rebuild restores only `ports/p2/manifest.py`
+from that commit. The reference and candidate keep their original sources
+and version headers.
 
 ```sh
 baseline=8432dcbac3aacf072f3b32c424dc4f0c4517f58a
 candidate=$(python -c 'import json; print(json.load(open("ports/p2/firmware/manifest.json"))["source_commit"])')
+recipe=$(python -c 'import json; print(json.load(open("ports/p2/firmware/manifest.json")).get("frozen_manifest_commit", ""))')
 for variant in baseline candidate; do
     if [ "$variant" = baseline ]; then revision=$baseline; else revision=$candidate; fi
     folder="$(pwd)/../p2-ab-$variant"
     git worktree add --detach "$folder" "$revision" || exit 1
+    if [ "$variant" = candidate ] && [ -n "$recipe" ]; then
+        git -C "$folder" restore --source="$recipe" --worktree -- ports/p2/manifest.py || exit 1
+    fi
     git -C "$folder" submodule update --init --depth 1 lib/micropython-lib || exit 1
     (cd "$folder" && bash ports/p2/tools/build_profiles.sh edge lean threaded) || exit 1
     python ports/p2/tools/package.py "$folder/ports/p2/build-delivery" --repo "$folder" --output "$folder/ports/p2/build-packaged" || exit 1

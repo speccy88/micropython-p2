@@ -1,5 +1,6 @@
 {
   "source_commit": "ee618817ca5a2f119cabdc8ef567ccdf012ed85d",
+  "frozen_manifest_commit": "4318708e4efa766d55176659b671914ab2f24372",
   "upstream_release": "v1.29.0",
   "tinygo_p2_commit": "fc631f268080135e7c13ad27783ee6e1bb6a1c35",
   "compiler_patch_sha256": "d5e87aeda5ed5f263083321a07a1662b296e104a2ce46535cb4b52e683ff4a86",
