@@ -63,7 +63,7 @@ async function loadFirmware(profile, mode, signal) {
 function loadEditor() {
     if (ideLoading) return ideLoading;
     const frame = $("ide");
-    frame.src = "./ide/";
+    frame.src = frame.dataset.entry;
     ideLoading = new Promise((resolve, reject) => {
         const deadline = Date.now() + 60000;
         const timer = setInterval(() => {

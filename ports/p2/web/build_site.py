@@ -155,6 +155,15 @@ def main():
     )
     profiles = write_firmware(out / "firmware")
     page = (WEB / "index.html").read_text(encoding="utf-8")
+    # Pages caches these responses independently. A changed editor needs a fresh
+    # iframe URL even when the visitor has only reloaded the outer workbench.
+    for url, asset in (
+        ("./style.css", out / "style.css"),
+        ("./app.mjs", out / "app.mjs"),
+        ("./ide/", ide / "index.html"),
+    ):
+        digest = hashlib.sha256(asset.read_bytes()).hexdigest()[:16]
+        page = page.replace(f'"{url}"', f'"{url}?v={digest}"')
     for profile in ("lean", "threaded"):
         kib = profiles[profile]["gc_arena_bytes"] // 1024
         page = page.replace("{{" + profile + "_gc_kib}}", str(kib))
