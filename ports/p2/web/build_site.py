@@ -43,6 +43,7 @@ def write_firmware(dest):
             "ram": flat,
             "flash": {
                 "file": filename,
+                "completion": "P2OK",
                 "bytes": len(flash),
                 "sha256": hashlib.sha256(flash).hexdigest(),
             },
