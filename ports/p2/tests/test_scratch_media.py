@@ -1,11 +1,17 @@
 """Host tests for scratch selection, NOR backup/restore and ROM FAT layout checks."""
 
 import argparse
-from contextlib import redirect_stdout
+from contextlib import ExitStack, redirect_stdout
 import hashlib
 import io
+import os
+from pathlib import Path
 import struct
+import sys
+import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import scratch_media as media
 import sd_boot
@@ -51,28 +57,39 @@ class MediaTests(unittest.TestCase):
 
             def readblocks(self, index, buf):
                 self.reads += 1
-                buf[:] = bytes(range(256)) * 2
+                buf[:] = bytes(range(256)) * (len(buf) // 256)
                 return 0
 
         class TruncatingBoard(Board):
             def __init__(self, truncations):
                 self.globals = {"sd": Card()}
                 self.truncations = truncations
+                self.resyncs = 0
 
-            def exec(self, code):
-                result = super().exec(code)
-                if self.truncations and code.startswith("print("):
+            def exec_raw_no_follow(self, code):
+                out = io.BytesIO()
+                with redirect_stdout(io.TextIOWrapper(out)) as stdout:
+                    exec(code, self.globals)
+                    stdout.flush()
+                frame = out.getvalue() + b"\x04\x04"
+                if self.truncations:
                     self.truncations -= 1
-                    return result[:-4]
-                return result
+                    frame = frame[:-4]
+                self.serial = io.BytesIO(frame)
+
+            def enter_raw_repl(self, soft_reset):
+                assert not soft_reset
+                self.resyncs += 1
 
         target = TruncatingBoard(1)
-        self.assertEqual(sd_boot.read_sectors(target, 900), bytes(range(256)) * 2)
+        self.assertEqual(sd_boot.read_sectors(target, 900, 8), bytes(range(256)) * 16)
         self.assertEqual(target.globals["sd"].reads, 1)
+        self.assertEqual(target.resyncs, 1)
         target = TruncatingBoard(3)
-        with self.assertRaisesRegex(ValueError, "LBA 900.*expected 512 hex digits, received 509"):
+        with self.assertRaisesRegex(ValueError, "LBA 900.*received"):
             sd_boot.read_sectors(target, 900)
         self.assertEqual(target.globals["sd"].reads, 1)
+        self.assertEqual(target.resyncs, 2)
 
     def test_scratch_bounds(self):
         for addr in ("0", "0xFF000", "0x100001", "0x1000000", "-4096"):
@@ -81,6 +98,57 @@ class MediaTests(unittest.TestCase):
         self.assertEqual(media.scratch_address("0xFFF000"), 0xFFF000)
         with self.assertRaises(argparse.ArgumentTypeError):
             media.sd_directory("/test/../boot.py")
+
+    def test_install_only_publishes_verified_bytes(self):
+        class FileBoard(Board):
+            fs_stat = staticmethod(os.stat)
+
+            def enter_raw_repl(self, soft_reset):
+                if "staged" in self.globals:
+                    self.globals["staged"].close()
+
+        image = bytes(range(256)) * 2 + b"tail"
+        board = FileBoard()
+        sd = SimpleNamespace(ioctl=lambda op, arg: {3: 0, 4: 8192, 5: 512}[op])
+        with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+            boot = Path(folder) / "_BOOT_P2.BIX"
+            stage = Path(folder) / "_P2BOOT.TMP"
+            stack.enter_context(patch.object(sd_boot, "BOOTFILE", str(boot)))
+            stack.enter_context(patch.object(sd_boot, "STAGING_FILE", str(stage)))
+            stack.enter_context(
+                patch.dict(sys.modules, {"p2sd": SimpleNamespace(active=lambda: sd)})
+            )
+            stack.enter_context(patch.object(sd_boot, "geometry", return_value={}))
+            stack.enter_context(patch.object(sd_boot, "locate", return_value=400))
+            read = stack.enter_context(patch.object(sd_boot, "read_sectors"))
+            report = {"sha256": hashlib.sha256(image).hexdigest()}
+
+            stage.write_bytes(b"previous upload")
+            with self.assertRaises(FileExistsError):
+                sd_boot.verify_boot_file(board, image, True, report)
+            self.assertEqual(stage.read_bytes(), b"previous upload")
+            stage.unlink()
+
+            def raw_bytes(_board, first, count):
+                self.assertEqual((first, count), (400, 2))
+                self.assertFalse(boot.exists())
+                return stage.read_bytes().ljust(count * 512, b"\xff")
+
+            read.return_value = bytes(1024)
+            with self.assertRaisesRegex(ValueError, "sectors differ"):
+                sd_boot.verify_boot_file(board, image, True, report)
+            self.assertFalse(boot.exists() or stage.exists())
+            read.side_effect = raw_bytes
+            sd_boot.verify_boot_file(board, image, True, report)
+            self.assertEqual(boot.read_bytes(), image)
+            self.assertFalse(stage.exists())
+            self.assertTrue(report["created"])
+
+            read.side_effect = None
+            read.return_value = bytes(1024)
+            with self.assertRaisesRegex(ValueError, "sectors differ"):
+                sd_boot.verify_boot_file(board, image, True, report)
+            self.assertEqual(boot.read_bytes(), image)
 
     def test_backup_rejection_and_restore(self):
         s = media.SECTOR

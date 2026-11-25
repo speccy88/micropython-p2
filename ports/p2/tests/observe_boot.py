@@ -29,6 +29,11 @@ def main():
         "--pulse-reset", action="store_true", help="pulse DTR for a warm ROM restart"
     )
     triggers.add_argument(
+        "--rom-monitor",
+        action="store_true",
+        help="ask the serial ROM monitor to run _BOOT_P2.BIX from SD",
+    )
+    triggers.add_argument(
         "--await-power-cycle",
         action="store_true",
         help="operator powers the target off/on after listening starts",
@@ -39,14 +44,22 @@ def main():
     if args.timeout <= 0 or args.output.exists():
         p.error("choose a positive timeout and a new result path")
     record = {
-        "trigger": "DTR warm reset" if args.pulse_reset else "operator power cycle",
+        "trigger": "operator power cycle",
         "port": args.port,
         "passed": False,
     }
     try:
         with P2Serial(args.port) as board:
             board.serial.reset_input_buffer()
-            if args.pulse_reset:
+            if args.rom_monitor:
+                record["trigger"] = "ROM monitor SD run"
+                record["rom"] = board.identify()
+                board.send(b"\x04")
+                until(board, b"P2-MONITOR ", 3)
+                board.send(b"R_BOOT_P2.BIX\r")
+                record["command"] = "R_BOOT_P2.BIX"
+            elif args.pulse_reset:
+                record["trigger"] = "DTR warm reset"
                 board.serial.dtr = True
                 time.sleep(0.02)
                 board.serial.dtr = False

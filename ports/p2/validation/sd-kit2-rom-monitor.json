@@ -1,0 +1,11 @@
+{
+  "trigger": "ROM monitor SD run",
+  "port": "COM12",
+  "passed": true,
+  "rom": "Prop_Ver G",
+  "command": "R_BOOT_P2.BIX",
+  "startup": "R_BOOT_P2.BIX\r\nMicroPython v1.29.0-p2.1 on 2026-11-25; P2-EC32MB with Propeller 2\r\n>>> ",
+  "device": "p2",
+  "psram_bytes": 33554432,
+  "sd_mounted": true
+}

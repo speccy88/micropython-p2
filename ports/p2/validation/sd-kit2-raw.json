@@ -1,0 +1,12 @@
+{
+  "path": "/_BOOT_P2.BIX",
+  "bytes": 403960,
+  "sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "passed": true,
+  "rom_boot_observed": false,
+  "readback_seconds": 50.03,
+  "readback_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "created": true,
+  "first_lba": 26752,
+  "sectors": 789
+}

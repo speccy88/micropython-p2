@@ -1,0 +1,6 @@
+{
+  "trigger": "DTR warm reset",
+  "port": "COM12",
+  "passed": false,
+  "error": "TimeoutError(\"No b'>>> ' in 12 s; captured b'\\\\xfa\\\\x10O\\\\xfa\\\\x11O'\")"
+}

@@ -74,12 +74,34 @@ alone. [Parallax ROM SD boot source](https://github.com/parallaxinc/propeller/bl
 python ports/p2/tests/sd_boot.py --port socket://127.0.0.1:8122 --image ports/p2/firmware/edge.bin --install --output sd-layout.json
 ```
 
+The helper sends the physical sectors as length-delimited binary frames and
+hashes them on the host. On COM12 it verified the 403,960-byte Edge image
+in 50.03 seconds of read-back. A new install writes `_P2BOOT.TMP` first.
+Only after the hash matches does it rename that file to `_BOOT_P2.BIX` and
+check its final directory entry. If power was interrupted during upload,
+inspect the staging file before removing it and retrying. An existing
+staging file is preserved. [Raw sector and FAT-chain verification](../validation/sd-kit2-raw.json)
+
 An existing boot file is read and compared. If you want to replace a
 different image, back it up under another name before running the command.
 Without `--install` the helper only inspects the card. If the card is
 fragmented or has the wrong partition type, prepare a separate FAT32 SD card
 and put the boot file on it first. The `passed` field in this report covers
 the bytes the ROM will see. Actual execution has a separate acceptance step.
+
+To run the card immediately with the board still set for serial boot, close
+the relay and select **Can I boot my SD card? → Boot SD & open ViperIDE**
+in the workbench. The CLI can make the same check on a physical serial port.
+Substitute `/dev/ttyUSB0` or your macOS `/dev/cu.*` port for `COM12` as needed.
+Both use the P2 ROM monitor's `R_BOOT_P2.BIX` command. On the test Edge,
+the resulting REPL reported 32 MiB of PSRAM and a mounted SD card.
+[Workbench](https://speccy88.github.io/micropython-p2/) · [Physical ROM monitor run](../validation/sd-kit2-rom-monitor.json)
+
+```sh
+python ports/p2/tests/observe_boot.py --port COM12 --rom-monitor --timeout 15 --output sd-monitor.json
+```
+
+### Automatic power-on boot
 
 1. Close the relay and serial tools. Power off with the SD card inserted.
    On the P2-EC32MB, select SD boot with serial fallback. P61 FLASH pull-up

@@ -1,10 +1,12 @@
 """Prepare or check an Edge FAT32 SD boot file through the RAM-loaded interpreter."""
 
 import argparse
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
 import sys
+import time
 
 from fat_directory import boot, u16, u32
 
@@ -13,40 +15,32 @@ from p2ram import read_image
 
 BOOTFILE = "/_BOOT_P2.BIX"
 SHORT_NAME = b"_BOOT_P2BIX"
+STAGING_FILE = "/_P2BOOT.TMP"
+STAGING_NAME = b"_P2BOOT TMP"
 
 
 def read_sectors(board, index, count=1):
-    """Keep the physical read fixed while retrying only incomplete serial frames."""
+    """Read the card once. Send binary stdout with an explicit length across raw REPL."""
     size = count * 512
     board.exec(
         f"sector_buf=bytearray({size}); "
         f"assert sd.readblocks({index},sector_buf)==0, 'readblocks LBA {index}, {count} sectors'"
     )
-    data = bytearray()
-    for start in range(0, size, 256):
-        prefix = f"{index}:{start}:".encode()
-        command = f"print('{prefix.decode()}'+bytes(sector_buf[{start}:{start + 256}]).hex())"
-        for attempt in range(3):
-            reply = board.exec(command).strip()
-            try:
-                if not reply.startswith(prefix):
-                    raise ValueError("missing frame identifier")
-                payload = reply[len(prefix) :]
-                if len(payload) != 512:
-                    raise ValueError(f"expected 512 hex digits, received {len(payload)}")
-                block = bytes.fromhex(payload.decode("ascii"))
-                if len(block) != 256:
-                    raise ValueError(f"expected 256 bytes, decoded {len(block)}")
-            except ValueError as exc:
-                if attempt == 2:
-                    raise ValueError(
-                        f"SD readback frame at LBA {index + start // 512}, "
-                        f"sector offset {start % 512}, failed three times: {exc}"
-                    ) from exc
-            else:
-                data.extend(block)
-                break
-    return bytes(data)
+    prefix = f"P2SD {index} {size}\n".encode("ascii")
+    send = f"import sys\nout=sys.stdout.buffer\nout.write({prefix!r})\nout.write(sector_buf)"
+    # Arbitrary sector bytes can contain raw REPL's Ctrl-D terminator. Consume
+    # exactly the prefix, payload and two EOFs. Leave '>' for the next command.
+    frame_size = len(prefix) + size + 2
+    for attempt in range(3):
+        board.exec_raw_no_follow(send)
+        frame = board.serial.read(frame_size)
+        if len(frame) == frame_size and frame.startswith(prefix) and frame.endswith(b"\x04\x04"):
+            return frame[len(prefix) : -2]
+        if attempt < 2:
+            board.enter_raw_repl(soft_reset=False)
+    raise ValueError(
+        f"Incomplete SD serial frame at LBA {index}: expected {frame_size} bytes, received {len(frame)}"
+    )
 
 
 def geometry(read, capacity):
@@ -71,13 +65,18 @@ def geometry(read, capacity):
         raise ValueError(
             "ROM directory boot needs FAT32, 512-byte sectors, two FATs and root cluster 2"
         )
-    fs = read(first + u16(vbr, 48))
+    if (vol["clusters"] + 2) * 4 > vol["fat_sectors"] * 512:
+        raise ValueError("FAT is too small for the data area")
+    fsinfo = u16(vbr, 48)
+    if not 0 < fsinfo < u16(vbr, 14):
+        raise ValueError("FSInfo sector outside the reserved area")
+    fs = read(first + fsinfo)
     if u32(fs, 0) != 0x41615252 or u32(fs, 484) != 0x61417272 or fs[510:] != b"\x55\xaa":
         raise ValueError("invalid FAT32 FSInfo sector")
     return vol
 
 
-def locate(read, vol, size):
+def locate(read, vol, size, short_name=SHORT_NAME):
     spc = vol["sectors_per_cluster"]
     for sector in range(vol["data_start"], vol["data_start"] + spc):
         data = read(sector)
@@ -85,7 +84,7 @@ def locate(read, vol, size):
             entry = data[pos : pos + 32]
             if not entry[0]:
                 raise ValueError("boot file is absent from the first root cluster")
-            if entry[:11] != SHORT_NAME or entry[11] & 0xD8:
+            if entry[:11] != short_name or entry[11] & 0xD8:
                 continue
             if u32(entry, 28) != size:
                 raise ValueError("existing boot file has a different size")
@@ -102,6 +101,75 @@ def locate(read, vol, size):
                     raise ValueError("boot file is fragmented; ROM reads consecutive sectors")
             return vol["data_start"] + (cluster - 2) * spc
     raise ValueError("boot file lies outside the directory range scanned by the ROM")
+
+
+def exists(board, path):
+    try:
+        board.fs_stat(path)
+    except OSError as exc:
+        if exc.errno == 2:
+            return False
+        raise
+    return True
+
+
+def verify_boot_file(board, image, install, record):
+    owned_path = None
+    try:
+        board.exec("""import os,p2sd
+sd=p2sd.active()
+assert sd is not None and sd.ioctl(5,0)==512""")
+        capacity = int(board.exec("print(sd.ioctl(4,0))"))
+
+        def sectors(index, count=1):
+            return read_sectors(board, index, count)
+
+        read = lru_cache(maxsize=128)(sectors)
+        vol = geometry(read, capacity)
+        if not exists(board, BOOTFILE):
+            if not install:
+                raise FileNotFoundError(BOOTFILE)
+            # An interrupted upload must never become a candidate for ROM boot.
+            board.exec(f"staged=open({STAGING_FILE!r}, 'xb')")
+            owned_path = STAGING_FILE
+            for pos in range(0, len(image), 2048):
+                chunk = image[pos : pos + 2048]
+                board.exec(f"assert staged.write(bytes.fromhex('{chunk.hex()}')) == {len(chunk)}")
+            board.exec("staged.close(); assert sd.ioctl(3,0)==0")
+        read.cache_clear()
+        first = locate(read, vol, len(image), STAGING_NAME if owned_path else SHORT_NAME)
+        digest = hashlib.sha256()
+        started = time.monotonic()
+        for pos in range(0, len(image), 4096):
+            length = min(4096, len(image) - pos)
+            digest.update(sectors(first + pos // 512, (length + 511) // 512)[:length])
+        record["readback_seconds"] = round(time.monotonic() - started, 2)
+        record["readback_sha256"] = digest.hexdigest()
+        if record["readback_sha256"] != record["sha256"]:
+            raise ValueError("raw contiguous sectors differ from the requested image")
+        if owned_path:
+            if exists(board, BOOTFILE):
+                raise FileExistsError(BOOTFILE)
+            board.exec(f"os.rename({STAGING_FILE!r}, {BOOTFILE!r})")
+            owned_path = BOOTFILE
+            board.exec("assert sd.ioctl(3,0)==0")
+            read.cache_clear()
+            if locate(read, vol, len(image)) != first:
+                raise ValueError("published boot file points to different sectors")
+        record.update(
+            passed=True,
+            created=bool(owned_path),
+            first_lba=first,
+            sectors=(len(image) + 511) // 512,
+        )
+    except BaseException:
+        if owned_path:
+            try:
+                board.enter_raw_repl(soft_reset=True)
+                board.exec(f"import os; os.remove({owned_path!r})")
+            except Exception as cleanup:
+                record["cleanup_error"] = f"Inspect {owned_path}: {cleanup!r}"
+        raise
 
 
 def main():
@@ -125,48 +193,12 @@ def main():
         "passed": False,
         "rom_boot_observed": False,
     }
-    board = SerialTransport(args.port)
-    created = False
+    board = SerialTransport(args.port, timeout=3)
     try:
         board.enter_raw_repl(soft_reset=True)
-        board.exec("""import os,p2sd
-sd=p2sd.active()
-assert sd is not None and sd.ioctl(5,0)==512""")
-        capacity = int(board.exec("print(sd.ioctl(4,0))"))
-
-        def sectors(index, count=1):
-            return read_sectors(board, index, count)
-
-        from functools import lru_cache
-
-        read = lru_cache(maxsize=128)(sectors)
-        vol = geometry(read, capacity)
-        try:
-            board.fs_stat(BOOTFILE)
-        except OSError as exc:
-            if exc.errno != 2 or not args.install:
-                raise
-            # Claim the exact root name exclusively before opening it for bulk writes.
-            board.exec(f"with open({BOOTFILE!r},'xb'): pass")
-            created = True
-            board.fs_writefile(BOOTFILE, image, chunk_size=1024)
-            board.exec("assert sd.ioctl(3,0)==0")
-        read.cache_clear()
-        first = locate(read, vol, len(image))
-        digest = hashlib.sha256()
-        for pos in range(0, len(image), 4096):
-            length = min(4096, len(image) - pos)
-            digest.update(sectors(first + pos // 512, (length + 511) // 512)[:length])
-        if digest.hexdigest() != record["sha256"]:
-            raise ValueError("raw contiguous sectors differ from the requested image")
-        record.update(
-            passed=True, created=created, first_lba=first, sectors=(len(image) + 511) // 512
-        )
+        verify_boot_file(board, image, args.install, record)
     except BaseException as exc:
         record["error"] = repr(exc)
-        if created:
-            board.enter_raw_repl(soft_reset=True)
-            board.exec(f"import os; os.remove({BOOTFILE!r})")
         raise
     finally:
         board.close()

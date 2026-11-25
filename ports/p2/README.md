@@ -146,6 +146,6 @@ manifest's source revision. [Kit verification and recovery](validation/STARTER.m
 
 Both board definitions select a 20 MHz reference and 160 MHz system clock.
 A plain P2-EVAL with other clock or storage wiring requires a matching board
-definition. The checked load paths are serial RAM ELF and flat binary. Cold
-boot, persistent firmware installation and SD boot images have separate
-acceptance requirements.
+definition. The physical Edge ran from a serial RAM download and from
+`_BOOT_P2.BIX` on FAT32 using the serial ROM monitor. For automatic SD
+startup select the appropriate boot switches. [SD installation, boot and recovery](storage/ACCEPTANCE.md#boot-the-interpreter-from-sd)
