@@ -47,6 +47,11 @@ CFLAGS += -DP2_ENABLE_BUSES=$(if $(filter edge,$(PROFILE)),1,0)
 # using this compiler. The corrected compiler supports P2_MAP_OPT=-Oz.
 P2_MAP_OPT ?= -Os
 $(BUILD)/py/map.o: private CFLAGS += $(P2_MAP_OPT)
+# Direct bytecode dispatch saves hub instruction fetches on the full Edge VM.
+# Other profiles retain their measured size/dispatch tradeoff.
+ifeq ($(PROFILE),edge)
+$(BUILD)/py/vm.o: private CFLAGS += -DMICROPY_OPT_COMPUTED_GOTO=1
+endif
 $(BUILD)/py/map.o: Makefile
 CFLAGS_MCU = --target=p2
 SRC_C += main.c mphalport.c startup.c $(wildcard drivers/*.c) $(wildcard storage/*.c) $(wildcard bus/*.c)

@@ -23,12 +23,18 @@ static mp_obj_t pystack[2048] __attribute__((aligned(8)));
 void *p2_gc_registers[36] __attribute__((aligned(4)));
 
 void p2_scan_stack(const void *base, size_t bytes) {
-    // P2 LLVM permits byte-aligned C frames. Only load a candidate when all
-    // four bytes lie in the active stack; memcpy has no alignment contract.
-    uintptr_t end = (uintptr_t)base + bytes;
-    for (uintptr_t addr = (uintptr_t)base; addr + sizeof(void *) <= end; ++addr) {
-        uintptr_t candidate;
-        __builtin_memcpy(&candidate, (void *)addr, sizeof(candidate));
+    // Scan every byte offset on the ascending stack. Each new little-endian
+    // window reuses three bytes from the preceding (possibly unaligned) root.
+    const uint8_t *next = base;
+    uintptr_t candidate = 0;
+    if (bytes < sizeof(candidate)) {
+        return;
+    }
+    for (size_t i = 0; i < sizeof(candidate) - 1; ++i) {
+        candidate = (candidate >> 8) | ((uintptr_t)*next++ << 24);
+    }
+    for (size_t i = sizeof(candidate) - 1; i < bytes; ++i) {
+        candidate = (candidate >> 8) | ((uintptr_t)*next++ << 24);
         if (candidate >= (uintptr_t)_heap_start && candidate < (uintptr_t)_heap_end
             && (candidate & (sizeof(void *) - 1)) == 0) {
             void *root = (void *)candidate;
