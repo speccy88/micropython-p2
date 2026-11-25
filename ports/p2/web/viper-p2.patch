@@ -11,8 +11,126 @@ index e765650..b2865df 100644
                      <div><a href="#" onclick="app.pyPrettify()" id="py-prettify">🎀 Prettify current file</a></div>
                      <div><a href="#" onclick="app.pyMinify()" id="py-minify">🤏 Minify current file</a></div>
                      <div><a href="#" onclick="app.saveAndCompile()" id="py-save-compile">🛠️ Save &amp; compile to .mpy</a></div>
+diff --git a/src/app.css b/src/app.css
+index a1a0d6a..a3444da 100644
+--- a/src/app.css
++++ b/src/app.css
+@@ -116,12 +116,27 @@ body.loaded {
+     top: 2.75rem;
+ }
+ 
+-#toast-container > div {
+-    border-radius: 0px;
+-    -webkit-border-radius: 0px;
+-    opacity: 0.95;
+-    box-shadow: none;
+-    -webkit-box-shadow: none;
++#tool-panel, #editor-tabs, #terminal-tabs {
++    border-bottom: 1px solid #ddd;
++}
++#side-menu {
++    border-right: 1px solid #ddd;
++}
++#toast-container > .toast {
++    background: #fff;
++    background-image: none !important; /* Toastr's default icons are white. */
++    color: #202124;
++    border: 1px solid #d6d9dc;
++    border-left: 4px solid var(--accent-color);
++    border-radius: 6px;
++    padding: 12px 16px;
++    opacity: 1;
++    box-shadow: 0 3px 14px #0002;
++}
++#toast-container > .toast-warning { border-left-color: #956510; }
++#toast-container > .toast-error { border-left-color: #ae292d; }
++#toast-container .toast-close-button, #toast-container .toast a {
++    color: inherit;
+ }
+ 
+ .editor-tab-pane {
+@@ -208,13 +223,13 @@ body.loaded {
+ .marked-viewer h1 {
+     font-size: 1.75rem;
+     padding-bottom: 0.25em;
+-    border-bottom: 1px solid #ffffff20;
++    border-bottom: 1px solid #ddd;
+ }
+ 
+ .marked-viewer h2 {
+     font-size: 1.35rem;
+     padding-bottom: 0.2em;
+-    border-bottom: 1px solid #ffffff18;
++    border-bottom: 1px solid #ddd;
+ }
+ 
+ .marked-viewer h3 {
+@@ -242,13 +257,13 @@ body.loaded {
+ .marked-viewer blockquote {
+     padding: 0 0 0 1em;
+     border-left: 2px solid var(--accent-color);
+-    color: #ffffffc8;
++    color: #444;
+ }
+ 
+ .marked-viewer code {
+     padding: 0.1em 0.3em;
+     border-radius: 3px;
+-    background: #ffffff12;
++    background: #f1f1f1;
+     font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+     font-size: 0.9em;
+ }
+@@ -256,9 +271,9 @@ body.loaded {
+ .marked-viewer pre {
+     max-width: 100%;
+     padding: 0.85em 1em;
+-    border: 1px solid #ffffff16;
++    border: 1px solid #ddd;
+     border-radius: 4px;
+-    background: #00000028;
++    background: #f6f6f6;
+     overflow: auto;
+ }
+ 
+@@ -284,11 +299,11 @@ body.loaded {
+ .marked-viewer th,
+ .marked-viewer td {
+     padding: 0.4em 0.65em;
+-    border: 1px solid #ffffff20;
++    border: 1px solid #ddd;
+ }
+ 
+ .marked-viewer th {
+-    background: #ffffff0d;
++    background: #f6f6f6;
+ }
+ 
+ .hexed-viewer {
+@@ -304,10 +319,10 @@ body.loaded {
+     border-right: 1px solid var(--bg-color);
+ }
+ .hexed-hex-part {
+-    color: #f8f8f2;
++    color: #202124;
+ }
+ .hexed-ascii-part {
+-    color: #e6db74;
++    color: #765315;
+ }
+ 
+ .cm-editor {
+@@ -347,7 +362,7 @@ body.loaded {
+ }
+ 
+ .tree-children:hover {
+-    border-left: 1px dotted #ffffff20;
++    border-left: 1px dotted #ddd;
+ }
+ 
+ /* The name shrinks (and ellipsizes) before it ever reaches the trailing
 diff --git a/src/app.js b/src/app.js
-index edb3c77..fd664f1 100644
+index edb3c77..6318ad5 100644
 --- a/src/app.js
 +++ b/src/app.js
 @@ -35,11 +35,9 @@ import { createBrowserVM, SYSTEM_DIRS } from './emulator.js'
@@ -256,7 +374,52 @@ index edb3c77..fd664f1 100644
  
      onSettingChange('zoom', function(newValue) {
          const size = 14 * parseFloat(newValue)
-@@ -2522,6 +2436,7 @@ function showOfflineReadyToast(version) {
+@@ -2340,31 +2254,26 @@ function showOfflineReadyToast(version) {
+     }
+ 
+     const xtermTheme = {
+-        foreground: '#F8F8F8',
++        foreground: '#202124',
+         background: getCssPropertyValue('--bg-color-edit'),
+-        selection: '#5DA5D533',
+-        black: '#1E1E1D',
+-        brightBlack: '#262625',
+-        red: '#CE5C5C',
+-        brightRed: '#FF7272',
+-        green: '#5BCC5B',
+-        brightGreen: '#72FF72',
+-        yellow: '#CCCC5B',
+-        brightYellow: '#FFFF72',
+-        blue: '#5D5DD3',
+-        brightBlue: '#7279FF',
+-        magenta: '#BC5ED1',
+-        brightMagenta: '#E572FF',
+-        cyan: '#5DA5D5',
+-        brightCyan: '#72F0FF',
+-        white: '#F8F8F8',
+-        brightWhite: '#FFFFFF'
++        cursor: '#202124',
++        cursorAccent: '#ffffff',
++        selectionBackground: '#cedfea',
++        black: '#202124', brightBlack: '#595f62',
++        red: '#a32226', brightRed: '#b02d31',
++        green: '#24613e', brightGreen: '#286b44',
++        yellow: '#795511', brightYellow: '#835d12',
++        blue: '#175984', brightBlue: '#19689b',
++        magenta: '#803876', brightMagenta: '#93357e',
++        cyan: '#166674', brightCyan: '#17707a',
++        white: '#eeeff0', brightWhite: '#ffffff',
+     }
+ 
+     term = new Terminal({
+         fontFamily: '"Hack", "Droid Sans Mono", "monospace", monospace',
+         fontSize: (14 * 0.9).toFixed(1),
+         theme: xtermTheme,
++        minimumContrastRatio: 4.5,
+         cursorBlink: true,
+         convertEol: true,
+         allowProposedApi: true,
+@@ -2522,6 +2431,7 @@ function showOfflineReadyToast(version) {
  
      /* location.search has been acted on, so anything the launch queue hands
         over from here on is a link followed into this already-running window */
@@ -265,51 +428,107 @@ index edb3c77..fd664f1 100644
  
      if (typeof webrepl_url !== 'undefined') {
 diff --git a/src/app_common.css b/src/app_common.css
-index d8f5b66..d62974f 100644
+index d8f5b66..08f379f 100644
 --- a/src/app_common.css
 +++ b/src/app_common.css
-@@ -8,14 +8,14 @@
+@@ -7,15 +7,15 @@
+  */
  
  :root {
-     --fg-color: white;
+-    --fg-color: white;
 -    --fg-color-highlight: orange;
 -    --accent-color: #0a84ff;
 -    --bg-color: #2a2e32;
 -    --bg-color-menu: #2a2e32ee;
 -    --bg-color-edit: #111314;
-+    --fg-color-highlight: #ffe093;
-+    --accent-color: #dbe1ff;
-+    --bg-color: #002942;
-+    --bg-color-menu: #002942ee;
-+    --bg-color-edit: #072835;
++    --fg-color: #202124;
++    --fg-color-highlight: #185e8e;
++    --accent-color: #19689b;
++    --bg-color: #ffffff;
++    --bg-color-menu: #f5f5f5;
++    --bg-color-edit: #ffffff;
      --font-size: 14px;
 -    --connected-passive: #87c244;
 -    --connected-active: #0a84ff;
-+    --connected-passive: #ffe093;
-+    --connected-active: #dbe1ff;
++    --connected-passive: #185e8e;
++    --connected-active: #19689b;
      --connected-color: var(--connected-passive);
      --animation: 0.3s ease-in-out;
  }
-@@ -259,7 +259,7 @@ option {
+@@ -257,24 +257,24 @@ option {
+     font-family: system-ui,Ubuntu,Droid Sans,sans-serif;
+ }
  
- .fa-power-off { color: #ffcc4d; }
- .fa-bug { color: #ffcc4d; }
+-.fa-power-off { color: #ffcc4d; }
+-.fa-bug { color: #ffcc4d; }
 -.fa-download { color: #87c244; }
-+.fa-download { color: #ffe093; }
++.fa-power-off { color: #906218; }
++.fa-bug { color: #906218; }
++.fa-download { color: #185e8e; }
  .fa-circle-play { color: #3b88c3; }
  .fa-circle-stop { color: #ff7272; }
  .fa-circle-info { color: #3b88c3; }
-@@ -269,7 +269,7 @@ option {
+ .fa-file { color: #3b88c3; }
+ .fa-file-circle-exclamation { color: #ed4337; }
+-.fa-folder, .fa-folder-open { color: #ffcc4d; }
++.fa-folder, .fa-folder-open { color: #906218; }
  .fa-certificate { color: #ba0311; }
  .fa-cube { color: #ba9066; }
  .fa-cubes { color: #ba9066; }
 -.fa-gauge-high { color: #87c244; }
-+.fa-gauge-high { color: #ffe093; }
- .fa-tools { color: #ccd6dd; }
+-.fa-tools { color: #ccd6dd; }
++.fa-gauge-high { color: #185e8e; }
++.fa-tools { color: #626970; }
  /*.fa-arrows-rotate { color: #3b88c3; }*/
- .fa-sliders { color: #ccd6dd }
+-.fa-sliders { color: #ccd6dd }
+-.fa-trash-can { color: #ccd6dd }
+-.fa-star { color: #ffcc4d; }
++.fa-sliders { color: #626970 }
++.fa-trash-can { color: #626970 }
++.fa-star { color: #906218; }
+ 
+ .highlight {
+     background: var(--bg-color-edit);
+diff --git a/src/editor.js b/src/editor.js
+index 952c00d..5f202be 100644
+--- a/src/editor.js
++++ b/src/editor.js
+@@ -16,8 +16,6 @@ import { json as modeJSON, jsonParseLinter } from '@codemirror/lang-json'
+ import { markdown as modeMD } from '@codemirror/lang-markdown'
+ import { simpleMode } from '@codemirror/legacy-modes/mode/simple-mode'
+ import { toml } from '@codemirror/legacy-modes/mode/toml'
+-import { monokaiInit } from '@uiw/codemirror-theme-monokai'
+-import { tags } from '@lezer/highlight'
+ import { linter } from '@codemirror/lint'
+ import { highlightSelectionMatches } from '@codemirror/search'
+ 
+@@ -456,24 +454,6 @@ export async function createNewEditor(editorElement, fn, content, options) {
+                 highlightSelectionMatches({ minSelectionLength: 2 }),
+                 //closedText: '▶',
+                 //openText: '▼',
+-                monokaiInit({
+-                    settings: {
+-                        fontFamily: '"Hack", "Droid Sans Mono", "monospace", monospace',
+-                        background: 'var(--bg-color-edit)',
+-                        gutterBackground: 'var(--bg-color-edit)',
+-                    },
+-                    styles: [
+-                        {
+-                            tag: [tags.name, tags.deleted, tags.character, tags.macroName],
+-                            color: 'white'
+-                        }, {
+-                            tag: [tags.meta, tags.comment],
+-                            color: '#afac99',
+-                            fontStyle: 'italic',
+-                            //fontWeight: '300',
+-                        }
+-                    ]
+-                }),
+                 keymap.of([indentWithTab]),
+                 mode,
+                 linkCommentExtensions,
 diff --git a/src/manifest.json b/src/manifest.json
-index 048f42a..2da577c 100644
+index 048f42a..5b5cfaf 100644
 --- a/src/manifest.json
 +++ b/src/manifest.json
 @@ -3,10 +3,10 @@
@@ -322,8 +541,8 @@ index 048f42a..2da577c 100644
 -    "theme_color": "#2a2e32",
 +    "start_url": "./index.html",
 +    "scope": "./",
-+    "background_color": "#002942",
-+    "theme_color": "#002942",
++    "background_color": "#ffffff",
++    "theme_color": "#ffffff",
      "display": "standalone",
      "handle_links": "preferred",
      "launch_handler": {

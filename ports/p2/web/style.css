@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --paper: #f6f6f6;
+  --paper: #ffffff;
   --ink: #072835;
   --muted: #52616b;
   --line: #c9d2d8;
@@ -136,9 +136,9 @@ footer a:hover,
 .hardware {
   display: flex;
   flex-direction: column;
-  background: #002942;
-  color: #ffffff;
-  border-color: #002942;
+  background: #f6f6f6;
+  color: var(--ink);
+  border-color: var(--line);
 }
 .board-photo {
   flex: 1;
@@ -174,18 +174,18 @@ footer a:hover,
 }
 .code {
   font-size: 12px;
-  color: #dbe1ff;
+  color: var(--muted);
 }
 .board-info dl {
   display: flex;
   margin: 18px 0 0;
   padding-top: 15px;
-  border-top: 1px solid #627e8f;
+  border-top: 1px solid var(--line);
   gap: 28px;
 }
 .board-info dt {
   font-size: 12px;
-  color: #dbe1ff;
+  color: var(--muted);
 }
 .board-info dd {
   margin: 4px 0 0;
