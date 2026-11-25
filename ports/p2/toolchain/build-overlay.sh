@@ -28,8 +28,14 @@ elif [[ ! -f "$out/p2-patch.sha256" || $(cat "$out/p2-patch.sha256") != "$digest
     exit 1
 fi
 git -C "$src" apply --reverse --check "$here/p2-codegen.patch"
+# Clang writes its Git remote into each C object's ELF .comment. A local
+# clone would stamp the runner's random build directory into the release.
+p2llvm=${P2_WORK:-$HOME/tinygo-p2-work}/p2llvm
+clang_repo=$(git config -f "$p2llvm/.gitmodules" --get submodule.llvm-project.url)
+test -n "$clang_repo"
 cmake -S "$src/llvm" -B "$out/build" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+    -DCLANG_REPOSITORY_STRING="$clang_repo" \
     -DCMAKE_C_FLAGS_RELEASE=-O1 -DCMAKE_CXX_FLAGS_RELEASE=-O1 \
     -DLLVM_ENABLE_PROJECTS='clang;lld' -DLLVM_TARGETS_TO_BUILD=X86 \
     -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=P2 -DLLVM_ENABLE_ASSERTIONS=ON \
