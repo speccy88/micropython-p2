@@ -1,0 +1,15 @@
+{
+  "url": "https://speccy88.github.io/micropython-p2/",
+  "utc": "2026-11-25T11:28:11+00:00",
+  "browser": "Chrome 158.0.8127.37",
+  "host": "Windows",
+  "port": "COM12",
+  "action": "Boot SD & open ViperIDE",
+  "image_sha256_from_card_verification": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "firmware_downloads": [],
+  "run_file_output": [
+    "Hello from p2",
+    "External RAM: 32 MiB"
+  ],
+  "passed": true
+}

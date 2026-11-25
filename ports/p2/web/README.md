@@ -5,7 +5,7 @@ The workbench runs entirely in the browser. Desktop Chrome and Edge can load one
 With a prepared FAT32 card inserted, open **Can I boot my SD card?** and
 select **Boot SD & open ViperIDE**. The workbench resets the board into its
 serial ROM monitor, requests `R_BOOT_P2.BIX`, and hands the open port to
-the editor once MicroPython answers. [Preparing the card](../storage/ACCEPTANCE.md#boot-the-interpreter-from-sd)
+the editor once MicroPython answers. On Windows, desktop Chrome ran the editor's first script on COM12 and printed `External RAM: 32 MiB`. [Board run](../validation/sd-kit3-browser.json) · [Preparing the card](../storage/ACCEPTANCE.md#boot-the-interpreter-from-sd)
 
 ## Build a local copy
 
