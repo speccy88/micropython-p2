@@ -1,0 +1,29 @@
+{
+  "port": "COM12",
+  "image": {
+    "file": "C:\\Users\\fred_\\OneDrive\\One Note\\ChatGPT\\Propeller 2\\micropython-p2\\ports\\p2\\build-P2_EC32MB-edge\\foundation.bin",
+    "sha256": "c03aa839f82f2d53afd08cd115b7fd742b4583da41cb32125565024f93e77db2",
+    "format": "binary",
+    "file_bytes": 19604
+  },
+  "challenge": "d48766ee",
+  "passed": true,
+  "rom": "Prop_Ver G",
+  "download": {
+    "loaded_bytes": 19604,
+    "checksum": "d93835ac",
+    "checksum_ack": ".",
+    "checksum_prefix": "",
+    "load_mode": "ROM-base64-RAM-only"
+  },
+  "observed": "P2CRT d48766ee 0000003f",
+  "seconds": 0.2880538001190871,
+  "checks": {
+    "setjmp_registers": true,
+    "memory": true,
+    "varargs": true,
+    "aggregate": true,
+    "integer_bool": true,
+    "libm": true
+  }
+}
