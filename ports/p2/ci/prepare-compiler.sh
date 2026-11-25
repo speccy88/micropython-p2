@@ -27,6 +27,7 @@ PY
 
 bash "$port/toolchain/build-overlay.sh" "$bundle" "$scratch/overlay"
 build="$scratch/overlay/build"
+cmake --build "$build" --target clang-resource-headers
 for tool in clang ld.lld llvm-{mc,objcopy,objdump,readelf,nm,ar,ranlib}; do
     cp -L "$build/bin/$tool" "$dest/bin/$tool"
 done
