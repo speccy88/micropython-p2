@@ -95,5 +95,6 @@
         "downloaded_assets": true
       }
     ]
-  }
+  },
+  "physical_test_from_public_download": "release-kit3-board.json"
 }

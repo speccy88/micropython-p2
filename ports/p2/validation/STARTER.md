@@ -47,9 +47,8 @@ profiles and Linux compiler have the same bytes as kit.2. On GitHub, the
 1,444,063-byte ZIP has SHA-256
 `f35366dafcc0f85d95baa30ef5ecc65c80b0d4b6cd9ad39a01db3df88a20d0fc`.
 Both public assets matched the copies built from tag `4364cc9fe` in a fresh
-Windows checkout. The Linux compiler from the download produced the same
-bytecode as the module that returned `1938` on the physical Edge.
-[Release and downloads](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.3) Â· [Per-file checksums and compiler test](release-kit3-download.json)
+Windows checkout. The Linux compiler from the public kit compiled a module under WSL. The Edge image from that same ZIP imported it from a PSRAM filesystem on COM12 and returned `1938`.
+[Release and downloads](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.3) · [Per-file checksums and compiler test](release-kit3-download.json) · [Kit.3 bytecode run on the physical Edge](release-kit3-board.json)
 
 Windows, macOS and Ubuntu runners downloaded the published ZIP, checked its
 checksum and manifest, extracted it into a path containing a space, and ran

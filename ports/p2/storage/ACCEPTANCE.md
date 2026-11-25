@@ -103,6 +103,8 @@ python ports/p2/tests/observe_boot.py --port COM12 --rom-monitor --timeout 15 --
 
 ### Automatic power-on boot
 
+The test Edge selected SPI flash first with its existing switch settings. The ROM monitor ran the SD image on that board. Direct SD boot takes the switch settings below. [Boot selection measured on COM12](../validation/boot-straps.md)
+
 1. Close the relay and serial tools. Power off with the SD card inserted.
    On the P2-EC32MB, select SD boot with serial fallback. P61 FLASH pull-up
    and both P59 mode pulls are off; the card provides the P60 pull-up. Match
