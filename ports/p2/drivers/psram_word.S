@@ -38,8 +38,18 @@
 
 .section .text.p2_psram_read_word
 .global p2_psram_read_word
+.global p2_psram_read_quad
 // uint64: low word = memory data, high word = elapsed CT cycles.
 p2_psram_read_word:
+	mov $0, #1
+	mov $1, #0
+	jmp #.Lread_prefix
+// Four consecutive bytes from each chip, written to four aligned hub longs.
+// $0..$2 are ABI scratch cog registers. The caller stalls interrupts.
+p2_psram_read_quad:
+	mov $0, #4
+	mov $1, r1
+.Lread_prefix:
 	p2_psram_prefix 0x00eeee00, 0x00bbbb00
 	andn dirb, r30
 	// Six dummy clocks. Data changes on falling edges.
@@ -56,6 +66,7 @@ p2_psram_read_word:
 	outh #56
 	outl #56
 	// Allow GPIO output/input pipelines and PSRAM tACLK to settle.
+.Lread_data:
 	waitx #8
 	mov pb, inb
 	outh #56
@@ -65,8 +76,7 @@ p2_psram_read_word:
 	outh #56
 	outl #56
 	nop
-	outh #57
-	// Decode four packed high/low nibble pairs after terminating refresh hold.
+	// Decode the four nibble pairs into a striped little-endian word.
 	getnib r31, pb, #2
 	setnib r30, r31, #1
 	getnib r31, pa, #2
@@ -83,33 +93,52 @@ p2_psram_read_word:
 	setnib r30, r31, #7
 	getnib r31, pa, #5
 	setnib r30, r31, #6
+	tjz $1, #.Lread_done
+	wrlong r30, $1
+	add $1, #4
+	djnz $0, #.Lread_data
+.Lread_done:
+	outh #57
 	getct r31
 	sub r31, ptrb
 	reta
 
 .section .text.p2_psram_write_word
 .global p2_psram_write_word
+.global p2_psram_write_quad
 // R0 = physical address (logical byte address/4), R1 = packed data.
 // Returns elapsed cycles, including packing, conservatively above actual tCEM.
 p2_psram_write_word:
-	// Pack high nibbles in PB and low nibbles in R31 before CE goes low.
-	getnib pb, r1, #1
-	getnib pa, r1, #3
+	mov $0, #1
+	mov $1, #0
+	mov $2, r1
+	jmp #.Lwrite_prefix
+p2_psram_write_quad:
+	mov $0, #4
+	mov $1, r1
+.Lwrite_prefix:
+	p2_psram_prefix 0x00333300, 0x00888800
+.Lwrite_data:
+	tjz $1, #.Lpack
+	rdlong $2, $1
+	add $1, #4
+.Lpack:
+	getnib pb, $2, #1
+	getnib pa, $2, #3
 	setnib pb, pa, #1
-	getnib pa, r1, #5
+	getnib pa, $2, #5
 	setnib pb, pa, #2
-	getnib pa, r1, #7
+	getnib pa, $2, #7
 	setnib pb, pa, #3
 	shl pb, #8
-	getnib r31, r1, #0
-	getnib pa, r1, #2
+	getnib r31, $2, #0
+	getnib pa, $2, #2
 	setnib r31, pa, #1
-	getnib pa, r1, #4
+	getnib pa, $2, #4
 	setnib r31, pa, #2
-	getnib pa, r1, #6
+	getnib pa, $2, #6
 	setnib r31, pa, #3
 	shl r31, #8
-	p2_psram_prefix 0x00333300, 0x00888800
 	andn outb, r30
 	or outb, pb
 	outh #56
@@ -118,6 +147,7 @@ p2_psram_write_word:
 	or outb, r31
 	outh #56
 	outl #56
+	djnz $0, #.Lwrite_data
 	outh #57
 	getct r31
 	sub r31, ptrb

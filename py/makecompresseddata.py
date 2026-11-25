@@ -162,6 +162,15 @@ def main(collected_path, fn):
     # Run the compression.
     compressed_data = fn(error_strings)
 
+    print("#ifdef MP_DEFINE_LITERAL_MATCHER")
+    print("#define MP_COMPRESSED_ROM_TEXT(msg) (\\")
+    for uncomp, comp in error_strings.items():
+        if uncomp != comp:
+            print(
+                f'    __builtin_strcmp((msg), "{uncomp}") == 0 ? "\\{_COMPRESSED_MARKER:03o}{comp}" : \\'
+            )
+    print("    (msg))")
+    print("#else")
     # Print the data table.
     print('MP_COMPRESSED_DATA("{}")'.format(compressed_data))
 
@@ -172,6 +181,7 @@ def main(collected_path, fn):
         else:
             prefix = "\\{:03o}".format(_COMPRESSED_MARKER)
         print('MP_MATCH_COMPRESSED("{}", "{}{}")'.format(uncomp, prefix, comp))
+    print("#endif")
 
     # Used to calculate the "true" length of the (escaped) compressed strings.
     def unescape(s):

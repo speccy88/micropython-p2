@@ -8,24 +8,37 @@
 #define MAX_REGIONS 32
 static uint32_t ids[8], max_cycles, last_complete;
 static bool active;
-typedef struct { uint32_t start, size; } extent_t;
+typedef struct { uint32_t start, size;
+} extent_t;
 static extent_t extents[MAX_REGIONS];
-typedef struct { mp_obj_base_t base; extent_t *region; bool closed; } memory_obj_t;
+typedef struct { mp_obj_base_t base;
+                 extent_t *region;
+                 bool closed;
+} memory_obj_t;
 extern void p2_psram_init(uint32_t *ids);
 extern uint64_t p2_psram_read_word(uint32_t address);
 extern uint32_t p2_psram_write_word(uint32_t address, uint32_t value);
+extern uint32_t p2_psram_read_quad(uint32_t address, void *aligned_dest);
+extern uint32_t p2_psram_write_quad(uint32_t address, const void *aligned_src);
 
 static void require_vm_cog(void) {
     unsigned id;
-    __asm__ volatile ("cogid %0" : "=r"(id));
-    if (id) { mp_raise_OSError(MP_EPERM); }
+    __asm__ volatile ("cogid %0" : "=r" (id));
+    if (id) {
+        mp_raise_OSError(MP_EPERM);
+    }
 }
 static void init(void) {
     require_vm_cog();
-    if (active) { return; }
+    if (active) {
+        return;
+    }
     uint8_t pins[18];
-    for (size_t i = 0; i < sizeof(pins); ++i) { pins[i] = i + 40; }
-    if (p2_pins_claim(pins, sizeof(pins), P2_OWNER_PSRAM)) { mp_raise_OSError(MP_EBUSY); }
+    for (size_t i = 0; i < sizeof(pins); ++i) { pins[i] = i + 40;
+    }
+    if (p2_pins_claim(pins, sizeof(pins), P2_OWNER_PSRAM)) {
+        mp_raise_OSError(MP_EBUSY);
+    }
     p2_psram_init(ids);
     if (ids[0] != 0x0d0d0d0d || ids[1] != 0x5d5d5d5d) {
         p2_pins_release(pins, sizeof(pins), P2_OWNER_PSRAM);
@@ -41,26 +54,40 @@ void p2_psram_reset(void) {
 static memory_obj_t *checked(mp_obj_t obj) {
     require_vm_cog();
     memory_obj_t *self = MP_OBJ_TO_PTR(obj);
-    if (self->closed) { mp_raise_OSError(MP_ENODEV); }
+    if (self->closed) {
+        mp_raise_OSError(MP_ENODEV);
+    }
     return self;
 }
-static uint32_t capacity(memory_obj_t *self) { return self->region ? self->region->size : CAPACITY; }
+static uint32_t capacity(memory_obj_t *self) {
+    return self->region ? self->region->size : CAPACITY;
+}
 static uint32_t span(memory_obj_t *self, uint32_t off, size_t size) {
     uint32_t cap = capacity(self);
-    if (off > cap || size > cap - off) { mp_raise_ValueError(MP_ERROR_TEXT("PSRAM range")); }
-    if (self->region) { return self->region->start + off; }
+    if (off > cap || size > cap - off) {
+        mp_raise_ValueError(MP_ERROR_TEXT("PSRAM range"));
+    }
+    if (self->region) {
+        return self->region->start + off;
+    }
     // Raw access cannot trespass on a live allocation.
     if (size) {
         for (size_t i = 0; i < MAX_REGIONS; ++i) {
             extent_t *r = &extents[i];
-            if (r->size && off < r->start + r->size && r->start < off + size) { mp_raise_OSError(MP_EBUSY); }
+            if (r->size && off < r->start + r->size && r->start < off + size) {
+                mp_raise_OSError(MP_EBUSY);
+            }
         }
     }
     return off;
 }
 static void check_ticks(uint32_t elapsed) {
-    if (elapsed > max_cycles) { max_cycles = elapsed; }
-    if (elapsed >= P2_CLOCK_HZ / 125000) { mp_raise_OSError(MP_ETIMEDOUT); }
+    if (elapsed > max_cycles) {
+        max_cycles = elapsed;
+    }
+    if (elapsed >= P2_CLOCK_HZ / 125000) {
+        mp_raise_OSError(MP_ETIMEDOUT);
+    }
 }
 // Cog 0 uses polling and runs a single VM. IRQs remain disabled only during
 // a word transaction. No ISR or other cog is permitted to change the RAM pins.
@@ -70,8 +97,30 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
     size_t done = 0;
     unsigned budget = 0;
     while (done < size) {
+        // Start on a four-byte boundary inside each physical chip. Four
+        // transfers then stay within even the shortest 32-byte wrap window.
+        if (!(addr & 15) && !((uintptr_t)(buf + done) & 3) && size - done >= 16) {
+            __asm__ volatile ("stalli" ::: "memory");
+            uint32_t ticks = write ? p2_psram_write_quad(addr >> 2, buf + done)
+                : p2_psram_read_quad(addr >> 2, buf + done);
+            __asm__ volatile ("allowi" ::: "memory");
+            check_ticks(ticks);
+            done += 16;
+            addr += 16;
+            if (record) {
+                last_complete += 16;
+            }
+            budget += 16;
+            if (budget >= 256) {
+                budget = 0;
+                p2_poll_borrowed_io();
+            }
+            continue;
+        }
         unsigned lane = addr & 3, n = 4 - lane;
-        if (n > size - done) { n = size - done; }
+        if (n > size - done) {
+            n = size - done;
+        }
         uint32_t word = 0;
         if (!write || n < 4) {
             __asm__ volatile ("stalli" ::: "memory");
@@ -83,13 +132,19 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
         if (n == sizeof(word)) {
             // P2 and the four-bank word layout are little-endian. The hub
             // staging address may be unaligned (e.g. memoryview[1:]).
-            if (write) { __builtin_memcpy(&word, buf + done, sizeof(word)); }
-            else { __builtin_memcpy(buf + done, &word, sizeof(word)); }
+            if (write) {
+                __builtin_memcpy(&word, buf + done, sizeof(word));
+            } else {
+                __builtin_memcpy(buf + done, &word, sizeof(word));
+            }
         } else {
             for (unsigned i = 0; i < n; ++i) {
                 unsigned shift = (lane + i) * 8;
-                if (write) { word = (word & ~(0xffu << shift)) | ((uint32_t)buf[done + i] << shift); }
-                else { buf[done + i] = word >> shift; }
+                if (write) {
+                    word = (word & ~(0xffu << shift)) | ((uint32_t)buf[done + i] << shift);
+                } else {
+                    buf[done + i] = word >> shift;
+                }
             }
         }
         if (write) {
@@ -100,8 +155,14 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
         }
         done += n;
         addr += n;
-        if (record) { last_complete += n; }
-        if (++budget == 64) { budget = 0; p2_poll_borrowed_io(); }
+        if (record) {
+            last_complete += n;
+        }
+        budget += n;
+        if (budget >= 256) {
+            budget = 0;
+            p2_poll_borrowed_io();
+        }
     }
 }
 static mp_obj_t ram_make_new(const mp_obj_type_t *type, size_t n, size_t nk, const mp_obj_t *args) {
@@ -115,7 +176,9 @@ static mp_obj_t ram_make_new(const mp_obj_type_t *type, size_t n, size_t nk, con
 static mp_obj_t ram_alloc(mp_obj_t obj, mp_obj_t amount) {
     unsigned size = p2_arg_range(amount, CAPACITY);
     memory_obj_t *root = checked(obj);
-    if (root->region || !size) { mp_raise_ValueError(MP_ERROR_TEXT("allocate on root with positive size")); }
+    if (root->region || !size) {
+        mp_raise_ValueError(MP_ERROR_TEXT("allocate on root with positive size"));
+    }
     memory_obj_t *child = mp_obj_malloc_with_finaliser(memory_obj_t, &p2_psram_type);
     child->closed = true;
     child->region = NULL;
@@ -124,14 +187,23 @@ static mp_obj_t ram_alloc(mp_obj_t obj, mp_obj_t amount) {
     uint32_t start = 0;
     for (;;) {
         uint32_t next = start;
-        if (size > CAPACITY - start) { break; }
+        if (size > CAPACITY - start) {
+            break;
+        }
         for (size_t i = 0; i < MAX_REGIONS; ++i) {
             extent_t *r = &extents[i];
-            if (!r->size) { slot = r; continue; }
-            if (r->start < start + size && r->start + r->size > next) { next = r->start + r->size; }
+            if (!r->size) {
+                slot = r;
+                continue;
+            }
+            if (r->start < start + size && r->start + r->size > next) {
+                next = r->start + r->size;
+            }
         }
         if (start == next) {
-            if (!slot) { break; }
+            if (!slot) {
+                break;
+            }
             slot->start = start;
             slot->size = size;
             child->region = slot;
@@ -145,13 +217,17 @@ static mp_obj_t ram_alloc(mp_obj_t obj, mp_obj_t amount) {
 static MP_DEFINE_CONST_FUN_OBJ_2(alloc_obj, ram_alloc);
 static mp_obj_t ram_close(mp_obj_t obj) {
     memory_obj_t *self = MP_OBJ_TO_PTR(obj);
-    if (!self->closed && self->region) { self->region->size = 0; }
+    if (!self->closed && self->region) {
+        self->region->size = 0;
+    }
     self->region = NULL;
     self->closed = true;
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(close_obj, ram_close);
-static mp_obj_t ram_size(mp_obj_t obj) { return mp_obj_new_int_from_uint(capacity(checked(obj))); }
+static mp_obj_t ram_size(mp_obj_t obj) {
+    return mp_obj_new_int_from_uint(capacity(checked(obj)));
+}
 static MP_DEFINE_CONST_FUN_OBJ_1(size_obj, ram_size);
 static mp_obj_t buffer_io(mp_obj_t obj, mp_obj_t offset, mp_obj_t buffer, bool write) {
     unsigned off = p2_arg_range(offset, CAPACITY);
@@ -162,8 +238,12 @@ static mp_obj_t buffer_io(mp_obj_t obj, mp_obj_t offset, mp_obj_t buffer, bool w
     transfer(addr, b.buf, b.len, write, true);
     return mp_obj_new_int_from_uint(b.len);
 }
-static mp_obj_t ram_readinto(mp_obj_t obj, mp_obj_t off, mp_obj_t buf) { return buffer_io(obj, off, buf, false); }
-static mp_obj_t ram_write(mp_obj_t obj, mp_obj_t off, mp_obj_t buf) { return buffer_io(obj, off, buf, true); }
+static mp_obj_t ram_readinto(mp_obj_t obj, mp_obj_t off, mp_obj_t buf) {
+    return buffer_io(obj, off, buf, false);
+}
+static mp_obj_t ram_write(mp_obj_t obj, mp_obj_t off, mp_obj_t buf) {
+    return buffer_io(obj, off, buf, true);
+}
 static MP_DEFINE_CONST_FUN_OBJ_3(readinto_obj, ram_readinto);
 static MP_DEFINE_CONST_FUN_OBJ_3(write_obj, ram_write);
 static mp_obj_t ram_read(mp_obj_t obj, mp_obj_t offset, mp_obj_t amount) {
@@ -217,7 +297,8 @@ static mp_obj_t ram_diag(mp_obj_t obj) {
     checked(obj);
     uint8_t banks[32];
     for (unsigned bank = 0; bank < 4; ++bank) {
-        for (unsigned i = 0; i < 8; ++i) { banks[bank * 8 + i] = ids[i] >> (bank * 8); }
+        for (unsigned i = 0; i < 8; ++i) { banks[bank * 8 + i] = ids[i] >> (bank * 8);
+        }
     }
     mp_obj_t d = mp_obj_new_dict(3);
     mp_obj_dict_store(d, MP_OBJ_NEW_QSTR(MP_QSTR_ids), mp_obj_new_bytes(banks, sizeof(banks)));
@@ -241,5 +322,6 @@ static const mp_rom_map_elem_t ram_locals[] = {
 static MP_DEFINE_CONST_DICT(ram_dict, ram_locals);
 MP_DEFINE_CONST_OBJ_TYPE(p2_psram_type, MP_QSTR_PSRAM, MP_TYPE_FLAG_NONE, make_new, ram_make_new, locals_dict, &ram_dict);
 #else
-void p2_psram_reset(void) { }
+void p2_psram_reset(void) {
+}
 #endif

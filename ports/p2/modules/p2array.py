@@ -1,15 +1,20 @@
 """Typed, paged random access to P2 external RAM. On-die buffers stay bounded."""
+
 # SPDX-License-Identifier: MIT
 import struct
 from p2 import PSRAM
 
 # width, inclusive minimum and maximum; floats are packed by struct.
 _FORMATS = {
-    "B": (1, 0, 255), "b": (1, -128, 127),
-    "H": (2, 0, 65535), "h": (2, -32768, 32767),
-    "I": (4, 0, 0xffffffff), "i": (4, -0x80000000, 0x7fffffff),
+    "B": (1, 0, 255),
+    "b": (1, -128, 127),
+    "H": (2, 0, 65535),
+    "h": (2, -32768, 32767),
+    "I": (4, 0, 0xFFFFFFFF),
+    "i": (4, -0x80000000, 0x7FFFFFFF),
     "f": (4, None, None),
 }
+
 
 class Array:
     """A little-endian typed array. No hub pointer or buffer interface is exported.
@@ -17,13 +22,18 @@ class Array:
     New allocations are zeroed by default. A supplied region is borrowed and
     preserved by default. Its caller must retain exclusive access until close.
     """
+
     def __init__(self, typecode, length, *, region=None, page_bytes=256, pages=2, zero=None):
         if typecode not in _FORMATS:
             raise ValueError("expected B b H h I i or f")
         width, self._lo, self._hi = _FORMATS[typecode]
         if not isinstance(length, int) or not 0 < length <= (32 << 20) // width:
             raise ValueError("invalid length")
-        if not isinstance(page_bytes, int) or not 32 <= page_bytes <= 4096 or page_bytes & (page_bytes - 1):
+        if (
+            not isinstance(page_bytes, int)
+            or not 32 <= page_bytes <= 4096
+            or page_bytes & (page_bytes - 1)
+        ):
             raise ValueError("page size must be a power of two in 32..4096")
         if not isinstance(pages, int) or not 1 <= pages <= 8 or pages * page_bytes > 16384:
             raise ValueError("cache exceeds 8 pages or 16 KiB")
@@ -89,6 +99,11 @@ class Array:
 
     def _page(self, pos):
         start = pos & -self._page_bytes
+        # Sequential element access normally stays on the most recent page.
+        # Its LRU position is already correct.
+        slot = self._order[-1]
+        if self._starts[slot] == start:
+            return slot
         # The least recently used page is first. A failed replacement read
         # invalidates that tag because the transfer may have modified its bytes.
         slot = -1
@@ -107,13 +122,16 @@ class Array:
                 raise
         self._order.remove(slot)
         self._order.append(slot)
-        return slot, pos - start
+        return slot
 
     def __getitem__(self, index):
         self._enter()
         try:
-            slot, local = self._page(self._index(index))
-            return struct.unpack_from(self._format, self._buffers[slot], local)[0]
+            pos = self._index(index)
+            slot = self._page(pos)
+            return struct.unpack_from(self._format, self._buffers[slot], pos - self._starts[slot])[
+                0
+            ]
         finally:
             self._busy = False
 
@@ -126,8 +144,8 @@ class Array:
                     raise TypeError("integer value required")
                 if value < self._lo or value > self._hi:
                     raise OverflowError("element out of range")
-            slot, local = self._page(pos)
-            struct.pack_into(self._format, self._buffers[slot], local, value)
+            slot = self._page(pos)
+            struct.pack_into(self._format, self._buffers[slot], pos - self._starts[slot], value)
             self._dirty[slot] = True
         finally:
             self._busy = False

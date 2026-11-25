@@ -14,6 +14,7 @@
 #define MICROPY_PY_SYS_PLATFORM "p2"
 #define MICROPY_CONFIG_ROM_LEVEL MICROPY_CONFIG_ROM_LEVEL_CORE_FEATURES
 #define MICROPY_ENABLE_COMPILER (1)
+#define MICROPY_ROM_TEXT_BY_LITERAL (1)
 #define MICROPY_ENABLE_SOURCE_LINE (1)
 #define MICROPY_ENABLE_GC (1)
 #define MICROPY_ENABLE_FINALISER (1)
@@ -83,10 +84,8 @@ void p2_thread_pystack_init(void);
 #define MICROPY_PY_ASYNCIO (1)
 #endif
 #define MICROPY_VM_HOOK_LOOP p2_console_poll_interrupt();
-#if !P2_PROFILE_THREADED
 #define MICROPY_GC_RESET_QUIESCE() p2_quiesce_devices()
 void p2_quiesce_devices(void);
-#endif
 
 typedef long mp_off_t;
 uintptr_t p2_stack_pointer(void);

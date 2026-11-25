@@ -60,25 +60,24 @@ void p2_gc_collect_saved(void) {
     gc_collect_end();
 }
 
-#if !P2_PROFILE_THREADED
 // gc_sweep_all calls this after user finalisers, while every hub object is
 // still intact. A finaliser cannot leave an existing pin or driver running.
 void p2_quiesce_devices(void) {
+    #if !P2_PROFILE_THREADED
     p2_timer_reset();
+    #endif
     #if MICROPY_VFS_FAT
     p2_storage_reset();
     #endif
     p2_drivers_reset();
 }
-#endif
 
 void main(void) {
     for (;;) {
         #if P2_PROFILE_THREADED
         p2_thread_init();
-        #else
-        p2_vm_resetting = false;
         #endif
+        p2_vm_resetting = false;
         mp_cstack_init_with_top(_stack_bottom, (uintptr_t)_stack_top - (uintptr_t)_stack_bottom);
         mp_pystack_init(pystack, pystack + MP_ARRAY_SIZE(pystack));
         gc_init(_heap_start, _heap_end);
@@ -107,9 +106,7 @@ void main(void) {
             }
         }
         mp_hal_set_interrupt_char(-1);
-        #if !P2_PROFILE_THREADED
         p2_vm_resetting = true;
-        #endif
         mp_sched_lock();
         #if MICROPY_VFS_FAT
         gc_run_reset_finalisers();

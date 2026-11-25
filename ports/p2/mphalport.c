@@ -59,7 +59,7 @@ extern uint64_t p2_cycle_count(void);
 
 mp_uint_t mp_hal_ticks_cpu(void) {
     uint32_t count;
-    __asm__ volatile ("getct %0" : "=r"(count));
+    __asm__ volatile ("getct %0" : "=r" (count));
     return count;
 }
 

@@ -350,6 +350,13 @@ typedef struct {
 
 #include <string.h>
 
+#if defined(MICROPY_ROM_TEXT_BY_LITERAL) && MICROPY_ROM_TEXT_BY_LITERAL
+// Keep both literals at the call site. Some freestanding compiler targets
+// cannot fold libc calls after inlining the lookup function below.
+#define MP_DEFINE_LITERAL_MATCHER
+#include "genhdr/compressed.data.h"
+#undef MP_DEFINE_LITERAL_MATCHER
+#else
 inline MP_ALWAYSINLINE const char *MP_COMPRESSED_ROM_TEXT(const char *msg) {
     // "genhdr/compressed.data.h" contains an invocation of the MP_MATCH_COMPRESSED macro for each compressed string.
     // The giant if(strcmp) tree is optimized by the compiler, which turns this into a direct return of the compressed data.
@@ -365,6 +372,7 @@ inline MP_ALWAYSINLINE const char *MP_COMPRESSED_ROM_TEXT(const char *msg) {
 
     return msg;
 }
+#endif
 
 #endif
 

@@ -22,7 +22,7 @@ ifneq ($(MAKECMDGOALS),console)
 include runtime/runtime.mk
 QSTR_DEFS = qstrdefsport.h
 FROZEN_MANIFEST ?= $(if $(filter edge,$(PROFILE)),manifest.py,)
-MICROPY_ROM_TEXT_COMPRESSION ?= 0
+MICROPY_ROM_TEXT_COMPRESSION ?= $(if $(filter edge,$(PROFILE)),1,0)
 ifeq ($(PROFILE),edge)
 MICROPY_VFS_FAT = 1
 MICROPY_VFS_LFS2 = 1
@@ -60,6 +60,10 @@ SRC_S += boot.S gc_p2.S $(wildcard drivers/*.S) $(wildcard bus/*.S) $(P2_RUNTIME
 ifeq ($(PROFILE),threaded)
 SRC_C := $(filter-out drivers/% storage/% bus/%,$(SRC_C)) thread.c
 SRC_S := $(filter-out drivers/% bus/%,$(SRC_S)) thread_p2.S
+# The worker only exchanges words with managed native service cogs. GPIO
+# configuration and handle lifetime remain with the primary interpreter.
+SRC_C += drivers/modp2.c drivers/hubdriver.c drivers/resources.c
+SRC_S += drivers/counter.S
 endif
 OBJ += $(PY_O) $(addprefix $(BUILD)/,$(SRC_C:.c=.o) $(SRC_S:.S=.o))
 all: $(BUILD)/firmware.bin
