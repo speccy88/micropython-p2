@@ -88,8 +88,8 @@
       "sha256": "0c6af9a2eebe565db4c45aeaff11b2a7276d1038ede096f1964589d4a8f580ff"
     },
     "tests/drivers/adc_ready.py": {
-      "bytes": 767,
-      "sha256": "a995416cb789d0bd8c0efc4b8457dd487d96a54b58f3fe4aad4cd2a533baec44"
+      "bytes": 761,
+      "sha256": "3e6c7627bf2817fd9f3f34fd0977241bce4b7f96fccdafeb5d78d231da43b187"
     },
     "tests/drivers/api.py": {
       "bytes": 1533,
@@ -100,8 +100,8 @@
       "sha256": "08091b7a79c27ed82f3c65e35ce5b269d1ebf71a95fee3b46470d0d17ec0086b"
     },
     "tests/drivers/borrowed_io.py": {
-      "bytes": 876,
-      "sha256": "c163a58ce7fa6e24f3f10c18bfa0ce255d1a685059e78b4b0dbcb3e9b3154433"
+      "bytes": 979,
+      "sha256": "735d1e995b1d64d149a2b1b2a7e0ae43d5fc095b9b0a5785d3b4ea6869b09bc4"
     },
     "tests/drivers/bounds32.py": {
       "bytes": 1029,

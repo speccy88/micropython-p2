@@ -1,0 +1,42 @@
+{
+  "upstream_llvm_revision": "8dfdcc7b7bf66834a761bd8de445840ef68e4d1a",
+  "baseline_patch_sha256": "ef20925ea64d7e9633e2457c6d47658808491ec47e9a0bddbafd44bec5a09e51",
+  "port_patch_sha256": "d5e87aeda5ed5f263083321a07a1662b296e104a2ce46535cb4b52e683ff4a86",
+  "built_shared_llvm_sha256": "aff3eccec0eeda343da76b40832d4cbc660d737a50ca90b5c587f12536fdc060",
+  "build_method": "Isolated P2 target rebuild with the original CMake/Ninja TableGen, compile and link commands. All P2 target objects and the LLVM shared library were newly linked. The existing native frontend and host component archives were reused.",
+  "clean_recipe_check": "Both patches applied successively to the pinned clean LLVM base. All four changed source files exactly matched the private build input.",
+  "clang_reduced_case": {
+    "source": "toolchain/compare-branch.c",
+    "optimization": "-Oz",
+    "machine_verifier": true,
+    "stock": "cmps r0, #4 wcz; cmps r6, #0 wcz; if_z mov; if_nz mov; if_z jmp",
+    "patched": "cmps r0, #4 wcz; if_z jmp"
+  },
+  "port_host_regression": "P2 overlay passed: conditional branch, quotient/remainder, 256 pointer encodings, four GETRND effects, four invalid operands",
+  "compiler_suite": {
+    "llvm_mc_and_codegen": {
+      "PASS": 153
+    },
+    "instruction_matrix": {
+      "passed": 380,
+      "failed": 0
+    },
+    "sdk_integration_original": {
+      "passed": 30,
+      "failed": 2,
+      "failures": [
+        "driver/performance-division.test",
+        "driver/performance-memset.test"
+      ],
+      "reason": "FileCheck expected the loop counter copy between CMP and JMP. The corrected backend snapshots the pre-increment counter before the call and compares that snapshot immediately before JMP."
+    },
+    "sdk_integration_with_schedule_checks_updated": {
+      "PASS": 32
+    },
+    "sdk_test_patch_sha256": "ff10020e97c323a401807e979cfc2c3146555bdada180f99af3ff928515c13af",
+    "tinygo_compiler_tests": {
+      "command": "go test -p 2 -tags llvm15 ./compiler -run TestP2 -count=1",
+      "output": "ok  \tgithub.com/tinygo-org/tinygo/compiler\t0.604s"
+    }
+  }
+}

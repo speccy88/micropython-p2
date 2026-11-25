@@ -40,6 +40,10 @@ try:
         uart.read(uart.any())
     # Empty ring, so a small timeout exercises the borrowed RX destination.
     assert ordered("UART RX", uart.readinto, bytearray(4)) is None
+    assert uart.write(b"ab") == 2
+    partial = bytearray(b"XXXX")
+    assert ordered("UART RX partial", uart.readinto, partial) == 2
+    assert partial == b"abXX"
 finally:
     uart.deinit()
 
