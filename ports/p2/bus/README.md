@@ -11,9 +11,9 @@ Build with `PROFILE=edge` to include these buses. Constructors accept integer GP
 Use `UART(..., loopback=True)` for P2 internal testing: choose pins in the same 32-pin bank separated by one to three pins. The RX Smart Pin routes the TX pad into its input. TX is driven in this mode. The GPIO pads used by `tests/bus/loopback.py` should be unconnected. Its SPI check uses one driven data pad and reads the same pad back. This checks the software data path, not the timing of a separate SPI peripheral. Test I²C target ACK, repeated starts and clock stretching with an attached target. No hardware SPI/I²C aliases are exported.
 
 ```sh
-mpremote connect COM12 run tests/bus/loopback.py
+mpremote connect socket://127.0.0.1:8122 run tests/bus/loopback.py
 ```
 
 The COM12 receipt in `validation/edge.json` records success for this script on the P2-EC32MB. It exercised a 192-byte UART packet at 115,200 baud while GC ran, SPI loopback in eight mode/bit-order combinations, and I²C claim/release and invalid-address handling. Transfer timing and interoperability with an external I²C target or SPI display require those peripherals.
 
-The UART ring is single producer/single consumer. The worker continues when the VM is blocked. New bytes are dropped if its RX ring fills, and `overruns()` reports the count. SPI services pending work between chunks of 32 bytes. I²C clock stretching uses upstream's bounded microsecond delay loop. A stretched transaction can delay Python interruption until the transaction ends. Electrical bus rates, framing errors, and analog signal quality require an external measurement.
+The UART ring is single producer/single consumer. The worker continues when the VM is blocked. New bytes are dropped if its RX ring fills, and `overruns()` reports the count. A read timeout with an empty ring returns `None`. A partial `readinto` returns the number of bytes copied and leaves later destination bytes untouched. SPI checks for Ctrl-C between chunks of 32 bytes. UART and SPI defer scheduled Python callbacks until they release the caller's hub buffer. I²C clock stretching uses upstream's bounded microsecond delay loop. A stretched transaction can delay Python interruption until the transaction ends. Electrical bus rates, framing errors, and analog signal quality require an external measurement.

@@ -1,0 +1,28 @@
+{
+  "flat_image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "driver_sha256": "73a19ff0001690368d27cc3fc560a9a64e706e933bab7ef010ddb0af7e0a202c",
+  "neverready_sha256": "3311f864a41a365d8de99ff53bb183d3e07bd3a31cad14fd6c4f43cc36b3b3d6",
+  "example_sha256": "8d04255b598d645d893a247a5c1422c5aa225e26d9cd0ad48d7829d309cd4a78",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "checksum_gc": "P2_HUBDRIVER_PASS 2 32 1196509873",
+    "ready_timeout_released_pin": true,
+    "cogs_before_reset": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cogs_after_reset": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "passed": true
+}

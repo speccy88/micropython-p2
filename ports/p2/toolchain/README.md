@@ -36,3 +36,16 @@ bash tools/build_profiles.sh edge lean threaded
 The script checks the baseline patch digest and checks out LLVM 15.0.7 into a private Git worktree. Clang, MC, LLD and their support tools use that private target. Runtime archives, VM objects and final firmware are rebuilt for the selected profile. The profile script validates the compiler and selects `-Oz` for maps on the corrected compiler. A stock SDK build uses the `-Os` map workaround.
 
 To check an existing installation, run `python3 toolchain/check-overlay.py "$P2_BIN"`. The regression checks the independent select/branch predicates, the quotient and remainder result registers, all 256 standard (unaugmented) pointer encodings, all four flag effects on GETRND, and invalid offset boundaries. The complete comparison records Roger Loh's contributions and the acceptance evidence. [Original archive comparison](roger-comparison.md) · [Compiler validation](../validation/compiler-overlay.json)
+
+The upstream division and memset benchmark fixtures check the compiler's register schedule as well as the loop count. The corrected compiler saves the counter before the call and compares its pre-increment value immediately before the branch. The SDK test patch updates those two FileCheck assertions and keeps the explicit loop bound, single helper call, increment and back edge. To repeat the 32 SDK integration tests, 153 LLVM tests and the instruction matrix with a clean test copy, use the private build produced above.
+
+```sh
+out="$HOME/p2-micropython-toolchain"
+testcopy="$out/sdk-tests"
+mkdir "$testcopy"
+cp -a "$P2_WORK/p2llvm/"{tests,utils,libp2,libc} "$testcopy/"
+git -C "$testcopy" apply "$PWD/toolchain/p2-sdk-tests.patch"
+python3 "$testcopy/tests/run.py" --build-dir "$out/build" --llvm-source "$out/src" -j 2
+```
+
+For the physical target extensions, build a separate foundation image with `make -f tests/runtime/Makefile BUILD=build-overlay-foundation P2_LLVM_BIN="$P2_BIN" P2_TEST_OVERLAY=1` and use `tests/runtime/run.py` from the USB host. The integer group also checks unsigned CORDIC division/remainder, actual PTRB reads and updates, different GETRND samples, and tombstone reuse through the `-Oz` fixture.

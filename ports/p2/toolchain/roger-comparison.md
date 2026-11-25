@@ -17,6 +17,8 @@ For the SDK comparison, the March 13 P2LLVM revision immediately preceding Roger
 
 The MicroPython collection failure exposed a separate defect. A select pseudo expanded to a flag-writing compare between the sentinel compare and the branch that consumed its flags. The ZIP's CORDIC changes do not model that dependency. The private LLVM patch emits the compare and branch together after register allocation. [Reduced C reproducer](compare-branch.c) · [Regression program](check-overlay.py)
 
+The extended RAM-loaded fixture returned `P2CRT 19831d8c 0000003f` on COM12. Its integer group executed the reduced tombstone-insertion case at `-Oz`, unsigned quotient and remainder, GETRND sampling, and PTRB reads with negative index, counted pre-increment and counted post-decrement. It also reran the context, memory, vararg, aggregate and float groups. The 256-way exhaustive pointer encoding/disassembly test ran on the host. [Physical receipt](../validation/foundation-overlay.json) · [Target checks](../tests/runtime/overlay.c)
+
 ### C support
 
 | Archive member | Changed code and use in the current runtime |

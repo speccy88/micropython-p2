@@ -116,7 +116,7 @@ and 2,000 Hz, with high intervals of 40,000 and 60,001 system clocks.
 
 `machine.Pin(pin, mode=Pin.IN, pull=None, *, value=...)` supports digital input, push-pull output and open drain. Use `Pin.PULL_UP` or `Pin.PULL_DOWN` for nominal 15 kΩ pulls in input mode. Use `p.value()`, `p.value(bit)`, `p.on()`, `p.off()` or `p()`. The output open-drain high state floats. Release using `deinit()`. User callbacks for GPIO edges are pending.
 
-`p2.SmartPin(pin, mode, x=0, y=0)` sets mode/X/Y while the pin is held in reset and then enables the circuit. `ready()` reads its IN flag, `read()` reads and acknowledges Z, and `peek()` reads Z without acknowledging. `write_x()` and `write_y()` change the corresponding 32-bit registers. `deinit()` restores high impedance. The paired USB mode is rejected because it needs joint ownership. Low-level modes accept full mode words including the A/B input and pad configuration. Adjacent input selectors are observational. High-level encoder code claims both pins before use.
+`p2.SmartPin(pin, mode, x=0, y=0, /)` takes positional arguments. For example, `SmartPin(4, mode, 11)` programs X to 11. The constructor sets mode/X/Y while the pin is held in reset and then enables the circuit. `ready()` reads its IN flag, `read()` reads and acknowledges Z, and `peek()` reads Z without acknowledging. `write_x()` and `write_y()` change the corresponding 32-bit registers. `deinit()` restores high impedance. The paired USB mode is rejected because it needs joint ownership. Low-level modes accept full mode words including the A/B input and pad configuration. Adjacent input selectors are observational. High-level encoder code claims both pins before use.
 
 | Mode family | Named constants on SmartPin |
 | --- | --- |
@@ -132,6 +132,7 @@ For example, `SmartPin(0, SmartPin.REPOSITORY, 123)` stores a value inside the S
 
 - `machine.PWM(pin, *, freq=1000, duty_u16=0)` uses sawtooth PWM. The 16-bit base and frame divisors quantize frequencies and duty. `freq()` returns the realized integer frequency. `freq(hz)` and `duty_u16(value)` update it. The allowed range is 1 Hz to 80 MHz at 160 MHz system clock. High frequencies have fewer distinct duty levels.
 - `machine.ADC(pin).read_u16()` uses 2,048-clock SINC2 sampling and rescales between on-chip ground and VIO references captured during construction. Samples clip to 0..65535. Effective nominal raw resolution is 12 bits. External voltage accuracy needs calibration against a reference and the actual I/O supply.
+- The [ADC readiness check](../tests/drivers/adc_ready.py) measures the two internal references and takes 32 input samples from P4 without a reference circuit. It checks conversion readiness and numerical range. Measuring a DAC transfer curve requires a known connection and load. [Parallax ADC example](https://obex.parallax.com/docs/quick-bytes/propeller-2/simple-analog-input/)
 - `machine.DAC(pin).write_u16(level)` selects nominal 990 Ω, 3 V mode with 16-bit PWM dither over the 8-bit pad DAC. Output voltage depends on board VIO, filtering and load.
 - All three own one Smart Pin and use zero extra cogs. Call `deinit()` after use. The internal loopback verifies PWM period and duty in system-clock units. Absolute-frequency accuracy, ADC voltage accuracy and DAC output characterization require a reference instrument.
 

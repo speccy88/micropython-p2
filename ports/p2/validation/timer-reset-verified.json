@@ -1,0 +1,6 @@
+{
+  "image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "exitcode": 0,
+  "output": "Timer passed three soft resets with an active periodic callback\r\n",
+  "passed": true
+}

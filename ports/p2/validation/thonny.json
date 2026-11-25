@@ -1,0 +1,13 @@
+{
+  "thonny": "4.1.7",
+  "backend": "GenericBareMetalMicroPythonBackend",
+  "transport": "Thonny SerialConnection over pyserial socket transport",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "flat_image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "passed": true,
+  "backend_started": true,
+  "welcome": "MicroPython v1.29.0-p2.1 on 2026-11-25; P2-EC32MB with Propeller 2",
+  "cwd": "/",
+  "stdout": "TH_P2 1fc53711b2760281a0a1e719",
+  "inspected_value": "'1fc53711b2760281a0a1e719'"
+}

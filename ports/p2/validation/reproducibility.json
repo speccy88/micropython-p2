@@ -1,0 +1,9 @@
+{
+  "source_commit": "8432dcbac3aacf072f3b32c424dc4f0c4517f58a",
+  "profile": "edge",
+  "independent_empty_output_directories": 2,
+  "flat_image_byte_comparison": "identical",
+  "elf_byte_comparison": "identical",
+  "flat_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "elf_sha256": "00af7d1acb3bbf2673c4f48a0b3fbce05b27234b2a11f2e361c8a6cfa6cef334"
+}

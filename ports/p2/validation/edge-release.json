@@ -1,0 +1,138 @@
+{
+  "flat_image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "94fa6d9d825ffb50496dc082",
+      "nonce": "94fa6d9d825ffb50496dc082",
+      "passed": true
+    },
+    "large_serial_output": {
+      "expected_bytes": 80896,
+      "received_bytes": 80896,
+      "expected_sha256": "8a04dabc1aae3e539d121da95924489cc1d544c54da39283a9680b20972f930b",
+      "received_sha256": "8a04dabc1aae3e539d121da95924489cc1d544c54da39283a9680b20972f930b",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 2, in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 70640
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 70640
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 70640
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 70640
+    },
+    "tests/vm.py": {
+      "sha256": "0b2e240ecbe0de1af0afd25ecf718d29795833be2e0dc92c37b55db5d267ccb7",
+      "seconds": 1.375,
+      "passed": true,
+      "stdout": "{\"gc_us_median\": 6817, \"integer_loop_1000_us\": 41528, \"gc_us_min\": 6809, \"platform\": \"p2\", \"c_stack_used\": 1388, \"heap_free_after\": 67616, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 68016, \"gc_us_max\": 6841, \"passed\": true}",
+      "stderr": ""
+    },
+    "tests/bus/loopback.py": {
+      "sha256": "bb114b37bca31033599cf24165bb4996b9d552c125a308ce615265291128462a",
+      "seconds": 0.3279999999795109,
+      "passed": true,
+      "stdout": "P2 bus loopbacks and ownership OK",
+      "stderr": ""
+    },
+    "tests/drivers/api.py": {
+      "sha256": "e4e053cc3d682cff2689c8823ee686aa9988d2ecfab1c731ae9b2e26c7630709",
+      "seconds": 5.594000000040978,
+      "passed": true,
+      "stdout": "soak 32 2338\r\nsoak 64 3869\r\nsoak 96 5400\r\nsoak 128 6931\r\nsoak 160 8462\r\nsoak 192 9994\r\nsoak 224 11525\r\nsoak 256 13056\r\nsoak 288 14587\r\nsoak 320 16119\r\nsoak 352 17650\r\nsoak 384 19181\r\nsoak 416 20712\r\nsoak 448 22244\r\nsoak 480 23775\r\nsoak 512 25306\r\nsoak 544 26837\r\nsoak 576 28369\r\nsoak 608 29900\r\nsoak 640 31431\r\nsoak 672 32962\r\nsoak 704 34494\r\nsoak 736 36025\r\nsoak 768 37556\r\nsoak 800 39087\r\nsoak 832 40619\r\nsoak 864 42150\r\nsoak 896 43681\r\nsoak 928 45213\r\nsoak 960 46744\r\nsoak 992 48275\r\nsoak 1024 49806\r\nP2_DRIVER_PASS 1045 5001 2 5081 5826 {'max_cycles': 214, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 513}\r\ncleanup pass",
+      "stderr": ""
+    },
+    "tests/drivers/pwm_capture.py": {
+      "sha256": "eda2069756e74828380fe046722d37f3939ce229544199acf5bbb32b06d3d91c",
+      "seconds": 0.5779999999795109,
+      "passed": true,
+      "stdout": "PWM_CAPTURE 1000 40000 40000\r\nPWM_CAPTURE 2000 60001 59999\r\nP2_PWM_CAPTURE_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/bounds32.py": {
+      "sha256": "f0520c1a76ccce94fe067ead532ee8c0f43ed97ca890f728d81f913a3657c37a",
+      "seconds": 0.5940000000409782,
+      "passed": true,
+      "stdout": "P2_PSRAM_BOUNDARY_PASS 33554432 10 {'max_cycles': 214, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 32}",
+      "stderr": ""
+    },
+    "tests/drivers/array_smoke.py": {
+      "sha256": "c5fc3e4622050725af74ccf352941df29e3abe069bbee58af403da968ebc2ec5",
+      "seconds": 0.4529999999795109,
+      "passed": true,
+      "stdout": "P2_ARRAY_SMOKE_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/borrowed_io.py": {
+      "sha256": "20aefd1976f940c5ca281bbaa06f62567ec5a1f8099c75e2abe704eab08d9e6e",
+      "seconds": 1.656999999890104,
+      "passed": true,
+      "stdout": "P2_BORROW_ORDER_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/adc_ready.py": {
+      "sha256": "de57fc9d4996976259f9cfdad36d133f96ff10b37393604de003c6d4f394defc",
+      "seconds": 0.2970000000204891,
+      "passed": true,
+      "stdout": "P2_ADC_READY_PASS internal_raw_gnd 720 internal_raw_vio 3417 unreferenced_pin_min 32877 unreferenced_pin_max 32901",
+      "stderr": ""
+    },
+    "tests/timer.py": {
+      "sha256": "ac4aade4e85f11e48106fdbdb659cd387817bbb2f1e2e037527723b2562b4f72",
+      "seconds": 0.8430000001098961,
+      "passed": true,
+      "stdout": "Timer passed one-shot, periodic, cancellation, GC, queue and argument checks",
+      "stderr": ""
+    },
+    "tests/media_readonly.py": {
+      "sha256": "ba8eb1d21bf91a98a92b4d6410184494a1c190c4bcdf234c4e8d9d6e487da663",
+      "seconds": 0.6880000000819564,
+      "passed": true,
+      "stdout": "SD_READ 61132800 512 16384 183348\r\nFAT_ROOT_COUNTS 34 4\r\nJEDEC 0xef7018\r\nFLASH_READ_PASS 256 4096",
+      "stderr": ""
+    },
+    "examples/ramfs.py": {
+      "sha256": "ffbdae6c8df2fdaea53091e5cb7c6f8608d78be71aa7d2d8ac2d0032978ba5f8",
+      "seconds": 0.1720000000204891,
+      "passed": true,
+      "stdout": "P2 PSRAM volume",
+      "stderr": ""
+    },
+    "examples/signal_tiles.py": {
+      "sha256": "19b3b69a5348e413f4efe0becc2153b2fe50e838a1e4153a09dbc91342ea62c2",
+      "seconds": 5.0,
+      "passed": true,
+      "stdout": "verified 1048576 external bytes",
+      "stderr": ""
+    },
+    "examples/external_array.py": {
+      "sha256": "89c2d850a9d353bd02e7e375fbdb8b459163679721f44cf521905b5feabdcc4f",
+      "seconds": 37.21900000004098,
+      "passed": true,
+      "stdout": "P2_EXT_ARRAY_PASS bytes 8388608 cache 512 initial_free 68608 live_hub_delta 5008 observed_peak_hub_delta 48208 write_us 14338386 read_us 19677763 random_us 2329049",
+      "stderr": ""
+    },
+    "tests/drivers/factorial_bench.py": {
+      "sha256": "2070a57abadca65700c007f9ea2e6bbe41189cdea2e45cbbb329999d86d8c76b",
+      "seconds": 10.234999999869615,
+      "passed": true,
+      "stdout": "P2_FACTORIAL 13503 10000 160000000",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

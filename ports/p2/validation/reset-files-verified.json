@@ -1,0 +1,6 @@
+{
+  "image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
+  "exitcode": 0,
+  "output": "{\"test\": \"dirty_file_soft_reset\", \"filesystem\": \"VfsFat\", \"passed\": true}\r\n{\"test\": \"dirty_file_soft_reset\", \"filesystem\": \"VfsLfs2\", \"passed\": true}\r\n",
+  "passed": true
+}

@@ -1,5 +1,5 @@
 {
-  "image_sha256": "aa362fb3854c04603ebddf26e40cd0e95eb5302ee76092459b903c6e95b6690a",
+  "image_sha256": "7528a527e542610ec19bf09f1580dad250a58c053662966c892a3ee584337520",
   "commands": [
     {
       "args": [
@@ -15,11 +15,11 @@
         "resume",
         "fs",
         "cp",
-        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\probe.dat",
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpt5smmoyz\\probe.dat",
         ":/p2tools/probe.dat"
       ],
       "returncode": 0,
-      "output": "cp C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\probe.dat :/p2tools/probe.dat",
+      "output": "cp C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpt5smmoyz\\probe.dat :/p2tools/probe.dat",
       "error": ""
     },
     {
@@ -28,10 +28,10 @@
         "fs",
         "cp",
         ":/p2tools/probe.dat",
-        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\roundtrip.dat"
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpt5smmoyz\\roundtrip.dat"
       ],
       "returncode": 0,
-      "output": "cp :/p2tools/probe.dat C:\\Users\\fred_\\AppData\\Local\\Temp\\tmp_4823tjh\\roundtrip.dat",
+      "output": "cp :/p2tools/probe.dat C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpt5smmoyz\\roundtrip.dat",
       "error": ""
     },
     {
@@ -53,10 +53,10 @@
         "fs",
         "cp",
         ":/p2tools/lib/p2array.py",
-        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpppq1xmm7\\p2array.py"
+        "C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpng1xw82b\\p2array.py"
       ],
       "returncode": 0,
-      "output": "cp :/p2tools/lib/p2array.py C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpppq1xmm7\\p2array.py",
+      "output": "cp :/p2tools/lib/p2array.py C:\\Users\\fred_\\AppData\\Local\\Temp\\tmpng1xw82b\\p2array.py",
       "error": ""
     },
     {
