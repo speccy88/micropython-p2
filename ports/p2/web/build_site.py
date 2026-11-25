@@ -134,7 +134,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     if any(out.iterdir()):
         parser.error("Use an empty output directory.")
-    for name in ("style.css", "app.mjs", "rom.mjs"):
+    for name in ("style.css", "app.mjs", "rom.mjs", "blink_p2.py"):
         shutil.copyfile(WEB / name, out / name)
     ide = out / "ide"
     ide.mkdir()

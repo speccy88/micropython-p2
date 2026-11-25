@@ -82,14 +82,14 @@ index edb3c77..541104d 100644
 +    return startSession('usb', transport)
 +}
 +
-+export async function openP2Example(profile) {
-+    let fn = '/hello_p2.py', i = 1
-+    while (fsCache.has(fn) || openFiles.has(fn)) fn = '/hello_p2_' + (++i) + '.py'
++export async function openP2Example(profile, blinker) {
++    const base = blinker ? '/blink_p2' : '/hello_p2'; let fn = base + '.py', i = 1
++    while (fsCache.has(fn) || openFiles.has(fn)) fn = base + '_' + (++i) + '.py'
 +    let content = '# Press F5 to run this on your board.\nimport sys\nprint("Hello from", sys.platform)\n'
 +    if (profile === 'edge') {
 +        content += '\nimport p2\nprint("External RAM:", p2.PSRAM().capacity() // (1024 * 1024), "MiB")\n'
 +    }
-+    await _loadContent(fn, content, createTab(fn))
++    await _loadContent(fn, blinker || content, createTab(fn))
 +}
 +
 +async function startSession(type, new_port) {

@@ -130,7 +130,15 @@ async function start(action) {
         ownsPort = false;
         lastInstalledPort = port;
         showEditor();
-        if (action === "install" && state === "ready") await ide.openP2Example(profile);
+        if (state === "ready") {
+            if (action === "install" && profile === "threaded") {
+                await ide.openP2Example(profile);
+            } else {
+                const sample = await fetch("./blink_p2.py");
+                if (!sample.ok) throw new Error("Could not load the LED example.");
+                await ide.openP2Example(profile, await sample.text());
+            }
+        }
     } catch (err) {
         progress(describe(err));
         $("status").setAttribute("data-error", "");
