@@ -273,9 +273,6 @@ void mp_stream_write_adaptor(void *self, const char *buf, size_t len) {
 }
 
 static mp_obj_t stream_readinto_write_generic(size_t n_args, const mp_obj_t *args, byte flags) {
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(args[1], &bufinfo, (flags & MP_STREAM_RW_WRITE) ? MP_BUFFER_READ : MP_BUFFER_WRITE);
-
     // CPython extension, allow optional maximum length and offset:
     // - stream.operation(buf, max_len)
     // - stream.operation(buf, off, max_len)
@@ -287,10 +284,11 @@ static mp_obj_t stream_readinto_write_generic(size_t n_args, const mp_obj_t *arg
     } else if (n_args == 4) {
         off = mp_obj_get_int_truncated(args[2]);
         max_len = mp_obj_get_int_truncated(args[3]);
-        if (off > bufinfo.len) {
-            off = bufinfo.len;
-        }
     }
+    // Integer conversion may run Python. Acquire the buffer after conversion.
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[1], &bufinfo, (flags & MP_STREAM_RW_WRITE) ? MP_BUFFER_READ : MP_BUFFER_WRITE);
+    off = MIN(off, bufinfo.len);
     bufinfo.len -= off;
 
     // Perform the readinto or write operation.

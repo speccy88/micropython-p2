@@ -19,4 +19,24 @@ finally:
     for p, value in zip(positions, original):
         ram.write(p, value)
 assert all(ram.read(p, 7) == value for p, value in zip(positions, original))
+region = ram.alloc(32)
+saved = region.read(0, 32)
+try:
+    # Cover all hub staging alignments independently from the external address.
+    for lane in range(4):
+        src = bytearray((i * 31 + lane for i in range(8)))
+        src.extend(b"\xab" * 12)
+        dest = bytearray(b"U" * 21)
+        for offset in range(4):
+            window = memoryview(src)[lane:lane + 16]
+            assert region.write(offset, window) == 16
+            read_window = memoryview(dest)[lane + 1:lane + 17]
+            assert region.readinto(offset, read_window) == 16
+            assert bytes(window) == bytes(read_window)
+            assert dest[lane] == 85 and dest[lane + 17] == 85
+finally:
+    try:
+        region.write(0, saved)
+    finally:
+        region.close()
 print("P2_PSRAM_BOUNDARY_PASS", size, len(positions), ram.diagnostics())

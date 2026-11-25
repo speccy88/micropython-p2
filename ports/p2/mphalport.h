@@ -5,6 +5,13 @@
 void mp_hal_set_interrupt_char(int c);
 void p2_console_poll_interrupt(void);
 #define MICROPY_INTERNAL_EVENT_HOOK p2_console_poll_interrupt()
+#if !P2_PROFILE_THREADED
+// The VM cog is the only producer and consumer of the soft-timer heap.
+#define MICROPY_PY_PENDSV_ENTER ((void)0)
+#define MICROPY_PY_PENDSV_EXIT ((void)0)
+void p2_timer_poll(void);
+void p2_timer_reset(void);
+#endif
 #if P2_PROFILE_THREADED
 void p2_thread_yield(void);
 #define MICROPY_INTERNAL_WFE(ms) do { (void)(ms); p2_thread_yield(); } while (0)

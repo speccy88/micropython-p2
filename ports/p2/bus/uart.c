@@ -126,8 +126,7 @@ static mp_uint_t uart_read(mp_obj_t o, void *dst, mp_uint_t n, int *err) {
             timeout = self->timeout_char;
         } else {
             if (mp_hal_ticks_ms() - start >= timeout) { break; }
-            mp_event_handle_nowait();
-            s = active(self);
+            p2_poll_borrowed_io();
         }
     }
     if (!i && n) { *err = MP_EAGAIN; return MP_STREAM_ERROR; }
@@ -144,8 +143,7 @@ static mp_uint_t uart_write(mp_obj_t o, const void *src, mp_uint_t n, int *err) 
             s->tx_in++;
         } else {
             if (mp_hal_ticks_ms() - start >= self->timeout) { break; }
-            mp_event_handle_nowait();
-            s = active(self);
+            p2_poll_borrowed_io();
         }
     }
     if (!i && n) { *err = MP_EAGAIN; return MP_STREAM_ERROR; }

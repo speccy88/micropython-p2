@@ -90,8 +90,7 @@ static void transfer(mp_obj_base_t *base, size_t n, const uint8_t *src, uint8_t 
         }
         if (dest != NULL) { dest[i] = in; }
         if ((i & 31) == 31) {
-            mp_event_handle_nowait();
-            require_active(s->active);
+            p2_poll_borrowed_io();
         }
     }
 }

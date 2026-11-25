@@ -1,0 +1,163 @@
+{
+  "p2llvm-fixes.zip": {
+    "sha256": "ff92f4339b8ba42f0c977ced07cac60f6640eb35a3d8896112481ec3b247c49d",
+    "bytes": 11492,
+    "reference_revision": "bdcefcce7860b2232c06f35726fea679a3a7309c",
+    "files": {
+      "libc/Makefile": {
+        "sha256": "94b19e168b3f41d6d0596b44312b414dd269fd620025c1c522e013e24134d7c0",
+        "hunks": [
+          "@@ -88,3 +88,3 @@"
+        ]
+      },
+      "libc/drivers/CMakeLists.txt": {
+        "sha256": "38dbc35a2e5106de1e2a1fb2872b97383935a48a89f0988a48ef6e0bc967ecbe",
+        "hunks": [
+          "@@ -5,7 +5,2 @@"
+        ]
+      },
+      "libc/include/setjmp.h": {
+        "sha256": "3e8d5241ef6e23923085090b180c0c2dc8feebf0e8c8ad724c913b2955c48c23",
+        "hunks": [
+          "@@ -11,7 +11,7 @@",
+          "@@ -21,2 +21,3 @@"
+        ]
+      },
+      "libc/include/sys/jmpbuf.h": {
+        "sha256": "c2e39e3360a4a2c1365ad03da7ea936569e177765a43d4fe37866e9782987cb8",
+        "hunks": [
+          "@@ -6,13 +6,38 @@"
+        ]
+      },
+      "libc/math/CMakeLists.txt": {
+        "sha256": "da04abd9888701df5dda82a4016a2194fc4d7b333344b0d151172b6183245a39",
+        "hunks": [
+          "@@ -65,3 +65,3 @@"
+        ]
+      },
+      "libc/misc/CMakeLists.txt": {
+        "sha256": "7b7a735f6ac25d82f9577c5fbaa4a5d10bc11e58a20e9bba1edfceb730b281cc",
+        "hunks": [
+          "@@ -19,2 +19,3 @@"
+        ]
+      },
+      "libp2/lib/builtins/memcpy.c": {
+        "sha256": "345922f1711129c8d39059578a74361becf5aeeb287d53e01ad4bd0a50e7f8e6",
+        "hunks": [
+          "@@ -9,3 +9,3 @@",
+          "@@ -78,2 +78,4 @@"
+        ]
+      },
+      "libp2/lib/builtins/memmove.c": {
+        "sha256": "80fd1d04a45000593c6c42ea8b7ae6043638d03b40823350ff0f0ac4361f69fc",
+        "hunks": [
+          "@@ -22,3 +22,4 @@"
+        ]
+      },
+      "libp2/lib/builtins/memset.c": {
+        "sha256": "792b572f4208db6534dee7eabc760fa874c40a544620af57f631b7a0fd103d32",
+        "hunks": [
+          "@@ -14,3 +14,4 @@"
+        ]
+      },
+      "libp2/lib/builtins/powf.c": {
+        "sha256": "7aa367579146c010a66e277d45a64c37f0becf76a978571cb553e893f2cad8fa",
+        "hunks": [
+          "@@ -3,3 +3,3 @@"
+        ]
+      },
+      "libp2/lib/builtins/sqrtf.c": {
+        "sha256": "3ab6466847863af62b8428fa12a8578149c6aaba1d693128e61cd1236585d2d0",
+        "hunks": [
+          "@@ -3,3 +3,3 @@"
+        ]
+      }
+    }
+  },
+  "p2-mp-minimal.zip": {
+    "sha256": "9aedcf554e84ea80659eb58c5c2c779d07e6d4524eb32a87992e4151c4ef2443",
+    "bytes": 4156,
+    "reference_revision": "e0e9fbb17ed6fd06bb76e266ae554784c9c80804",
+    "files": {
+      "ports/minimal/main.c": {
+        "sha256": "19a0d58cc4e0c789112fcf5be820dc6482326c62ef1ce62db11eb73b9028248f",
+        "hunks": [
+          "@@ -34,2 +34,6 @@",
+          "@@ -40,2 +44,5 @@",
+          "@@ -102,159 +109 @@"
+        ]
+      },
+      "ports/minimal/Makefile": {
+        "sha256": "753b1fd254d1e5c99ed0e80e7a9003201b330dff949e603c43b9718b4009df4c",
+        "hunks": [
+          "@@ -1,43 +1,26 @@",
+          "@@ -46,22 +29,10 @@",
+          "@@ -69,11 +40,20 @@",
+          "@@ -83,29 +63,8 @@"
+        ]
+      },
+      "ports/minimal/mpconfigport.h": {
+        "sha256": "3ca16da017aa5f8464ea29bd58abc34afa27beb692bd1ec5861ee3ef1b7c5d6e",
+        "hunks": [
+          "@@ -34,17 +34,11 @@"
+        ]
+      },
+      "ports/minimal/mphalport.h": {
+        "sha256": "4da7f0d2eeeb511dff9a3d4f934578e551ea18f43953c7aec82d23a945029f39",
+        "hunks": []
+      },
+      "ports/minimal/uart_core.c": {
+        "sha256": "b6144962ba9cf0ae49e1b0f2f2273ae2238cae527f24ba78b47bd1183e9d70a3",
+        "hunks": [
+          "@@ -2,2 +2,3 @@",
+          "@@ -7,23 +8,19 @@",
+          "@@ -31,18 +28,8 @@"
+        ]
+      }
+    }
+  },
+  "llvmfixes.zip": {
+    "sha256": "f87677f8032e718b8df5af2157a7ec6c473cb5bd294c2d3855ba5bda950b40d6",
+    "bytes": 16511,
+    "reference_revision": "72a9bb1ef2656d9953d1f41a8196d425ff2ab0b1",
+    "files": {
+      "llvm/lib/Target/P2/MCTargetDesc/P2InstPrinter.cpp": {
+        "sha256": "50dc9e778074c6330491fe02f56974f6aedae22bb231705eee96ceea66bb8a0b",
+        "hunks": [
+          "@@ -149,7 +149,10 @@",
+          "@@ -157,2 +160,17 @@"
+        ]
+      },
+      "llvm/lib/Target/P2/P2ExpandPseudos.cpp": {
+        "sha256": "c30e97f8b179422750edb5756ecc2529028c67bca3fc85c9f5300020425e3eac",
+        "hunks": [
+          "@@ -85,2 +85,3 @@",
+          "@@ -89,2 +90,3 @@"
+        ]
+      },
+      "llvm/lib/Target/P2/P2FrameLowering.h": {
+        "sha256": "ab6db30339a38089a0a35871ba0eb33d361b9ac50ff5a69e04592c4a53291598",
+        "hunks": [
+          "@@ -29,3 +29,3 @@"
+        ]
+      },
+      "llvm/lib/Target/P2/P2InstrFormats.td": {
+        "sha256": "23f2817aaaa33806bcb835d7fc03378a61ecbeee6c79bb7e2554cc1dc1ec4417",
+        "hunks": [
+          "@@ -381,3 +381,3 @@",
+          "@@ -394,2 +394,4 @@",
+          "@@ -400,2 +402,16 @@",
+          "@@ -466,3 +482,3 @@",
+          "@@ -479,7 +495,14 @@"
+        ]
+      },
+      "llvm/lib/Target/P2/P2InstrInfo.td": {
+        "sha256": "b9764457cdf6a0ee9b5fe7c44b7aa137509fc627b2ba259f0066b329e5439ffd",
+        "hunks": [
+          "@@ -266,12 +266,12 @@",
+          "@@ -619,3 +619,5 @@"
+        ]
+      }
+    }
+  }
+}

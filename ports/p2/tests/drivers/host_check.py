@@ -33,7 +33,8 @@ def main():
     version = subprocess.check_output([compiler, "--version"], text=True).strip()
     sources = sorted((*PORT.glob("modules/*.py"), *PORT.glob("packages/*/*.py"), *PORT.glob("examples/*.py"),
                       HERE / "api.py", HERE / "array_smoke.py", HERE / "pwm_capture.py",
-                      HERE / "bounds32.py"))
+                      HERE / "bounds32.py", HERE / "factorial_bench.py", HERE / "borrowed_io.py",
+                      PORT / "examples/hubdriver/checksum.py"))
     bytecode = {}
     with tempfile.TemporaryDirectory() as tmp:
         for source in sources:

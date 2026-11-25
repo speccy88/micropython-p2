@@ -1,11 +1,13 @@
 {
   "scope": "CPython recording devices and host bytecode compilation",
-  "mpy_cross": "MicroPython v1.29.0 on 2026-11-24; mpy-cross emitting mpy v6.3",
+  "mpy_cross": "MicroPython v1.29.0-p2.1 on 2026-11-25; mpy-cross emitting mpy v6.3",
   "tests": {
     "test_array.Arrays.test_8_mib_random_offsets": "pass",
     "test_array.Arrays.test_bounds_and_formats": "pass",
     "test_array.Arrays.test_eviction_and_bulk": "pass",
     "test_array.Arrays.test_failed_eviction": "pass",
+    "test_driver_image.DriverImage.test_elf": "pass",
+    "test_driver_image.DriverImage.test_image": "pass",
     "test_packages.Packages.test_install_payloads": "pass",
     "test_packages.Packages.test_legacy_pin_and_pwm": "pass",
     "test_packages.Packages.test_sensor_and_display": "pass",
@@ -33,13 +35,17 @@
       "bytes": 225,
       "sha256": "70050c0117f3b10a8b1f634c7ba7b0ff2e95095272f4024800095edfb4b940dd"
     },
+    "examples/hubdriver/checksum.py": {
+      "bytes": 1522,
+      "sha256": "d42dc6d09846201d6b1335d889e3888a932fa62923d22a95148a2f609bace55b"
+    },
     "examples/legacy_led.py": {
       "bytes": 225,
       "sha256": "989f0e6a378e71f37e106d354e140ea8bde311b72f5dcd4ba10ed92a1153dfe7"
     },
     "examples/ramfs.py": {
-      "bytes": 346,
-      "sha256": "7755868b09f3afcb6b9825e7ff0ab21d2f350f0082ce0216407a745794ff89e6"
+      "bytes": 372,
+      "sha256": "b80df98271f42b00afece6608aab3651b120bc1803c87f64f83ddae53ce75ee9"
     },
     "examples/servo.py": {
       "bytes": 194,
@@ -47,7 +53,7 @@
     },
     "examples/signal_tiles.py": {
       "bytes": 391,
-      "sha256": "ed05f6b64b26e7a3f88ba5bb22cd29bd769a7f295831f273428f3322352f4f63"
+      "sha256": "8eed005bda18b28933f868da6452ba68545e491b646d0f29ac82d52933aff373"
     },
     "examples/ssd1306.py": {
       "bytes": 383,
@@ -89,9 +95,17 @@
       "bytes": 544,
       "sha256": "08091b7a79c27ed82f3c65e35ce5b269d1ebf71a95fee3b46470d0d17ec0086b"
     },
+    "tests/drivers/borrowed_io.py": {
+      "bytes": 876,
+      "sha256": "c163a58ce7fa6e24f3f10c18bfa0ce255d1a685059e78b4b0dbcb3e9b3154433"
+    },
     "tests/drivers/bounds32.py": {
-      "bytes": 657,
-      "sha256": "bdc4309ff6c1116208d274363161f95ec331c83520399e6570c2a310db0f9b06"
+      "bytes": 1029,
+      "sha256": "913bf0d46433f08301a9d5b8ff3f8e8ed3f3a7eeabc52f578fa4c356cb052a91"
+    },
+    "tests/drivers/factorial_bench.py": {
+      "bytes": 304,
+      "sha256": "7e997558a3b09dade8782c854d461e8ebdd2e1a537de488eeb084d8e051bcd35"
     },
     "tests/drivers/pwm_capture.py": {
       "bytes": 821,

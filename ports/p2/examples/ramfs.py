@@ -3,10 +3,12 @@ import vfs
 import p2
 from p2memory import BlockDevice
 region = p2.PSRAM().alloc(512 * 1024)
+mounted = False
 try:
     block = BlockDevice(region)
     vfs.VfsLfs2.mkfs(block)
     vfs.mount(vfs.VfsLfs2(block), "/ram")
+    mounted = True
     try:
         with open("/ram/probe.txt", "w") as f:
             f.write("P2 PSRAM volume\n")
@@ -14,5 +16,8 @@ try:
             print(f.read())
     finally:
         vfs.umount("/ram")
+        mounted = False
 finally:
-    region.close()
+    # A failed unmount leaves the live filesystem entitled to its region.
+    if not mounted:
+        region.close()

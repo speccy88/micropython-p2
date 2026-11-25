@@ -1,0 +1,40 @@
+{
+  "flat_image_sha256": "c891d8273b8d3fbe4aef21906a5066fbfb473ed6590ec27c06ed70b77742d1c3",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "573cbcec6b9f5e257d6e6bfa",
+      "nonce": "573cbcec6b9f5e257d6e6bfa",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 244240
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 244240
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 244240
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 244240
+    },
+    "tests/vm.py": {
+      "sha256": "0b2e240ecbe0de1af0afd25ecf718d29795833be2e0dc92c37b55db5d267ccb7",
+      "seconds": 1.718000000109896,
+      "passed": true,
+      "stdout": "{\"gc_us_median\": 17547, \"integer_loop_1000_us\": 41076, \"gc_us_min\": 17539, \"platform\": \"p2\", \"c_stack_used\": 1380, \"heap_free_after\": 240928, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 241328, \"gc_us_max\": 17571, \"passed\": true}",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

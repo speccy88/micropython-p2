@@ -70,9 +70,10 @@ static mp_obj_t mp_machine_spi_read(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_machine_spi_read_obj, 2, 3, mp_machine_spi_read);
 
 static mp_obj_t mp_machine_spi_readinto(size_t n_args, const mp_obj_t *args) {
+    int fill = n_args == 3 ? mp_obj_get_int(args[2]) : 0;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-    memset(bufinfo.buf, n_args == 3 ? mp_obj_get_int(args[2]) : 0, bufinfo.len);
+    memset(bufinfo.buf, fill, bufinfo.len);
     mp_machine_spi_transfer(args[0], bufinfo.len, bufinfo.buf, bufinfo.buf);
     return mp_const_none;
 }

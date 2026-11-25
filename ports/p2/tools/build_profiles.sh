@@ -6,6 +6,16 @@ repo=$(cd "$port/../.." && pwd)
 P2_WORK=${P2_WORK:-"$HOME/tinygo-p2-work"}
 export P2_WORK
 sdk=${P2_BIN:-"$P2_WORK/llvm15-build/bin"}
+sdk=$(cd "$sdk" && pwd)
+export P2_BIN="$sdk" P2_LLVM_BIN="$sdk"
+# Select the verified branch lowering by probing this compiler. The installed
+# stock SDK still builds the port with its map-specific -Os workaround.
+if "$sdk/clang" --target=p2 -c -x assembler -o /dev/null - <<< 'getrnd r0' 2>/dev/null; then
+    python3 "$port/toolchain/check-overlay.py" "$sdk"
+    export P2_MAP_OPT=-Oz
+else
+    export P2_MAP_OPT=-Os
+fi
 buildroot=${BUILD_ROOT:-"$port/build-delivery"}
 mkdir -p "$buildroot"
 buildroot=$(cd "$buildroot" && pwd)

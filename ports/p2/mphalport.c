@@ -19,6 +19,9 @@ void p2_console_poll_interrupt(void) {
     if (!mp_thread_is_main_thread()) {
         return;
     }
+    #if !P2_PROFILE_THREADED
+    p2_timer_poll();
+    #endif
     uint32_t count = p2_console_interrupt_count;
     if (count != interrupt_seen) {
         interrupt_seen = count;

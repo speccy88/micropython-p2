@@ -1008,7 +1008,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
 
         if skip_it:
             print("skip ", test_file)
-            test_results.append((test_file, "skip", ""))
+            test_results.append((test_file, "skip", "upstream runner excluded this target configuration"))
             return
         elif args.dry_run:
             print("found", test_file)
@@ -1027,7 +1027,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
                 # start-up code (eg boot.py) when preparing to run the next test.
                 pyb.read_until(1, b"raw REPL; CTRL-B to exit\r\n")
             print("skip ", test_file)
-            test_results.append((test_file, "skip", ""))
+            test_results.append((test_file, "skip", "target test emitted SKIP"))
             return
         elif output_mupy == b"SKIP-TOO-LARGE\n":
             print("lrge ", test_file)

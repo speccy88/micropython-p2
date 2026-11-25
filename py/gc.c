@@ -141,6 +141,7 @@ static void gc_mark_subtree(size_t block);
 static void gc_deal_with_stack_overflow(void);
 static void gc_sweep_run_finalisers(bool reset_streams_only);
 static void gc_sweep_free_blocks(void);
+static void gc_finish_collection(bool sweep_all);
 
 // TODO waste less memory; currently requires that all entries in alloc_table have a corresponding block in pool
 static void gc_setup_area(mp_state_mem_area_t *area, void *start, void *end) {
@@ -598,12 +599,22 @@ static void gc_mark_subtree(size_t block)
 
 void gc_sweep_all(void) {
     gc_collect_start_common();
-    gc_collect_end();
+    gc_finish_collection(true);
 }
 
 void gc_collect_end(void) {
+    gc_finish_collection(false);
+}
+
+static void gc_finish_collection(bool sweep_all) {
+    (void)sweep_all;
     gc_deal_with_stack_overflow();
     gc_sweep_run_finalisers(false);
+    #ifdef MICROPY_GC_RESET_QUIESCE
+    if (sweep_all) {
+        MICROPY_GC_RESET_QUIESCE();
+    }
+    #endif
     gc_sweep_free_blocks();
     #if MICROPY_GC_SPLIT_HEAP
     MP_STATE_MEM(gc_last_free_area) = &MP_STATE_MEM(area);

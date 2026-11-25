@@ -8,6 +8,9 @@
 #include "py/pystack.h"
 #include "shared/runtime/pyexec.h"
 #include "drivers/p2resources.h"
+#if !P2_PROFILE_THREADED
+#include "shared/runtime/softtimer.h"
+#endif
 
 extern uint8_t _stack_bottom[], _stack_top[], _heap_start[], _heap_end[];
 #if MICROPY_VFS_FAT
@@ -43,6 +46,9 @@ void p2_gc_collect_saved(void) {
     }
     #endif
     gc_collect_start();
+    #if !P2_PROFILE_THREADED
+    soft_timer_gc_mark_all();
+    #endif
     gc_collect_root(p2_gc_registers, 35);
     #if P2_PROFILE_THREADED
     uint8_t *base = p2_thread_stack_base();
@@ -53,6 +59,18 @@ void p2_gc_collect_saved(void) {
     p2_scan_stack(base, (uintptr_t)p2_gc_registers[35] - (uintptr_t)base);
     gc_collect_end();
 }
+
+#if !P2_PROFILE_THREADED
+// gc_sweep_all calls this after user finalisers, while every hub object is
+// still intact. A finaliser cannot leave an existing pin or driver running.
+void p2_quiesce_devices(void) {
+    p2_timer_reset();
+    #if MICROPY_VFS_FAT
+    p2_storage_reset();
+    #endif
+    p2_drivers_reset();
+}
+#endif
 
 void main(void) {
     for (;;) {
@@ -92,17 +110,16 @@ void main(void) {
         #if !P2_PROFILE_THREADED
         p2_vm_resetting = true;
         #endif
+        mp_sched_lock();
         #if MICROPY_VFS_FAT
         gc_run_reset_finalisers();
         p2_unmount_filesystems();
-        p2_storage_reset();
         #endif
         #if P2_PROFILE_THREADED
         p2_thread_stop_other();
-        #else
-        p2_drivers_reset();
         #endif
         gc_sweep_all();
+        mp_sched_unlock();
         mp_deinit();
         mp_hal_stdout_tx_str("MPY: soft reboot\r\n");
     }

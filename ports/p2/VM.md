@@ -40,6 +40,16 @@ skips user startup scripts for recovery. The upstream raw-paste receiver
 advertises flow control to standard `mpremote`. The serial cog detects the
 selected interrupt byte and the VM cog delivers the pending exception.
 
+On Edge soft reset, the port first rejects new pin, cog and bus claims. A
+selective finaliser pass closes native FAT and LittleFS streams while their
+devices and Python block adapters are still available. The port then syncs
+mounted FAT volumes and unmounts native filesystems. Once user finalisers
+finish, the port releases storage and stops any remaining drivers immediately
+before the collector frees hub objects. An I/O failure during cleanup is printed on the
+console. Ordinary garbage collection keeps upstream finaliser semantics.
+`tests/reset_files.py` checks this order using only fresh volatile PSRAM
+volumes, including unclosed files with buffered data.
+
 Run from `ports/p2` with the RAM image already loaded:
 
 ```console
@@ -51,6 +61,31 @@ The stress program reports heap bytes, C stack usage at the sample, 20 GC
 pause samples (minimum, median and maximum in microseconds), and time for
 a 1000-iteration integer sum. Its pass criteria also include exception
 recovery, recursion limits and successful allocation after heap exhaustion.
+
+## Virtual timers
+
+Edge and lean provide `machine.Timer(-1)`. Virtual timers share the VM
+cog's monotonic counter and upstream soft-timer queue. No dedicated cog,
+pin or P2 interrupt is required. Configure a one-shot or periodic timer
+with `period` in milliseconds, `period` and `tick_hz` together, or
+`freq` in hertz. Resolution is 1 ms and maximum frequency is 1 kHz.
+Callbacks take the timer object and execute as ordinary scheduled Python
+on the VM cog. `hard=True` raises `ValueError`.
+
+```python
+from machine import Timer
+
+timer = Timer(-1, mode=Timer.PERIODIC, period=100, callback=lambda t: print("tick"))
+# Stop future ticks and cancel any pending callback for this timer.
+timer.deinit()
+```
+
+VM loop and event polls service deadlines. A blocking C operation that
+does not poll can delay delivery. Missed periods coalesce into one pending
+callback per timer. A full scheduler queue retries delivery after 1 ms.
+Active timers retain their callbacks through GC and soft reset cancels all
+timers. Run `tests/timer.py` on the device and `tests/timer_reset.py
+--port PORT` from the host to exercise these paths.
 
 To exercise exact native GC roots use a separate test build with
 `CFLAGS_EXTRA=-DP2_TEST_GC_ROOTS=1`. On every reset it prints a mask
@@ -102,3 +137,47 @@ no GC pointers.
 `tests/threaded.py` checks scheduling, lock acquisition, worker capacity,
 and preservation of thread-local buffers while each cog collects. Its JSON
 record includes thread identities and wall time for 25 collections.
+
+On the COM12 board, the worker/GC test returned main ID 1 and worker ID 3.
+The recorded 25-collection loop took 77,684 microseconds. The threaded
+image also passed a 39,969-byte raw-paste upload, interruption, and four
+soft resets with 179,600 free hub-heap bytes at the repeated sample. Six
+additional resets with a live worker allowed the next worker to start.
+See `validation/threaded.json` for the tested image hash and individual
+checks, and `validation/thread-reset.json` for the active-worker resets.
+
+## Roger Loh's five-file native port
+
+The supplied copy of `p2-mp-minimal.zip` has SHA-256
+`9aedcf554e84ea80659eb58c5c2c779d07e6d4524eb32a87992e4151c4ef2443`.
+Its five members carry April 11, 2026 ZIP timestamps. Roger supplied this
+as an overlay for upstream's minimal port. This comparison credits his
+implementation and records the specific decisions adopted here. The new
+port uses the upstream v1.29.0 sources and independently implemented HAL.
+[Original Parallax post](https://forums.parallax.com/discussion/comment/1572778/)
+
+| Archive member | Behavior in the supplied source | Decision in this port |
+| --- | --- | --- |
+| `main.c` | Starts upstream GC and PYSTACK and enters the friendly interpreter once. Its collector scans word slots between two C locals in descending order. The source warns about missing register roots. Its file lexer raises ENOENT and its import-stat hook always reports absent. | Retain the upstream VM and PYSTACK model. Replace stack-local bounds with linker bounds and PTRA, capture registers, scan every stack offset, implement the soft reboot and raw/friendly loops, and route file/import calls to VFS. |
+| `Makefile` | Uses Clang with the P2 target, disables jump tables, uses function/data sections and linker garbage collection, explicitly disables ROM text compression, and freezes a single sample with no long-integer support. Its Mac tool paths, support libraries, default linker script and `loadp2 -PATCH` establish the historical boot contract. | Reuse those target/compiler-size decisions. Pin the shared SDK, use the TinyGo-derived native entry and linker assertions, build support archives from source and freeze selected modules with upstream manifests. The RAM loader understands this image's entry. |
+| `mpconfigport.h` | Enables upstream PYSTACK, compiler and GC in a minimal-feature configuration, defines `alloca` as the compiler builtin, specifies P2-EVAL, and sets a 2048-byte GC heap. The separate PYSTACK has 1024 object slots. Several `sys` features are disabled. | Retain PYSTACK as the solution to VM-local dynamic storage. Audit the v1.29.0 preprocessor paths and reject real C VLAs. The main Python stack has 2048 slots and the collector uses the linker's remaining hub arena. Board/profile definitions establish memory and module availability. |
+| `mphalport.h` | Its millisecond clock returns zero and its interrupt-character setter has an empty body. | Supply a 64-bit GETCT time base, millisecond/microsecond sleep with pending-event processing, and interrupt delivery on the VM cog. |
+| `uart_core.c` | Calls installed libp2 for RX P63 and TX P62. Host input busy-waits on a single receive indication and output emits one byte at a time. | Keep the same pin/baud contract. A dedicated cog handles the Smart Pins, moves bytes through hub rings, and counts interrupt characters while Python runs. |
+
+The ZIP contains no C library, startup assembly, setjmp implementation,
+board linker script, SD driver or native pin/cog modules. The linker recipe
+depends on the versions present in Roger's installed libp2/libc. The ZIP
+does not pin a MicroPython or toolchain commit. Its 160 MHz setting
+provides a clock reference; an independently reproduced historical
+performance number with matching features is unavailable.
+
+Roger's later public discussion reports native v1.28 P2-EVAL pin/CPU work
+and an SDHC demonstration. He describes adapting the ESP32 SD-card model and
+work on alternate bus slots. Those changes go beyond this five-file ZIP.
+Our Edge SD implementation uses the board's shared SPI wiring, alternate
+pin arguments, checked timeouts and upstream FatFs. The Team Oz and
+Rayman archives provide separate historical sources. The public page-25
+request yielded no readable later source in this audit, and the public
+`rogloh` GitHub repository listing contained only `loadp2`.
+[Later discussion](https://forums.parallax.com/discussion/169862/micropython-for-p2/p24)
+[Public GitHub repositories](https://github.com/rogloh?tab=repositories)

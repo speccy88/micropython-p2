@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: MIT
 #include "modp2.h"
 #include "bus/machine_bus.h"
+void p2_poll_borrowed_io(void) {
+    p2_console_poll_interrupt();
+    mp_obj_t exc = MP_STATE_THREAD(mp_pending_exception);
+    if (exc != MP_OBJ_NULL) {
+        MP_STATE_THREAD(mp_pending_exception) = MP_OBJ_NULL;
+        nlr_raise(exc);
+    }
+}
 extern const mp_obj_type_t p2_pwm_type, p2_adc_type, p2_dac_type;
+extern const mp_obj_type_t p2_timer_type;
+extern const mp_obj_type_t p2_driver_type;
+extern const mp_obj_fun_builtin_fixed_t p2_get_driver_obj;
 #if MICROPY_VFS_FAT
 extern const mp_obj_type_t p2_sdcard_type;
 #endif
@@ -12,7 +23,7 @@ static mp_obj_t cycles(void) { return mp_obj_new_int_from_uint(p2_ct()); }
 static MP_DEFINE_CONST_FUN_OBJ_0(cycles_obj, cycles);
 static mp_obj_t owner(mp_obj_t pin) {
     static const qstr names[] = { MP_QSTR_free, MP_QSTR_pin, MP_QSTR_smartpin, MP_QSTR_sd, MP_QSTR_psram, MP_QSTR_console,
-        MP_QSTR_uart, MP_QSTR_spi, MP_QSTR_i2c, MP_QSTR_flash };
+        MP_QSTR_uart, MP_QSTR_spi, MP_QSTR_i2c, MP_QSTR_flash, MP_QSTR_driver };
     return MP_OBJ_NEW_QSTR(names[p2_pin_owner(p2_arg_range(pin, 63))]);
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(owner_obj, owner);
@@ -20,6 +31,8 @@ static const mp_rom_map_elem_t p2_globals[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_p2)},
     {MP_ROM_QSTR(MP_QSTR_SmartPin), MP_ROM_PTR(&p2_smartpin_type)},
     {MP_ROM_QSTR(MP_QSTR_Cog), MP_ROM_PTR(&p2_cog_type)},
+    {MP_ROM_QSTR(MP_QSTR_Driver), MP_ROM_PTR(&p2_driver_type)},
+    {MP_ROM_QSTR(MP_QSTR_get_driver), MP_ROM_PTR(&p2_get_driver_obj)},
     #if MICROPY_VFS_LFS2
     {MP_ROM_QSTR(MP_QSTR_Flash), MP_ROM_PTR(&p2_flash_type)},
     #endif
@@ -40,6 +53,7 @@ static const mp_rom_map_elem_t machine_globals[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_machine)},
     {MP_ROM_QSTR(MP_QSTR_Pin), MP_ROM_PTR(&p2_pin_type)},
     {MP_ROM_QSTR(MP_QSTR_PWM), MP_ROM_PTR(&p2_pwm_type)},
+    {MP_ROM_QSTR(MP_QSTR_Timer), MP_ROM_PTR(&p2_timer_type)},
     {MP_ROM_QSTR(MP_QSTR_ADC), MP_ROM_PTR(&p2_adc_type)},
     {MP_ROM_QSTR(MP_QSTR_DAC), MP_ROM_PTR(&p2_dac_type)},
     #if MICROPY_VFS_FAT

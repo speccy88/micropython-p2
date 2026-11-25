@@ -1,0 +1,40 @@
+{
+  "flat_image_sha256": "081762a271ab4c32eb1846593d767e9bf143eff82f88e6b735ad51a9a145e94e",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "7c934a670aab6ae0c4bd43d7",
+      "nonce": "7c934a670aab6ae0c4bd43d7",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 86576
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 86576
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 86576
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 86576
+    },
+    "tests/media_readonly.py": {
+      "sha256": "ba8eb1d21bf91a98a92b4d6410184494a1c190c4bcdf234c4e8d9d6e487da663",
+      "seconds": 0.75,
+      "passed": true,
+      "stdout": "SD_READ 61132800 512 16384 228854\r\nFAT_ROOT_COUNTS 34 34\r\nJEDEC 0xef7018\r\nFLASH_READ_PASS 256 4096",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

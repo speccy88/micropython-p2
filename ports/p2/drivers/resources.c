@@ -70,6 +70,7 @@ void p2_drivers_reset(void) {
     p2_buses_reset();
     #endif
     p2_cogs_reset();
+    p2_hubdrivers_reset();
     p2_psram_reset();
     for (unsigned pin = 0; pin < 64; ++pin) {
         if (claims[pin]) {

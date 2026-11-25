@@ -11,7 +11,7 @@
 #define P2_CLOCK_HZ 160000000u
 #endif
 enum { P2_OWNER_FREE, P2_OWNER_PIN, P2_OWNER_SMARTPIN, P2_OWNER_SD, P2_OWNER_PSRAM, P2_OWNER_CONSOLE,
-    P2_OWNER_UART, P2_OWNER_SPI, P2_OWNER_I2C, P2_OWNER_FLASH };
+    P2_OWNER_UART, P2_OWNER_SPI, P2_OWNER_I2C, P2_OWNER_FLASH, P2_OWNER_DRIVER };
 int p2_pins_claim(const uint8_t *pins, size_t count, uint8_t owner);
 void p2_pins_release(const uint8_t *pins, size_t count, uint8_t owner);
 uint8_t p2_pin_owner(unsigned pin);
@@ -25,6 +25,7 @@ static inline bool p2_on_vm_cog(void) {
 }
 void p2_drivers_reset(void);
 void p2_cogs_reset(void);
+void p2_hubdrivers_reset(void);
 void p2_psram_reset(void);
 static inline uint32_t p2_ct(void) {
     uint32_t v;

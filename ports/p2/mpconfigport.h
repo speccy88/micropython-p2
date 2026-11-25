@@ -14,6 +14,7 @@
 #define MICROPY_PY_SYS_PLATFORM "p2"
 #define MICROPY_CONFIG_ROM_LEVEL MICROPY_CONFIG_ROM_LEVEL_CORE_FEATURES
 #define MICROPY_ENABLE_COMPILER (1)
+#define MICROPY_ENABLE_SOURCE_LINE (1)
 #define MICROPY_ENABLE_GC (1)
 #define MICROPY_ENABLE_FINALISER (1)
 #define MICROPY_ENABLE_PYSTACK (1)
@@ -33,6 +34,7 @@
 #define MICROPY_VFS (1)
 #define MICROPY_FATFS_RPATH (2)
 #define MICROPY_FATFS_NORTC (1)
+#define MICROPY_FATFS_ENABLE_LFN (2)
 #if MICROPY_VFS_FAT
 #define MICROPY_GC_RESET_FINALISER(obj) p2_is_filesystem_stream(obj)
 int p2_is_filesystem_stream(const void *obj);
@@ -44,6 +46,10 @@ int p2_is_filesystem_stream(const void *obj);
 #define MICROPY_PY_SYS_STDIO_BUFFER (1)
 #define MICROPY_PY_JSON (1)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW (1)
+#define MICROPY_PY_BUILTINS_BYTES_HEX (1)
+#define MICROPY_PY_ARRAY_SLICE_ASSIGN (1)
+#define MICROPY_PY_BUILTINS_ROUND_INT (1)
+#define MICROPY_PY_SYS_MAXSIZE (1)
 #define MICROPY_PY_MICROPYTHON_STACK_USE (1)
 #if P2_PROFILE_THREADED
 #define MICROPY_PY_THREAD (1)
@@ -74,6 +80,10 @@ void p2_thread_pystack_init(void);
 #define MICROPY_PY_ASYNCIO (1)
 #endif
 #define MICROPY_VM_HOOK_LOOP p2_console_poll_interrupt();
+#if !P2_PROFILE_THREADED
+#define MICROPY_GC_RESET_QUIESCE() p2_quiesce_devices()
+void p2_quiesce_devices(void);
+#endif
 
 typedef long mp_off_t;
 uintptr_t p2_stack_pointer(void);

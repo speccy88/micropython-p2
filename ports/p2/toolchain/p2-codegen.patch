@@ -1,0 +1,210 @@
+diff --git a/llvm/lib/Target/P2/AsmParser/P2AsmParser.cpp b/llvm/lib/Target/P2/AsmParser/P2AsmParser.cpp
+index 5476dd7..71f2cc1 100644
+--- a/llvm/lib/Target/P2/AsmParser/P2AsmParser.cpp
++++ b/llvm/lib/Target/P2/AsmParser/P2AsmParser.cpp
+@@ -819,9 +819,24 @@ bool P2AsmParser::tryParsePTRxOperand(OperandVector &Operands, StringRef Mnemoni
+         return true;
+     }
+ 
+-    const MCConstantExpr *ptrx_expr = MCConstantExpr::create(expr, getContext());
+-    Operands.push_back(P2Operand::CreateImm(ptrx_expr, S, E));
+-    Parser.Lex(); // Eat register token.
++    Parser.Lex(); // consume the final register or update sign
++    if (Parser.getTok().is(AsmToken::LBrac)) {
++        Parser.Lex();
++        int64_t Count;
++        if (Parser.parseAbsoluteExpression(Count))
++            return true;
++        if (Count < 1 || Count > 16)
++            return Error(S, "pointer update must be in [1, 16]");
++        if (!Parser.getTok().is(AsmToken::RBrac))
++            return Error(Parser.getTok().getLoc(), "expected ']' after pointer update");
++        E = Parser.getTok().getEndLoc();
++        Parser.Lex();
++        bool Decrement = (expr & 31) == 31;
++        unsigned Field = Decrement ? (-Count & 31) : (Count & 15);
++        expr = (expr & ~31) | Field;
++    }
++    Operands.push_back(P2Operand::CreateImm(
++        MCConstantExpr::create(expr, getContext()), S, E));
+     return false;
+ }
+ 
+diff --git a/llvm/lib/Target/P2/MCTargetDesc/P2InstPrinter.cpp b/llvm/lib/Target/P2/MCTargetDesc/P2InstPrinter.cpp
+index ddc278c..4ecc547 100644
+--- a/llvm/lib/Target/P2/MCTargetDesc/P2InstPrinter.cpp
++++ b/llvm/lib/Target/P2/MCTargetDesc/P2InstPrinter.cpp
+@@ -90,45 +90,28 @@ void P2InstPrinter::printOperand(const MCInst *MI, unsigned OpNum, raw_ostream &
+         // handle random access instructions which might use a PTRA expression
+         if (isMIRandomAccess(MI) &&
+             OpNum == P2::getSNum(MII.get(MI->getOpcode()).TSFlags)) {
+-            switch (Op.getImm()) {
+-                case P2::PTRA_POSTINC: 
+-                    O << "ptra++";
+-                    return;
+-                case P2::PTRB_POSTINC: 
+-                    O << "ptrb++";
+-                    return;
+-                case P2::PTRA_POSTDEC: 
+-                    O << "ptra--";
+-                    return;
+-                case P2::PTRB_POSTDEC: 
+-                    O << "ptrb--";
+-                    return;
+-                case P2::PTRA_PREINC: 
+-                    O << "++ptra";
+-                    return;
+-                case P2::PTRB_PREINC: 
+-                    O << "++ptrb";
+-                    return;
+-                case P2::PTRA_PREDEC:
+-                    O << "--ptra";
+-                    return;
+-                case P2::PTRB_PREDEC: 
+-                    O << "--ptrb";
+-                    return;
+-                default:
+-                    break;
+-            }
+-
+-            // this is a D operand, so don't try to convert to a special immediate
+-            bool OpIsD = P2::getDNum(MII.get(MI->getOpcode()).TSFlags) == OpNum;
+-            if (!OpIsD && (Op.getImm() & 0x1c0) == P2::PTRA_INDEX6) {
+-                int idx = Op.getImm() & 0x3f;
+-                if (idx > 31) idx -= 64;
+-
+-                O << "ptra[" << idx << "]";
++            const int64_t Enc = Op.getImm();
++            if (isUInt<9>(Enc) && (Enc & 0x100)) {
++                const char *Ptr = (Enc & 0x80) ? "ptrb" : "ptra";
++                if (!(Enc & 0x40)) {
++                    // [0] preserves the distinction from a register operand.
++                    O << Ptr << '[' << SignExtend32<6>(Enc & 63) << ']';
++                } else {
++                    bool Post = Enc & 0x20;
++                    int Inc = SignExtend32<5>(Enc & 31);
++                    // Five-bit zero encodes a positive update of 16.
++                    unsigned Count = Inc ? unsigned(Inc < 0 ? -Inc : Inc) : 16;
++                    const char *Update = Inc < 0 ? "--" : "++";
++                    if (!Post)
++                        O << Update;
++                    O << Ptr;
++                    if (Post)
++                        O << Update;
++                    if (Count != 1)
++                        O << '[' << Count << ']';
++                }
+                 return;
+             }
+-
+             // this is a plain immediate, it'll print below
+         }
+ 
+diff --git a/llvm/lib/Target/P2/P2InstrInfo.cpp b/llvm/lib/Target/P2/P2InstrInfo.cpp
+index 5021e2a..01e0054 100644
+--- a/llvm/lib/Target/P2/P2InstrInfo.cpp
++++ b/llvm/lib/Target/P2/P2InstrInfo.cpp
+@@ -659,6 +659,20 @@ bool P2InstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
+     auto *Before = MI.getPrevNode();
+     auto End = std::next(MI.getIterator());
+     switch(MI.getOpcode()) {
++        case P2::BRCMP: {
++            const MachineOperand &Rhs = MI.getOperand(2);
++            bool Signed = MI.getOperand(3).getImm();
++            unsigned Compare = Signed
++                ? (Rhs.isImm() ? P2::CMPSri : P2::CMPSrr)
++                : (Rhs.isImm() ? P2::CMPri : P2::CMPrr);
++            BuildMI(*MBB, MI, MI.getDebugLoc(), get(Compare), P2::SW)
++                .add(MI.getOperand(1)).add(Rhs)
++                .addImm(P2::ALWAYS).addImm(P2::WCZ);
++            BuildMI(*MBB, MI, MI.getDebugLoc(), get(P2::JMP))
++                .add(MI.getOperand(0)).addReg(P2::SW).add(MI.getOperand(4));
++            MI.eraseFromParent();
++            break;
++        }
+         case P2::ADD64ri:
+         case P2::ADD64rr:
+             expand_ADD64(MI);
+diff --git a/llvm/lib/Target/P2/P2InstrInfo.td b/llvm/lib/Target/P2/P2InstrInfo.td
+index 902f680..4ca520b 100644
+--- a/llvm/lib/Target/P2/P2InstrInfo.td
++++ b/llvm/lib/Target/P2/P2InstrInfo.td
+@@ -348,44 +348,32 @@ defm REP    : P2InstLIDSm<0b11001101, "rep">;
+ 
+ defm TEST   : P2InstCZIDSm<0b0111110, "test">;
+ 
+-// Patterns for various branch conditions and types of branch instructions
+-// unsigned comparison
+-def : Pat<(brcc SETUEQ, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_z)>;
+-def : Pat<(brcc SETUEQ, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_z)>;
+-
+-def : Pat<(brcc SETUNE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nz)>;
+-def : Pat<(brcc SETUNE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_nz)>;
+-
+-def : Pat<(brcc SETULT, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_c)>;
+-def : Pat<(brcc SETULT, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_c)>;
+-
+-def : Pat<(brcc SETUGT, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nc_and_nz)>;
+-def : Pat<(brcc SETUGT, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_nc_and_nz)>;
+-
+-def : Pat<(brcc SETULE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_c_or_z)>;
+-def : Pat<(brcc SETULE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_c_or_z)>;
+-
+-def : Pat<(brcc SETUGE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nc)>;
+-def : Pat<(brcc SETUGE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPri P2GPR:$lhs, imm:$rhs, always, wcz), if_nc)>;
+-
+-// signed comparison
+-def : Pat<(brcc SETEQ, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_z)>;
+-def : Pat<(brcc SETEQ, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_z)>;
+-
+-def : Pat<(brcc SETNE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nz)>;
+-def : Pat<(brcc SETNE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_nz)>;
+-
+-def : Pat<(brcc SETLT, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_c)>;
+-def : Pat<(brcc SETLT, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_c)>;
+-
+-def : Pat<(brcc SETGE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nc)>;
+-def : Pat<(brcc SETGE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_nc)>;
+-
+-def : Pat<(brcc SETGT, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_nc_and_nz)>;
+-def : Pat<(brcc SETGT, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_nc_and_nz)>;
++// C/Z is a single physical resource. Keep the compare in the terminator
++// until post-RA expansion so a late SELECTCC cannot overwrite it.
++let isBranch = 1, isTerminator = 1, Defs = [SW], hasSideEffects = 0 in
++def BRCMP : Pseudo<(outs), (ins reljmptarget:$dest, P2GPR:$lhs,
++    P2RegOrImm32:$rhs, i32imm:$signed, i32imm:$cc),
++    "brcmp $dest, $lhs, $rhs, $signed, $cc">;
++
++multiclass cmpbranch<CondCode pred, int signedcmp, int cc> {
++    def : Pat<(brcc pred, P2GPR:$lhs, P2GPR:$rhs, bb:$dest),
++              (BRCMP bb:$dest, P2GPR:$lhs, P2GPR:$rhs, signedcmp, cc)>;
++    def : Pat<(brcc pred, P2GPR:$lhs, imm:$rhs, bb:$dest),
++              (BRCMP bb:$dest, P2GPR:$lhs, imm:$rhs, signedcmp, cc)>;
++}
+ 
+-def : Pat<(brcc SETLE, P2GPR:$lhs, P2GPR:$rhs, bb:$target), (JMP bb:$target, (CMPSrr P2GPR:$lhs, P2GPR:$rhs, always, wcz), if_c_or_z)>;
+-def : Pat<(brcc SETLE, P2GPR:$lhs, imm:$rhs, bb:$target), (JMP bb:$target, (CMPSri P2GPR:$lhs, imm:$rhs, always, wcz), if_c_or_z)>;
++defm : cmpbranch<SETUEQ, 0, if_z>;
++defm : cmpbranch<SETUNE, 0, if_nz>;
++defm : cmpbranch<SETULT, 0, if_c>;
++defm : cmpbranch<SETUGT, 0, if_nc_and_nz>;
++defm : cmpbranch<SETULE, 0, if_c_or_z>;
++defm : cmpbranch<SETUGE, 0, if_nc>;
++defm : cmpbranch<SETEQ, 1, if_z>;
++defm : cmpbranch<SETNE, 1, if_nz>;
++defm : cmpbranch<SETLT, 1, if_c>;
++defm : cmpbranch<SETGE, 1, if_nc>;
++defm : cmpbranch<SETGT, 1, if_nc_and_nz>;
++defm : cmpbranch<SETLE, 1, if_c_or_z>;
+ 
+ // if (c) branch => jump if not 0
+ def : Pat<(brcond P2GPR:$c, bb:$target), (TJNZri P2GPR:$c, bb:$target, always)>;
+@@ -623,6 +611,8 @@ let cz = 0b01 in defm TESTBNz   : P2InstCZIDS2im<0b0100001, "testbn">;
+ // no multiclass, since this is an output instead of an input
+ def COGIDr      : P2InstCLD<0b1101011, 0b000000001, 0b0, (outs P2GPR:$d), (ins), "cogid $d">;
+ def GETCT       : P2InstCZD<0b1101011, 0b000011010, (outs P2GPR:$d), (ins), "getct $d">;
++let hasSideEffects = 1 in
++def GETRND : P2InstCZD<0b1101011, 0b000011011, (outs P2GPR:$d), (ins), "getrnd $d">;
+ 
+ defm COGINIT    : P2InstCLIDSm<0b1100111, "coginit">;
+ defm COGSTOP    : P2InstLDm<0b1101011, 0b000000011, "cogstop">;

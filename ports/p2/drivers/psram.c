@@ -66,12 +66,6 @@ static void check_ticks(uint32_t elapsed) {
 // a word transaction. No ISR or other cog is permitted to change the RAM pins.
 // Long transfers poll for Ctrl-C, without running Python callbacks while a hub
 // buffer is borrowed. last_complete counts destination bytes confirmed valid.
-static void poll_abort(void) {
-    p2_console_poll_interrupt();
-    if (MP_STATE_THREAD(mp_pending_exception) != MP_OBJ_NULL) {
-        mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_AND_EXCEPTIONS);
-    }
-}
 static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool record) {
     size_t done = 0;
     unsigned budget = 0;
@@ -86,10 +80,17 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
             check_ticks(pair >> 32);
             word = (uint32_t)pair;
         }
-        for (unsigned i = 0; i < n; ++i) {
-            unsigned shift = (lane + i) * 8;
-            if (write) { word = (word & ~(0xffu << shift)) | ((uint32_t)buf[done + i] << shift); }
-            else { buf[done + i] = word >> shift; }
+        if (n == sizeof(word)) {
+            // P2 and the four-bank word layout are little-endian. The hub
+            // staging address may be unaligned (e.g. memoryview[1:]).
+            if (write) { __builtin_memcpy(&word, buf + done, sizeof(word)); }
+            else { __builtin_memcpy(buf + done, &word, sizeof(word)); }
+        } else {
+            for (unsigned i = 0; i < n; ++i) {
+                unsigned shift = (lane + i) * 8;
+                if (write) { word = (word & ~(0xffu << shift)) | ((uint32_t)buf[done + i] << shift); }
+                else { buf[done + i] = word >> shift; }
+            }
         }
         if (write) {
             __asm__ volatile ("stalli" ::: "memory");
@@ -100,7 +101,7 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
         done += n;
         addr += n;
         if (record) { last_complete += n; }
-        if (++budget == 64) { budget = 0; poll_abort(); }
+        if (++budget == 64) { budget = 0; p2_poll_borrowed_io(); }
     }
 }
 static mp_obj_t ram_make_new(const mp_obj_type_t *type, size_t n, size_t nk, const mp_obj_t *args) {
@@ -118,6 +119,7 @@ static mp_obj_t ram_alloc(mp_obj_t obj, mp_obj_t amount) {
     memory_obj_t *child = mp_obj_malloc_with_finaliser(memory_obj_t, &p2_psram_type);
     child->closed = true;
     child->region = NULL;
+    checked(obj); // Allocation may run a Python finaliser that closes the root.
     extent_t *slot = NULL;
     uint32_t start = 0;
     for (;;) {
@@ -166,9 +168,11 @@ static MP_DEFINE_CONST_FUN_OBJ_3(readinto_obj, ram_readinto);
 static MP_DEFINE_CONST_FUN_OBJ_3(write_obj, ram_write);
 static mp_obj_t ram_read(mp_obj_t obj, mp_obj_t offset, mp_obj_t amount) {
     unsigned off = p2_arg_range(offset, CAPACITY), size = p2_arg_range(amount, CAPACITY);
-    uint32_t addr = span(checked(obj), off, size);
+    span(checked(obj), off, size);
     vstr_t v;
     vstr_init_len(&v, size);
+    // GC finalisers can close this handle or change raw region ownership.
+    uint32_t addr = span(checked(obj), off, size);
     last_complete = 0;
     transfer(addr, (uint8_t *)v.buf, size, false, true);
     return mp_obj_new_bytes_from_vstr(&v);
@@ -185,7 +189,7 @@ static mp_obj_t ram_fill(size_t n, const mp_obj_t *args) {
         unsigned chunk = len - pos < sizeof(tile) ? len - pos : sizeof(tile);
         transfer(addr + pos, tile, chunk, true, true);
         pos += chunk;
-        poll_abort();
+        p2_poll_borrowed_io();
     }
     return mp_obj_new_int_from_uint(len);
 }
@@ -204,7 +208,7 @@ static mp_obj_t ram_copy(size_t n, const mp_obj_t *args) {
         transfer(src + pos, tile, chunk, false, false);
         transfer(dest + pos, tile, chunk, true, true);
         left -= chunk;
-        poll_abort();
+        p2_poll_borrowed_io();
     }
     return mp_obj_new_int_from_uint(len);
 }

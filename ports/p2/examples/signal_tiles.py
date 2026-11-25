@@ -1,8 +1,8 @@
 # Store and check a 1 MiB synthetic signal with a 512-byte hub staging buffer.
 from p2 import PSRAM
 ram = PSRAM()
-region = ram.alloc(1024 * 1024)
 tile = bytearray(512)
+region = ram.alloc(1024 * 1024)
 try:
     for pos in range(0, region.capacity(), len(tile)):
         index = pos // len(tile)

@@ -1,0 +1,47 @@
+{
+  "flat_image_sha256": "aa362fb3854c04603ebddf26e40cd0e95eb5302ee76092459b903c6e95b6690a",
+  "serial_endpoint": "socket://127.0.0.1:8122",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "371bdce8326d1b7f3e0e860a",
+      "nonce": "371bdce8326d1b7f3e0e860a",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 93680
+    },
+    "tests/drivers/bounds32.py": {
+      "sha256": "472fbde75655ba1d6ab8e63217b9f33a4d73d29338dc649f785d89137bbbe19f",
+      "seconds": 0.4690000000409782,
+      "passed": true,
+      "stdout": "P2_PSRAM_BOUNDARY_PASS 33554432 10 {'max_cycles': 214, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 7}",
+      "stderr": ""
+    },
+    "tests/drivers/factorial_bench.py": {
+      "sha256": "2070a57abadca65700c007f9ea2e6bbe41189cdea2e45cbbb329999d86d8c76b",
+      "seconds": 10.234999999869615,
+      "passed": true,
+      "stdout": "P2_FACTORIAL 13697 10000 160000000",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

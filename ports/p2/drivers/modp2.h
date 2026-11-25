@@ -5,6 +5,11 @@
 #include "py/mperrno.h"
 #include "p2resources.h"
 extern const mp_obj_type_t p2_pin_type, p2_smartpin_type, p2_psram_type, p2_cog_type;
+// At a transfer boundary, Ctrl-C may unwind this native frame. Calling
+// arbitrary scheduled Python while a resizable hub buffer is borrowed
+// would invalidate the pointer. The single driver VM runs callbacks after
+// returning to bytecode. Compute-only threaded builds exclude these drivers.
+void p2_poll_borrowed_io(void);
 static inline unsigned p2_arg_range(mp_obj_t obj, unsigned max) {
     mp_int_t n = mp_obj_get_int(obj);
     if (n < 0 || (mp_uint_t)n > max) {

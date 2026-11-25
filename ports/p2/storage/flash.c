@@ -149,9 +149,9 @@ static mp_obj_t transfer(size_t n, const mp_obj_t *args, bool writing) {
         remaining -= chunk;
         if (p2_console_interrupt_count != interrupt) {
             // Each complete chunk has released CS. Leave the handle reusable
-            // before delivering a Python exception or invoking callbacks.
+            // before delivering a Python exception.
             s->busy = false;
-            mp_event_handle_nowait();
+            p2_poll_borrowed_io();
             return MP_OBJ_NEW_SMALL_INT(-MP_EINTR);
         }
     }
@@ -173,7 +173,9 @@ static mp_obj_t ioctl(mp_obj_t o, mp_obj_t op, mp_obj_t arg) {
         case MP_BLOCKDEV_IOCTL_BLOCK_COUNT: return MP_OBJ_NEW_SMALL_INT(s->length / SECTOR);
         case MP_BLOCKDEV_IOCTL_BLOCK_SIZE: return MP_OBJ_NEW_SMALL_INT(SECTOR);
         case MP_BLOCKDEV_IOCTL_BLOCK_ERASE: {
-            uint32_t addr = offset(s, mp_obj_get_int(arg), 0, SECTOR);
+            mp_int_t block = mp_obj_get_int(arg);
+            check(s);
+            uint32_t addr = offset(s, block, 0, SECTOR);
             return MP_OBJ_NEW_SMALL_INT(s->writable ? -erase(addr) : -MP_EROFS);
         }
         default: return mp_const_none;

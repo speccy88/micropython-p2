@@ -391,12 +391,10 @@ static mp_obj_t machine_i2c_readinto(size_t n_args, const mp_obj_t *args) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("I2C operation not supported"));
     }
 
-    // get the buffer to read into
+    // Normalize options before borrowing a buffer; truth testing may run Python.
+    bool nack = (n_args == 2) ? true : mp_obj_is_true(args[2]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-
-    // work out if we want to send a nack at the end
-    bool nack = (n_args == 2) ? true : mp_obj_is_true(args[2]);
 
     // do the read
     int ret = i2c_p->read(self, bufinfo.buf, bufinfo.len, nack);
@@ -447,9 +445,9 @@ MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_i2c_readfrom_obj, 3, 4, machine_i2c_
 static mp_obj_t machine_i2c_readfrom_into(size_t n_args, const mp_obj_t *args) {
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_int_t addr = mp_obj_get_int(args[1]);
+    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[2], &bufinfo, MP_BUFFER_WRITE);
-    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
     int ret = mp_machine_i2c_readfrom(self, addr, bufinfo.buf, bufinfo.len, stop);
     if (ret < 0) {
         mp_raise_OSError(-ret);
@@ -461,9 +459,9 @@ MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_i2c_readfrom_into_obj, 3, 4, machine
 static mp_obj_t machine_i2c_writeto(size_t n_args, const mp_obj_t *args) {
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_int_t addr = mp_obj_get_int(args[1]);
+    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[2], &bufinfo, MP_BUFFER_READ);
-    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
     int ret = mp_machine_i2c_writeto(self, addr, bufinfo.buf, bufinfo.len, stop);
     if (ret < 0) {
         mp_raise_OSError(-ret);
@@ -477,13 +475,12 @@ static mp_obj_t machine_i2c_writevto(size_t n_args, const mp_obj_t *args) {
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_int_t addr = mp_obj_get_int(args[1]);
 
+    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
+
     // Get the list of data buffer(s) to write
     size_t nitems;
     const mp_obj_t *items;
     mp_obj_get_array(args[2], &nitems, (mp_obj_t **)&items);
-
-    // Get the stop argument
-    bool stop = (n_args == 3) ? true : mp_obj_is_true(args[3]);
 
     // Extract all buffer data, skipping zero-length buffers
     size_t alloc = nitems == 0 ? 1 : nitems;

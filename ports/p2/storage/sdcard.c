@@ -5,7 +5,7 @@
 #include "py/runtime.h"
 #include "py/mperrno.h"
 #include "extmod/vfs.h"
-#include "drivers/p2resources.h"
+#include "drivers/modp2.h"
 
 #if MICROPY_VFS_FAT
 enum { MISO, MOSI, CS, CLK };
@@ -123,8 +123,9 @@ static mp_obj_t sd_make(const mp_obj_type_t *type, size_t n, size_t nk, const mp
     if (n) {
         mp_obj_t *items;
         mp_obj_get_array_fixed_n(args[0], 4, &items);
+        mp_obj_t values[] = {items[0], items[1], items[2], items[3]};
         for (unsigned i = 0; i < 4; ++i) {
-            mp_int_t pin = mp_obj_get_int(items[i]);
+            mp_int_t pin = mp_obj_get_int(values[i]);
             if ((mp_uint_t)pin >= 64 || (pin >= 58 && pin != 58 + (mp_int_t)i)) {
                 mp_raise_ValueError(MP_ERROR_TEXT("invalid SD pin mapping"));
             }
@@ -133,6 +134,7 @@ static mp_obj_t sd_make(const mp_obj_type_t *type, size_t n, size_t nk, const mp
     }
     p2_sd_t *s = mp_obj_malloc(p2_sd_t, type);
     for (unsigned i = 0; i < 4; ++i) { s->pins[i] = pins[i]; }
+    if (MP_STATE_PORT(p2_sd_active)) { mp_raise_OSError(MP_EBUSY); }
     int err = p2_pins_claim(pins, 4, P2_OWNER_SD);
     if (err) { mp_raise_OSError(err == -2 ? MP_EBUSY : MP_EINVAL); }
     err = init_card(s);
@@ -164,10 +166,10 @@ void p2_storage_mount(void) {
 }
 static mp_obj_t blocks(mp_obj_t self, mp_obj_t block, mp_obj_t data, int write) {
     p2_sd_t *s = MP_OBJ_TO_PTR(self);
-    if (s != MP_STATE_PORT(p2_sd_active)) { mp_raise_OSError(MP_ENODEV); }
+    mp_int_t index = mp_obj_get_int(block);
     mp_buffer_info_t buf;
     mp_get_buffer_raise(data, &buf, write ? MP_BUFFER_READ : MP_BUFFER_WRITE);
-    mp_int_t index = mp_obj_get_int(block);
+    if (s != MP_STATE_PORT(p2_sd_active)) { mp_raise_OSError(MP_ENODEV); }
     unsigned count = buf.len / 512;
     if (index < 0 || buf.len % 512 || !count || (uint32_t)index >= s->sectors ||
         count > s->sectors - (uint32_t)index) { mp_raise_ValueError(MP_ERROR_TEXT("invalid SD block range")); }
@@ -187,8 +189,7 @@ static mp_obj_t blocks(mp_obj_t self, mp_obj_t block, mp_obj_t data, int write) 
         deselect(s);
         if (err) { mp_raise_OSError(err); }
         if (i + 1 < count) {
-            mp_event_handle_nowait();
-            if (s != MP_STATE_PORT(p2_sd_active)) { mp_raise_OSError(MP_ENODEV); }
+            p2_poll_borrowed_io();
         }
     }
     return MP_OBJ_NEW_SMALL_INT(0);
@@ -198,8 +199,9 @@ static mp_obj_t sd_write(mp_obj_t s, mp_obj_t i, mp_obj_t b) { return blocks(s, 
 static mp_obj_t sd_ioctl(mp_obj_t self, mp_obj_t op, mp_obj_t arg) {
     (void)arg;
     p2_sd_t *s = MP_OBJ_TO_PTR(self);
+    int operation = mp_obj_get_int(op);
     if (s != MP_STATE_PORT(p2_sd_active)) { mp_raise_OSError(MP_ENODEV); }
-    switch (mp_obj_get_int(op)) {
+    switch (operation) {
         case MP_BLOCKDEV_IOCTL_INIT: case MP_BLOCKDEV_IOCTL_SYNC: break;
         case MP_BLOCKDEV_IOCTL_DEINIT: p2_storage_reset(); break;
         case MP_BLOCKDEV_IOCTL_BLOCK_COUNT: return mp_obj_new_int_from_uint(s->sectors);

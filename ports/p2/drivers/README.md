@@ -38,13 +38,18 @@ The device handle refuses direct access into an allocated region. Nested allocat
 
 Python buffers, the GC heap and the VM stack are in hub RAM. External offsets require read/write transactions. Filesystems retain their block-device reference while mounted. Unmount a volume before closing its region. Its contents are volatile. After a soft reset the allocator is empty and previously issued handles are gone.
 
-The native probe saved, tested and restored distinct words at offsets 0 and 33,554,428. It measured 138 cycles for one write and 214 cycles for one read at 160 MHz (0.86 and 1.34 microseconds). Both include instructions outside the active chip-select interval and are below the 1,280-cycle acceptance limit. Four devices returned manufacturer 0x0d and known-good-die 0x5d. Those latencies measure individual bus transactions. Use the Python test's `write_us` and `read_us` for its 8 × 513-byte transfers. A burst driver would need to bound chip-select duration and handle device page boundaries. A service cog would cost one of six application cogs.
+The native probe saved, tested and restored distinct words at offsets 0 and 33,554,428. It measured 138 cycles for one write and 214 cycles for one read at 160 MHz (0.86 and 1.34 microseconds). Both include instructions outside the active chip-select interval and are below the 1,280-cycle acceptance limit. Four devices returned manufacturer 0x0d and known-good-die 0x5d. Those latencies measure individual bus transactions. Use the Python test's `write_us` and `read_us` for its 8 × 513-byte transfers. The shipped service uses the VM cog and one bounded chip-select interval per word. A future burst implementation would need measured chip-select margins at page boundaries. A dedicated service-cog design would trade one of six application cogs for concurrency and would need a measured mailbox round-trip cost.
 
 One COM12 API run completed 997 GC/PSRAM/driver iterations over five seconds.
 Eight 513-byte writes took 7,151 µs and reads took 7,254 µs (0.55 and 0.54
 MiB/s). The sequence verified unaligned RMW, forward and backward overlapping
 copies, closed handles and raw/allocated region exclusion. See the per-script
 output in [the Edge acceptance capture](../validation/edge.json).
+
+A second hardware test wrote ten distinctive seven-byte vectors across the
+full 32 MiB, including unaligned transfers spanning 8, 16 and 24 MiB and the
+final byte. It waited 100 ms, read them in reverse order, restored and then
+checked the prior contents. [Boundary and retention capture](../validation/edge-boundaries.json)
 
 ## Typed external arrays
 
@@ -135,6 +140,37 @@ For example, `SmartPin(0, SmartPin.REPOSITORY, 123)` stores a value inside the S
 `p2.Cog(period_us)` launches the shipped PASM2 counter with a period of 1..1,000,000 microseconds. Read its hardware cog with `id()`, a wrapping 32-bit counter with `count()`, and stop it with `stop()`. The code is a linked, long-aligned, firmware-resident HUBEXEC function. The host passes the permanent hub mailbox address in PTRA using SETQ followed by COGINIT in HUBEXEC_NEW mode. The first three mailbox longs are ready, count and interval in cycles. The VM waits up to 10 ms for ready. A missing free cog raises EBUSY. Startup timeout stops that cog before releasing the slot. Stopping is idempotent. Access after stop raises ENODEV.
 
 The counter uses one cog, six scratch registers, CT1, zero pins, zero hardware locks, zero LUT code, no hub stack, and a 16-byte static slot including host bookkeeping. Up to six slots are provisioned (96 hub bytes). The code and mailboxes are outside the GC heap and have fixed lifetimes. In particular, GC may run while the cog writes its aligned 32-bit count. The driver never follows Python object references. It has no Python callback or dynamic binary loader. Build it with the same Clang/P2 target as the firmware. `tests/drivers/build-probe.sh` also builds this exact source into the native probe.
+
+## Loadable HUBEXEC drivers
+
+`p2.Driver(image, pins=())` launches trusted, position-independent PASM2 in one spare cog on the Edge and lean profiles. The image must be immutable Python `bytes`. The loader checks its header and checksum, copies the code to long-aligned hub memory and appends a zero-initialized mailbox of fixed size. Python can access only the mailbox. Each running driver occupies one of six registry roots so GC keeps its entire executable and mailbox alive, even if Python drops the last handle. Recover the same handle with `p2.get_driver(cog_id)`. A driver runs until `stop()` or soft reset. Both stop the cog before clearing its pin claims and registry entry. After `stop()`, drop the handle to make its hub allocation collectible.
+
+| Field or method | Meaning |
+| --- | --- |
+| Image header | 24 little-endian bytes, Python struct format `<4sBBHIIII`. Magic `P2D1`, ABI 1, flags 0, header size 24, code length in bytes, entry byte offset, mailbox word count, FNV-1a 32-bit checksum over the first 20 header bytes followed by code. The complete file has exactly 24 + code length bytes. |
+| Code and entry | 4..4,096 bytes, divisible by four. The entry offset is long-aligned and inside the code. Launch uses HUBEXEC_NEW and SETQ to supply PTRA. There is no preloaded LUT, C stack or MicroPython native-module ABI. |
+| PTRA | Start of 4..256 contiguous, long-aligned mailbox words (16..1,024 bytes). Set word 0 to 1 within 10 ms. A timeout stops the cog and releases its claims. |
+| Word 1 | Host request sequence, initially zero. Write inputs before publishing a new sequence. The driver handles each changed sequence exactly once. |
+| Words 2 and 3 | Driver-completed sequence and driver-defined status. Write results, then status, then the completed sequence. A host checks completion before reading results or reusing input space. |
+| Words 4 onward | Driver-specific payload of little-endian 32-bit words, with ownership of each field defined by its driver. |
+| `d.id()`, `d.stop()` | Hardware ID 2..7. Stop is idempotent. Mailbox access after stop raises `ENODEV`. |
+| `d.word(i)`, `d.word(i, value)` | Read one word or publish an unsigned 32-bit word. The host can write word 1 and words 4 onward. Aligned individual accesses are atomic. |
+| `d.write(i, buffer)`, `d.readinto(i, buffer)` | Copy whole words starting at word index `i`. Return byte count. The buffer length must be divisible by four and fit the mailbox. Bulk writes start at word 4 or later. The driver protocol controls synchronization across multiple words. |
+| `pins=(...)` | Zero to eight distinct configurable pins, claimed together. Each reports owner `driver`. Group conflicts or exhaustion roll back. Application drivers share cogs 2–7 with the built-in counter and auxiliary UART. |
+
+The assembler must use a single long-aligned executable section named `.p2driver` and export `p2_driver_entry`. The host packer checks a P2 little-endian ELF32 relocatable object, its named entry, section permissions, length, mailbox bounds, relocations and undefined symbols. Use relative branches and derive hub addresses from PTRA. The instruction stream executes with unrestricted P2 hardware access. The packer cannot infer the target of handwritten numeric addresses or indirect branches. Authors must keep writes inside their mailbox and claimed pins, keep the cog alive until the host stops it, and avoid touching other cogs, locks, board storage or VM memory. Keep the thread-local registers and counters you need in the driver cog. P2D1 uses a corruption check; load images from sources you trust.
+
+From `ports/p2` under WSL, build and check the independent example with the port toolchain.
+
+```sh
+P2_CLANG="${P2_BIN:-$HOME/tinygo-p2-work/llvm15-build/bin}/clang"
+"$P2_CLANG" --target=p2 -c examples/hubdriver/checksum.S -o /tmp/p2-checksum.o
+python3 tools/cog_image.py pack /tmp/p2-checksum.o /tmp/checksum.p2d --words 64
+python3 tools/cog_image.py verify /tmp/checksum.p2d
+cmp /tmp/checksum.p2d examples/hubdriver/checksum.p2d
+```
+
+The checksum driver uses 140 bytes of hub code, 256 bytes of private mailbox and one worker cog per instance. It consumes zero locks, LUT words or I/O pins. The test declares P5 to exercise the registry without driving it. Copy `checksum.p2d` and `checksum.py` into the same working directory on a mounted filesystem and run `checksum.py`. The host acceptance runner can load both over raw REPL entirely in RAM. It verifies two independently placed drivers, GC, 32 checksum requests, timeout cleanup and recovery of all six cogs across an active-driver soft reset. [Example and source](../examples/hubdriver/) · [Physical acceptance runner](../tests/hubdriver.py)
 
 ## Packages and wiring
 

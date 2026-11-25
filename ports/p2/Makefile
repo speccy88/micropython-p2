@@ -42,9 +42,18 @@ CFLAGS += $(P2_FLAGS) $(INC) $(BOARD_FLAGS) -std=gnu11 -Oz -DNDEBUG -Wall -Werro
 CFLAGS += -DP2_PROFILE_EDGE=$(if $(filter edge,$(PROFILE)),1,0)
 CFLAGS += -DP2_PROFILE_THREADED=$(if $(filter threaded,$(PROFILE)),1,0)
 CFLAGS += -DP2_ENABLE_BUSES=$(if $(filter edge,$(PROFILE)),1,0)
+# Pinned P2 LLVM at -Oz clobbers the sentinel comparison flags in
+# mp_set_lookup with the free-slot comparison. Keep maps/sets correct while
+# using this compiler. The corrected compiler supports P2_MAP_OPT=-Oz.
+P2_MAP_OPT ?= -Os
+$(BUILD)/py/map.o: private CFLAGS += $(P2_MAP_OPT)
+$(BUILD)/py/map.o: Makefile
 CFLAGS_MCU = --target=p2
 SRC_C += main.c mphalport.c startup.c $(wildcard drivers/*.c) $(wildcard storage/*.c) $(wildcard bus/*.c)
 SRC_C += shared/readline/readline.c shared/runtime/pyexec.c shared/runtime/stdout_helpers.c shared/runtime/sys_stdio_mphal.c shared/timeutils/timeutils.c
+ifneq ($(PROFILE),threaded)
+SRC_C += timer.c shared/runtime/softtimer.c shared/runtime/mpirq.c
+endif
 SRC_QSTR += $(SRC_C)
 SRC_C += $(P2_RUNTIME_C)
 SRC_S += boot.S gc_p2.S $(wildcard drivers/*.S) $(wildcard bus/*.S) $(P2_RUNTIME_S)
