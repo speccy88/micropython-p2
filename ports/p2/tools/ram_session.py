@@ -9,7 +9,7 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("image", type=Path)
-parser.add_argument("--loader-dir", required=True, type=Path)
+parser.add_argument("--loader-dir", default=Path(__file__).resolve().parent, type=Path)
 parser.add_argument("--port", required=True)
 parser.add_argument("--listen", type=int, default=8122)
 parser.add_argument("--baud", type=int, default=921600)

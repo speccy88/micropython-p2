@@ -44,3 +44,6 @@ acceptance. Benchmarks from the older projects describe their own configurations
 | [p2-mp-minimal.zip](https://forums.parallax.com/discussion/download/148228/p2-mp-minimal.zip) | 9aedcf554e84ea80659eb58c5c2c779d07e6d4524eb32a87992e4151c4ef2443 |
 | [llvmfixes.zip](https://forums.parallax.com/discussion/download/148229/llvmfixes.zip) | f87677f8032e718b8df5af2157a7ec6c473cb5bd294c2d3855ba5bda950b40d6 |
 | [p2llvm-fixes.zip](https://forums.parallax.com/discussion/download/148230/p2llvm-fixes.zip) | ff92f4339b8ba42f0c977ced07cac60f6640eb35a3d8896112481ec3b247c49d |
+### Public starter kit
+
+The serial transport in `tools/p2ram.py` comes from `modern/hil/p2ram.py` at the TinyGo/P2 revision pinned below. Its BSD license is in `tools/LICENSE.tinygo-p2`. The persistent installer uses the 496-byte programmer from loadp2's `flash_loader.h` at commit `c20afedd4253d09da449fa740f8d4304481fc560`. Its corresponding Spin2 source and upstream MIT license accompany the binary in `tools/loadp2`. The Python host implements the single-image Prop_Hex transfer and checksum preparation from that revision. [Original loadp2 sources](https://github.com/totalspectrum/loadp2/tree/c20afedd4253d09da449fa740f8d4304481fc560)

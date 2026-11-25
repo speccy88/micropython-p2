@@ -1,227 +1,159 @@
-[![Unix CI badge](https://github.com/micropython/micropython/actions/workflows/ports_unix.yml/badge.svg)](https://github.com/micropython/micropython/actions?query=branch%3Amaster+event%3Apush) [![STM32 CI badge](https://github.com/micropython/micropython/actions/workflows/ports_stm32.yml/badge.svg)](https://github.com/micropython/micropython/actions?query=branch%3Amaster+event%3Apush) [![Docs CI badge](https://github.com/micropython/micropython/actions/workflows/docs.yml/badge.svg)](https://docs.micropython.org/) [![codecov](https://codecov.io/gh/micropython/micropython/branch/master/graph/badge.svg?token=I92PfD05sD)](https://codecov.io/gh/micropython/micropython)
+# MicroPython for the Propeller 2 Edge
 
-The MicroPython project
-=======================
-<p align="center">
-  <img src="https://raw.githubusercontent.com/micropython/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
-</p>
+The first thing I’d try on this board is an eight-megabyte array. That’s a slightly unreasonable thing to ask of a chip with 512 KiB of hub RAM, which makes it a good way to meet the P2 Edge. The interpreter lives in the hub. The array lives on the four PSRAM chips, and Python brings a page across when you ask for an element.
 
-This is the MicroPython project, an implementation of Python 3.x for
-microcontrollers, embedded systems and other constrained platforms.
-You can find the official website at [micropython.org](http://www.micropython.org).
+You can also put a cog to work while Python is busy, capture a pulse with a Smart Pin, or use part of PSRAM as a scratch disk. The first three experiments below need just the board, power and a USB serial connection.
 
-MicroPython implements the entire Python 3.4 syntax (including exceptions,
-`with`, `yield from`, etc., and additionally `async`/`await` keywords from
-Python 3.5 and some select features from later versions). The following core
-datatypes are provided: `str`(including basic Unicode support), `bytes`,
-`bytearray`, `tuple`, `list`, `dict`, `set`, `frozenset`, `array.array`,
-`collections.namedtuple`, classes and instances. Builtin modules include
-`os`, `sys`, `time`, `re`, and `struct`, etc. Some ports have support for
-`_thread` module (multithreading), `socket` and `ssl` for networking, and
-`asyncio`. Note that only a subset of Python 3 functionality is implemented
-for the data types and modules.
+**[Download the starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.1/micropython-p2-starter.zip)** · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.1) · [Hardware test results](ports/p2/PROGRESS.md)
 
-MicroPython can execute scripts in textual source form (.py files) or from
-precompiled bytecode (.mpy files), in both cases either from an on-device
-filesystem or "frozen" into the MicroPython executable.
+## Get a prompt
 
-MicroPython also provides a set of MicroPython-specific modules to access
-hardware-specific functionality and peripherals such as GPIO, Timers, ADC,
-DAC, PWM, SPI, I2C, CAN, Bluetooth, and USB.
+Use a P2-EC32MB Edge, a powered carrier, and a Prop Plug or equivalent 3.3 V USB serial connection with reset. Set the board for serial-capable boot. The names on the switches vary by revision. For the first run, a RAM download lets you try Python and return to the board’s previous boot program with a power cycle. [Parallax board guide](https://www.parallax.com/package/p2-edge-module-with-32mb-ram-product-guide/)
 
-Getting started
----------------
+Extract the **starter ZIP** and open a terminal in the folder containing this README and `ports`. These commands also work from a checkout of the repository. Install Python 3.10 or newer on the host. Python 3.12 was used for the Windows tests.
 
-See the [online documentation](https://docs.micropython.org/) for the API
-reference and information about using MicroPython and information about how
-it is implemented.
+**Windows PowerShell**
 
-We use [GitHub Discussions](https://github.com/micropython/micropython/discussions)
-as our forum, and [Discord](https://discord.gg/RB8HZSAExQ) for chat. These
-are great places to ask questions and advice from the community or to discuss your
-MicroPython-based projects.
+```powershell
+py -3 -m venv .venv
+$env:Path = "$PWD\.venv\Scripts;$env:Path"
+python -m pip install pyserial==3.5 mpremote==1.29.0
+python -m serial.tools.list_ports -v
+$port = "COM12"
+python ports/p2/tools/ram_session.py ports/p2/firmware/edge.bin --port $port
+```
 
-For bugs and feature requests, please [raise an issue](https://github.com/micropython/micropython/issues/new/choose)
-and follow the templates there.
+**Linux**
 
-For information about the [MicroPython pyboard](https://store.micropython.org/pyb-features),
-the officially supported board from the
-[original Kickstarter campaign](https://www.kickstarter.com/projects/214379695/micro-python-python-for-microcontrollers),
-see the [schematics and pinouts](http://github.com/micropython/pyboard) and
-[documentation](https://docs.micropython.org/en/latest/pyboard/quickref.html).
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install pyserial==3.5 mpremote==1.29.0
+python -m serial.tools.list_ports -v
+port=/dev/ttyUSB0
+python ports/p2/tools/ram_session.py ports/p2/firmware/edge.bin --port "$port"
+```
 
-MicroPython design values
--------------------------
+**macOS, including Apple Silicon**
 
-"Perfection is achieved, not when there is nothing more to add, but when there
-is nothing left to take away." ―- Antoine de Saint-Exupéry.
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install pyserial==3.5 mpremote==1.29.0
+python -m serial.tools.list_ports -v
+port=/dev/cu.usbserial-EXAMPLE
+python ports/p2/tools/ram_session.py ports/p2/firmware/edge.bin --port "$port"
+```
 
-For its design and implementation, MicroPython aims to follow a set of values.
-Although not a strict set of rules, these values and principles serve as a
-useful guide for new and seasoned contributors, as well as maintainers.
+Replace the example port with the device that appears when you plug in the adapter. On macOS use its `/dev/cu.*` name. A successful load reports the P2 ROM version, a checksum acknowledgement, and the MicroPython banner. **Leave this terminal open.** It holds the physical serial port so opening and closing a tool won’t reset a RAM-loaded board. Its socket listens only on your computer.
 
-MicroPython is at heart a combination of "Micro" and "Python": it's about
-resource constrained systems running the Python programming language.  Both of
-these concepts balance off against each other in all parts of MicroPython's
-design and implementation.
+Open a **second terminal** in the same folder. In PowerShell run `$env:Path = "$PWD\.venv\Scripts;$env:Path"`. On Linux or macOS run `. .venv/bin/activate`. Then run:
 
-The key concepts that focus the development of MicroPython are:
-- Minimalism: do lots with little.
-- Efficiency: engineering, build, execution, storage, power consumption.
-- Consistency: the whole system feels like it was designed at once.
+```sh
+mpremote connect socket://127.0.0.1:8122 repl
+```
 
-When using MicroPython, the Python language is used as the human interface to a
-system, giving fine control over the entities attached to that system.
-In a hardware setting, MicroPython aims to give the user a bare-metal feeling:
-one should feel like they have complete control over the system, with very
-little between the programmer and the physical world.
+At the `>>>` prompt, try:
 
-MicroPython recognises that systems can be very complex.  The existing Python
-libraries in combination with the MicroPython-specific libraries provide a
-user-friendly way to harness the complexity of a system.
+```python
+import gc, machine, p2
+print(machine.freq())          # 160000000
+print(p2.PSRAM().capacity())  # 33554432
+print(gc.mem_free())          # free bytes for ordinary Python objects
+```
 
-Python language compatibility is very important to MicroPython, and at first
-glance MicroPython should look just like regular Python.  In the first instance,
-most Python scripts should run unchanged on MicroPython, even on devices with very
-tight resources.  Beyond that, there are ways to extend MicroPython if needed to
-better match Python.  The provided built-in modules are an efficient subset of
-the corresponding Python ones, without duplication of functionality, and allow
-extension in Python if needed.
+Ctrl-C interrupts a running Python program. Ctrl-D restarts the interpreter. Ctrl-] leaves the host’s interactive console so you can run another `mpremote` command.
 
-Contributing
-------------
+## Experiment 1 ◆ Put a sample two million places away
 
-MicroPython is an open-source project and welcomes contributions. To be
-productive, please be sure to follow the
-[Contributors' Guidelines](https://github.com/micropython/micropython/wiki/ContributorGuidelines)
-and the [Code Conventions](https://github.com/micropython/micropython/blob/master/CODECONVENTIONS.md).
-Note that MicroPython is licenced under the MIT license, and all contributions
-should follow this license.
+Paste this in the REPL. Give the final line a blank line to finish the block.
 
-About this repository
----------------------
+```python
+from p2array import Array
 
-This repository contains the following components:
-- [py/](py/) -- the core Python implementation, including compiler, runtime, and
-  core library.
-- [mpy-cross/](mpy-cross/) -- the MicroPython cross-compiler which is used to turn scripts
-  into precompiled bytecode.
-- [ports/](ports/) -- platform-specific code for the various ports and architectures that MicroPython runs on.
-- [lib/](lib/) -- submodules for external dependencies.
-- [tests/](tests/) -- test framework and test scripts.
-- [docs/](docs/) -- user documentation in Sphinx reStructuredText format. This is used to generate the [online documentation](http://docs.micropython.org).
-- [extmod/](extmod/) -- additional (non-core) modules implemented in C.
-- [tools/](tools/) -- various tools, including the pyboard.py module.
-- [examples/](examples/) -- a few example Python scripts.
+with Array("I", 2 * 1024 * 1024, pages=2, page_bytes=256) as samples:
+    samples[0] = 123
+    samples[2_000_000] = 456
+    print(samples[0], samples[2_000_000])
 
-"make" is used to build the components, or "gmake" on BSD-based systems.
-You will also need bash, gcc, and Python 3.3+ available as the command `python3`.
-Some ports (rp2 and esp32) additionally use CMake.
+```
 
-Supported platforms & architectures
------------------------------------
+That’s 2,097,152 unsigned 32-bit entries with two 256-byte cache pages. You should see `123 456`. Leaving the block flushes the cache and releases the external allocation. For a logger, transferring a window of adjacent samples with `writefrom` or `readinto` is faster than assigning each element from Python. To reproduce the full write, readback and random-access check, leave the REPL and run:
 
-MicroPython runs on a wide range of microcontrollers, as well as on Unix-like
-(including Linux, BSD, macOS, WSL) and Windows systems.
+```sh
+mpremote connect socket://127.0.0.1:8122 run ports/p2/examples/external_array.py
+```
 
-Microcontroller targets can be as small as 256kiB flash + 16kiB RAM, although
-devices with at least 512kiB flash + 128kiB RAM allow a much more
-full-featured experience.
+Lists, dictionaries and the live VM still use hub RAM. For a large *program*, `p2overlay.Program` loads cooperating bytecode modules one at a time from a mounted volume. The board ran 237,971 bytes of compiled modules this way with 69,088 bytes of free heap at the start. [Overlay example and measurements](ports/p2/PROGRESS.md#using-external-memory)
 
-The [Unix](ports/unix) and [Windows](ports/windows) ports allow both
-development and testing of MicroPython itself, as well as providing
-lightweight alternative to CPython on these platforms (in particular on
-embedded Linux systems).
+## Experiment 2 ◆ Give a cog its own job
 
-Over twenty different MicroPython ports are provided in this repository,
-split across three
-[MicroPython Support Tiers](https://docs.micropython.org/en/latest/develop/support_tiers.html).
+Try this in the REPL. `Cog(100)` starts a native counter with a 100-microsecond interval. The counter has its own cog, so it keeps ticking while Python allocates and collects memory.
 
-Tier 1 Ports
-============
+```python
+import gc, p2, time
+worker = p2.Cog(100)
+try:
+    before = worker.count()
+    scratch = [bytearray(128) for i in range(20)]
+    gc.collect()
+    time.sleep_ms(100)
+    print(worker.id(), worker.count() - before)
+finally:
+    worker.stop()
 
-👑 Ports in [Tier 1](https://docs.micropython.org/en/latest/develop/support_tiers.html)
-are mature and have the most active development, support and testing:
+```
 
-| Port                     | Target                                                                                 | Quick Reference                                                      |
-|--------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [esp32](ports/esp32)*    | Espressif ESP32 SoCs (ESP32, ESP32S2, ESP32S3, ESP32C3, ESP32C6)                       | [here](https://docs.micropython.org/en/latest/esp32/quickref.html)   |
-| [mimxrt](ports/mimxrt)   | NXP m.iMX RT                                                                           | [here](https://docs.micropython.org/en/latest/mimxrt/quickref.html)  |
-| [rp2](ports/rp2)         | Raspberry Pi RP2040 and RP2350                                                         | [here](https://docs.micropython.org/en/latest/rp2/quickref.html)     |
-| [samd](ports/samd)       | Microchip (formerly Atmel) SAMD21 and SAMD51                                           | [here](https://docs.micropython.org/en/latest/samd/quickref.html)    |
-| [stm32](ports/stm32)     | STMicroelectronics STM32 MCUs (F0, F4, F7, G0, G4, H5, H7, L0, L1, L4, N6, WB, WL)     | [here](https://docs.micropython.org/en/latest/pyboard/quickref.html) |
-| [unix](ports/unix)       | Linux, BSD, macOS, WSL                                                                 | [here](https://docs.micropython.org/en/latest/unix/quickref.html)    |
-| [windows](ports/windows) | Microsoft Windows                                                                      | [here](https://docs.micropython.org/en/latest/unix/quickref.html)    |
+Expect a positive cog number and roughly a thousand ticks or more. For a driver of your own, the checksum example includes assembly source, a packed driver and the Python mailbox code. The loader keeps the code and mailbox alive across GC and reclaims the cog on reset. [Driver format and build recipe](ports/p2/drivers/README.md#loadable-hubexec-drivers)
 
-An asterisk indicates that the port has ongoing financial support from the vendor.
+## Experiment 3 ◆ Make a disposable disk
 
-Tier 2 Ports
-============
+```sh
+mpremote connect socket://127.0.0.1:8122 run ports/p2/examples/ramfs.py
+```
 
-✔ Ports in [Tier 2](https://docs.micropython.org/en/latest/develop/support_tiers.html)
-are less mature and less actively developed and tested than Tier 1, but
-still fully supported:
+You’ll see `P2 PSRAM volume`. The script allocates 512 KiB, formats that allocation as LittleFS2, writes a file, reads it back and unmounts it. For a package you want to keep across commands, create a longer-lived mount and use `mpremote resume mip install`. The host downloads the package and sends it over serial. [Copy files and install your first package](ports/p2/README.md#storage-and-packages)
 
-| Port                             | Target                                                      | Quick Reference                                                         |
-|----------------------------------|-------------------------------------------------------------|-------------------------------------------------------------------------|
-| [alif](ports/alif)               | Alif Semiconductor Ensemble MCUs (E3, E7)                   |                                                                         |
-| [embed](ports/embed)             | Generates a set of .c/.h files for embedding into a project |                                                                         |
-| [nrf](ports/nrf)                 | Nordic Semiconductor nRF51 and nRF52                        |                                                                         |
-| [psoc-edge](ports/psoc-edge)     | Infineon PSOC™ Edge                                         | [here](https://docs.micropython.org/en/latest/psoc-edge/quickref.html)  |
-| [renesas-ra](ports/renesas-ra)   | Renesas RA family                                           | [here](https://docs.micropython.org/en/latest/renesas-ra/quickref.html) |
-| [webassembly](ports/webassembly) | Emscripten port targeting browsers and NodeJS               |                                                                         |
-| [zephyr](ports/zephyr)           | Zephyr RTOS                                                 | [here](https://docs.micropython.org/en/latest/zephyr/quickref.html)     |
+For persistence, the Edge can mount a FAT-formatted microSD card as its root. Friendly startup runs `boot.py`, then `main.py`. Back up any existing scripts before replacing them. A raw-mode soft reset skips startup scripts for recovery. The port also provides a guarded SPI-flash block device for a separately provisioned filesystem. [Storage layout](ports/p2/storage/FLASH.md)
 
-Tier 3 Ports
-============
+## Install Python in boot flash
 
-Ports in [Tier 3](https://docs.micropython.org/en/latest/develop/support_tiers.html)
-are built in CI but not regularly tested by the MicroPython maintainers:
+**This replaces the existing boot program at SPI-flash offset zero.** Keep a recoverable copy of that program, identify the correct board and try the RAM image first. Remove the microSD card with power off for the first cold-boot check so its own boot program cannot mask the result. Restore power and enable flash boot with a serial window using your board revision’s guide. Close the RAM session and any serial terminal before programming.
 
-| Port                       | Target                                                            | Quick Reference                                                         |
-|----------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [cc3200](ports/cc3200)     | Texas Instruments CC3200                                          | [For WiPy](https://docs.micropython.org/en/latest/wipy/quickref.html)   |
-| [esp8266](ports/esp8266)   | Espressif ESP8266 SoC                                             | [here](https://docs.micropython.org/en/latest/esp8266/quickref.html)    |
-| [pic16bit](ports/pic16bit) | Microchip PIC 16-bit                                              |                                                                         |
+In the activated environment, this first command verifies the firmware and prepares the programmer entirely on the host:
 
-Additional Ports
-================
+```sh
+python ports/p2/tools/flash_boot.py --profile edge --check
+```
 
-In addition to the above there is a Tier M containing ports that are used
-primarily for maintenance, development and testing:
+Then run **one** command, using the same physical port you identified earlier:
 
-- The ["bare-arm"](ports/bare-arm) port is an example of the absolute minimum
-  configuration that still includes the compiler, and is used to keep track
-  of the code size of the core runtime and VM.
+| Host | Program boot flash |
+| --- | --- |
+| Windows PowerShell | `python ports/p2/tools/flash_boot.py --profile edge --port $port --write-boot-flash` |
+| Linux or macOS | `python ports/p2/tools/flash_boot.py --profile edge --port "$port" --write-boot-flash` |
 
-- The ["minimal"](ports/minimal) port provides an example of a very basic
-  MicroPython port and can be compiled as both a standalone Linux binary as
-  well as for ARM Cortex-M4. Start with this if you want to port MicroPython
-  to another microcontroller.
+Keep power connected through the transfer and programming. The helper sends the upstream loadp2 flash programmer followed by the exact release image, then watches for the MicroPython banner. Once it reports startup, power-cycle the board and connect **without downloading again**:
 
-- The [qemu](ports/qemu) port is a QEMU-based emulated target for Cortex-A,
-  Cortex-M, RISC-V 32-bit, RISC-V 64-bit, and PowerPC 64-bit architectures.
+```sh
+python -m serial.tools.miniterm "$port" 115200
+```
 
-The MicroPython cross-compiler, mpy-cross
------------------------------------------
+Press Enter, then run `import p2; print(p2.PSRAM().capacity())`. Seeing `33554432` after a power cycle confirms this Edge booted the installed port. Ctrl-] exits miniterm. The flash package and checksum path have host-side checks. Persistent programming and power-cycle boot are pending physical acceptance. The Windows USB RAM path was tested on COM12. Linux and macOS use the same Python loader, and their USB paths await hardware testing. [Flash programmer source](https://github.com/totalspectrum/loadp2/tree/c20afedd4253d09da449fa740f8d4304481fc560)
 
-Most ports require the [MicroPython cross-compiler](mpy-cross) to be built
-first.  This program, called mpy-cross, is used to pre-compile Python scripts
-to .mpy files which can then be included (frozen) into the
-firmware/executable for a port.  To build mpy-cross use:
+## Pick your next project
 
-    $ cd mpy-cross
-    $ make
+| I want to… | Start here |
+| --- | --- |
+| Measure a frequency, drive a servo, or log ADC samples | [Pin map, wiring and runnable examples](ports/p2/drivers/README.md) |
+| Connect a sensor or small display | [TMP102 example](ports/p2/examples/tmp102.py), [SSD1306 example](ports/p2/examples/ssd1306.py), [UART, SoftI2C and SoftSPI](ports/p2/bus/README.md) |
+| Use two Python threads | Select `threaded.bin` for the experimental compute profile. One additional worker shares the GIL. [Threading and GC](ports/p2/VM.md) |
+| Use a plain P2 Edge without PSRAM | Select `lean.bin`. Its larger hub heap suits small programs that need no external memory. [Image sizes and hashes](ports/p2/firmware/manifest.json) |
+| Compile my own firmware or bytecode | [Build from source](ports/p2/README.md#build-from-source). The kit includes Linux x86-64 `mpy-cross`. Plain `.py` files run from all three hosts. |
+| See which peripherals were exercised on silicon | [Coverage, benchmarks and limits](ports/p2/PROGRESS.md). External sensors, displays and calibrated analog measurements need their respective hardware. |
 
-External dependencies
----------------------
+The console owns P62/P63, the Edge memory uses P40–P57, and SD and flash share P58–P61. Check the wiring table before attaching a peripheral. If a pin is busy, call the original device’s `deinit()` or stop the driver before reusing it.
 
-The core MicroPython VM and runtime has no external dependencies, but a given
-port might depend on third-party drivers or vendor HALs. This repository
-includes [several submodules](lib/) linking to these external dependencies.
-Before compiling a given port, use
+**If the prompt goes missing**, close other programs using the port, check power and reset wiring, and retry the RAM command with `--baud 115200`. A Linux permission error means your account needs access to the serial device, commonly through its `dialout` group. If imports vanish between host commands, use `resume` for a live PSRAM mount. A power cycle clears its contents.
 
-    $ cd ports/name
-    $ make submodules
-
-to ensure that all required submodules are initialised.
+This port builds on upstream MicroPython, the TinyGo/P2 compiler work and earlier Propeller ports. [Source history and acknowledgements](ports/p2/SOURCES.md) · [Upstream MicroPython README](README-upstream.md) · [License](LICENSE)

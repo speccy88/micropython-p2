@@ -7,14 +7,14 @@ the P2's 512 KiB hub. A second cog handles full-duplex serial on P62/P63.
 
 ### Load and run
 
-From the repository root on Windows, with the pinned TinyGo/P2 project next
-to this checkout, run the following in PowerShell. The ROM loader writes
+From the repository root or the extracted starter kit on Windows, run the
+following in PowerShell. The bundled TinyGo/P2 ROM loader writes
 hub RAM. A power cycle returns to the board's existing boot media.
 
 ```powershell
 py -3.12 -m venv .venv-p2
 .\.venv-p2\Scripts\python -m pip install pyserial==3.5 mpremote==1.29.0
-.\.venv-p2\Scripts\python ports/p2/tools/ram_session.py ports/p2/firmware/edge.bin --port COM12 --loader-dir ../tinygo-p2/modern/hil
+.\.venv-p2\Scripts\python ports/p2/tools/ram_session.py ports/p2/firmware/edge.bin --port COM12
 ```
 
 Keep that process open. In a second PowerShell window use stock mpremote:
