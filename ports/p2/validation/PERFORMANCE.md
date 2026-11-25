@@ -25,6 +25,10 @@ The flat image shrank from **404,428 to 403,960 bytes**. The linker GC arena gre
 
 The transfer benchmark's sampled C stack use decreased from 1,388 to 1,196 bytes (14,996 and 15,188 bytes below the 16 KiB reservation at the point sampled). Stack high-water over a run remains unmeasured. Four-word bursts increased the longest observed PSRAM critical section from 214 to 550 clock cycles, about 1.34 to 3.44 µs. Keep that cost in mind when sharing time with a latency-sensitive native service. The checked 64 KiB batches delivered about 0.97 → 2.82 MB/s on writes and 0.80 → 2.68 MB/s on reads (decimal units). [Driver memory and timing](../drivers/MEMORY.md)
 
+## Final-image I/O timings
+
+At 115,200 baud, five checked 6,240-byte outputs delivered a median **10,230 bytes/s** through the Windows USB relay (9,300–10,523). Ctrl-C to receipt of the traceback took 31 ms median (31–63 ms). On the designated FAT SD card, five 16 KiB file writes including flush and close took 267.695 ms median (243.629–267.831). Reading back and checking the same data took 230.188 ms median (226.296–234.087). These measurements cover the final firmware only. [Serial fixture](../tests/serial_latency.py) · [Serial samples](audit-latency.json) · [SD fixture](../tests/sd_bench.py) · [SD samples](audit-sd-timing.json)
+
 ## What changed
 
 | Isolated trial | Result on the Edge | Decision |
