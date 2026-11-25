@@ -20,6 +20,7 @@ function updateForm() {
     $("board-name").textContent = profile === "threaded" ? "P2 Edge · Threaded" : "P2 Edge";
     for (const element of form.elements) element.disabled = Boolean(job) || !supported;
     $("connect").disabled = Boolean(job) || !supported;
+    $("boot-sd").disabled = Boolean(job) || !supported;
     $("explore").disabled = Boolean(job);
 }
 
@@ -121,6 +122,7 @@ async function start(action) {
         await port.open({baudRate: 115200, bufferSize: 65536, flowControl: "none"});
         ownsPort = true;
         if (action === "install") await install(port, {bytes, mode, signal, report: progress});
+        if (action === "sd") await install(port, {mode: "sd", signal, report: progress});
         signal.throwIfAborted();
         $("cancel").hidden = true;
         progress("Opening the board in ViperIDE…");
@@ -146,6 +148,7 @@ form.addEventListener("change", updateForm);
 form.addEventListener("submit", e => { e.preventDefault(); start("install"); });
 $("cancel").onclick = () => job?.abort();
 $("connect").onclick = () => start("connect");
+$("boot-sd").onclick = () => start("sd");
 $("explore").onclick = () => start("explore");
 $("back").onclick = () => {
     $("workspace").hidden = true;

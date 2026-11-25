@@ -54,6 +54,7 @@
       <aside id="support" hidden></aside>
       <div class="help">
         <details><summary>What do I need?</summary><p>A powered P2 Edge carrier, a 3.3 V USB serial adapter with reset (such as a Prop Plug), and desktop Chrome or Edge. Enable serial boot, close other serial tools, then pick the adapter in the browser’s device chooser. On Linux your account needs access to the serial device.</p></details>
+        <details><summary>Can I boot my SD card?</summary><p>Insert a FAT32 card prepared with <code>_BOOT_P2.BIX</code> in its root. The ROM can start that copy of MicroPython over USB. <a href="https://github.com/speccy88/micropython-p2/blob/main/ports/p2/storage/ACCEPTANCE.md#boot-the-interpreter-from-sd">Prepare the card</a></p><p><button class="text-button" id="boot-sd" type="button">Boot SD &amp; open ViperIDE →</button></p></details>
         <details><summary>How do I check a flash install?</summary><p>Boot flash replaces your existing boot program. Keep a recoverable copy. Enable flash boot with a serial window using your <a href="https://www.parallax.com/package/p2-edge-module-with-32mb-ram-product-guide/">board guide</a>. Power off before removing a bootable SD card. After installing, power-cycle the board and choose <strong>Connect to the IDE</strong>. A fresh prompt confirms cold boot. Persistent installation currently has host-side protocol checks only.</p></details>
       </div>
     </main>

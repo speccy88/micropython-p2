@@ -2,6 +2,11 @@
 
 The workbench runs entirely in the browser. Desktop Chrome and Edge can load one of the three release profiles, start ViperIDE on the same open serial port, and run a first script over the REPL. Existing MicroPython installations have a connect-only entry point. Visitors can also open the editor without granting USB access. [Open the workbench](https://speccy88.github.io/micropython-p2/)
 
+With a prepared FAT32 card inserted, open **Can I boot my SD card?** and
+select **Boot SD & open ViperIDE**. The workbench resets the board into its
+serial ROM monitor, requests `R_BOOT_P2.BIX`, and hands the open port to
+the editor once MicroPython answers. [Preparing the card](../storage/ACCEPTANCE.md#boot-the-interpreter-from-sd)
+
 ## Build a local copy
 
 Use a clean checkout of this repository, Git, Node 24, and Python 3.12. The commands below work in a POSIX shell, including WSL. Use a fresh output directory. The directory name under `_site` matches the URL path compiled into ViperIDE.

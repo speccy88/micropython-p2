@@ -4,7 +4,7 @@ The first thing I’d try on this board is an eight-megabyte array. That’s a s
 
 You can also put a cog to work while Python is busy, capture a pulse with a Smart Pin, or use part of PSRAM as a scratch disk. The first three experiments below need just the board, power and a USB serial connection.
 
-**[Open the Propeller 2 workbench](https://speccy88.github.io/micropython-p2/)** · [Download the command-line starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.2/micropython-p2-starter.zip) · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.2) · [Hardware test results](ports/p2/PROGRESS.md)
+**[Open the Propeller 2 workbench](https://speccy88.github.io/micropython-p2/)** · [Download the command-line starter ZIP](https://github.com/speccy88/micropython-p2/releases/latest/download/micropython-p2-starter.zip) · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/latest) · [Hardware test results](ports/p2/PROGRESS.md)
 
 ## Get a prompt
 
@@ -22,7 +22,7 @@ For a permanent install on a flash-equipped Edge, select **Boot flash** and clic
 
 Extract the **starter ZIP** and open a terminal in the folder containing this README and `ports`. These commands also work from a checkout of the repository. Install Python 3.10 or newer on the host. Python 3.12 was used for the Windows tests.
 
-If you downloaded the first kit, replace it with **kit.2**. The first ZIP damaged four binaries during packaging, including the Linux bytecode compiler. On Windows, Linux or macOS, run `python ports/p2/tools/make_starter.py --check-files` in the extracted kit to check the firmware and compiler before flashing. On Windows you can also use `py -3` in place of `python`. [Original file hashes and ZIP verification](ports/p2/validation/STARTER.md)
+If you downloaded the first kit, get the current ZIP. Kit.1 damaged four binaries during packaging, including the Linux bytecode compiler. On Windows, Linux or macOS, run `python ports/p2/tools/make_starter.py --check-files` in the extracted kit to check the firmware and compiler before flashing. On Windows you can also use `py -3` in place of `python`. [Original file hashes and ZIP verification](ports/p2/validation/STARTER.md)
 
 **Windows PowerShell**
 
@@ -127,6 +127,12 @@ mpremote connect socket://127.0.0.1:8122 run ports/p2/examples/ramfs.py
 You’ll see `P2 PSRAM volume`. The script allocates 512 KiB, formats that allocation as LittleFS2, writes a file, reads it back and unmounts it. For a package you want to keep across commands, create a longer-lived mount and use `mpremote resume mip install`. The host downloads the package and sends it over serial. [Copy files and install your first package](ports/p2/README.md#storage-and-packages)
 
 For persistence, the Edge can mount a FAT-formatted microSD card as its root. Friendly startup runs `boot.py`, then `main.py`. Back up any existing scripts before replacing them. A raw-mode soft reset skips startup scripts for recovery. The port also provides a guarded SPI-flash block device for a separately provisioned filesystem. [Storage layout](ports/p2/storage/FLASH.md)
+
+## Put Python on a microSD card
+
+If your Edge already has something you like in boot flash, a spare FAT32 card makes a handy Python disk. With a card reader, copy `ports/p2/firmware/edge.bin` into the root of a freshly formatted MBR/FAT32 card as **`_BOOT_P2.BIX`**. Copy it first so its sectors are contiguous. You can then put your `main.py` beside it. Power off the carrier before inserting the card.
+
+With serial boot enabled, open **Can I boot my SD card?** in the workbench and choose **Boot SD & open ViperIDE**. The ROM reads the interpreter from the card, and the same browser tab connects to it. If you only have the board's card slot, the USB installer in the storage guide can create the file and verify its raw sectors. The guide also gives the switch settings for starting automatically at power-on. [Workbench](https://speccy88.github.io/micropython-p2/) · [SD installation and recovery](ports/p2/storage/ACCEPTANCE.md#boot-the-interpreter-from-sd)
 
 ## Install Python in boot flash
 

@@ -73,10 +73,10 @@ function watch(port) {
 // The caller owns the already-open 115200-baud port and closes it on error.
 // Returns only after the running interpreter identifies itself.
 export async function install(port, {bytes, mode, signal, report}) {
-    if (mode !== "ram" && mode !== "flash") throw Error("Unknown installation mode.");
+    if (!["ram", "flash", "sd"].includes(mode)) throw Error("Unknown P2 boot mode.");
     const flash = mode === "flash";
     if (flash) verifyFlashImage(bytes);
-    const payload = flash ? bytes : ramPayload(bytes);
+    const payload = mode === "ram" ? ramPayload(bytes) : bytes;
     const output = port.writable.getWriter();
     let input;
     async function send(text) {
@@ -107,6 +107,19 @@ export async function install(port, {bytes, mode, signal, report}) {
             version = await input.until(/Prop_Ver ([A-Za-z0-9])\s/, 650, signal);
         }
         if (!version) throw Error("No P2 ROM answered. Check power, reset wiring and the serial-boot switch settings, then retry.");
+        if (mode === "sd") {
+            report("Starting _BOOT_P2.BIX from your SD card…");
+            await send("\x04");
+            if (!await input.until(/P2-MONITOR [^\r\n]+\r?\n/, 3000, signal)) {
+                throw Error("The P2 ROM monitor did not answer. Check the serial-boot settings and retry.");
+            }
+            await send("R_BOOT_P2.BIX\r");
+            const reply = await input.until(/MicroPython v[^\r\n]* with Propeller 2|(?:^|\n)!\r?\n/, 15000, signal);
+            if (!reply || !reply[0].startsWith("MicroPython")) {
+                throw Error("The SD card did not start MicroPython. Check _BOOT_P2.BIX in the root of a bootable FAT32 card.");
+            }
+            return version[1];
+        }
         const stage = flash ? "Sending flash programmer" : "Loading hub RAM";
         report(stage, 0);
         input.clear();

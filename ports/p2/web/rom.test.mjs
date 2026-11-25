@@ -10,7 +10,7 @@ const firmware = new URL("../firmware/", import.meta.url);
 const profiles = JSON.parse(readFileSync(new URL("manifest.json", firmware))).profiles;
 const banner = "MicroPython v1.29.0-p2.1 on 2026-11-25; P2-EC32MB with Propeller 2\r\n>>> ";
 
-function emulateROM({ ack = ".", silicon = "G" } = {}) {
+function emulateROM({ ack = ".", silicon = "G", sdReply = banner } = {}) {
     let serial;
     const encoder = new TextEncoder(), decoder = new TextDecoder();
     const reply = msg => serial.enqueue(encoder.encode(msg));
@@ -25,6 +25,12 @@ function emulateROM({ ack = ".", silicon = "G" } = {}) {
                     reply("Prop_V");
                     reply("er " + silicon + "\r\n");
                 }
+            } else if (text === "\x04") {
+                commands.push("monitor");
+                reply("P2-MONITOR V1.3\r\n");
+            } else if (text === "R_BOOT_P2.BIX\r") {
+                commands.push(text.trim());
+                reply(sdReply);
             } else if (text.startsWith("> Prop_Txt")) {
                 commands.push("Prop_Txt");
             } else if (text.trim() === "?" || text === "~") {
@@ -94,6 +100,20 @@ for (const [profile, {flat}] of Object.entries(profiles)) {
         assert.equal(progress.at(-1)[2], true);
     });
 }
+
+test("SD boot runs the named card file and releases the open port for the IDE", async () => {
+    const {port, commands, chunks} = emulateROM();
+    assert.equal(await run(port, null, "sd"), "G");
+    assert.deepEqual(commands, ["Prop_Chk", "monitor", "R_BOOT_P2.BIX"]);
+    assert.deepEqual(chunks, []);
+    assert.equal(port.readable.locked || port.writable.locked, false);
+});
+
+test("SD boot reports the ROM's file error", async () => {
+    const {port} = emulateROM({sdReply: "R_BOOT_P2.BIX\r\n!\r\n"});
+    await assert.rejects(run(port, null, "sd"), /SD card did not start/);
+    assert.equal(port.readable.locked || port.writable.locked, false);
+});
 
 test("corrupt flash data is rejected before reset", async () => {
     const {port, signals, commands} = emulateROM();
