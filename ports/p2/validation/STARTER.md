@@ -39,6 +39,26 @@ compiler built a module that the physical Edge imported from a PSRAM filesystem
 and ran on COM12, returning `1938`.
 [Downloaded assets and member hashes](release-kit2-download.json) · [Board import](release-kit2-board.json)
 
+## Starter kit 3
+
+Kit.3 ships the verified SD installer, ROM boot instructions and a Smart Pin
+counter that the experimental Python worker can read. Its three firmware
+profiles and Linux compiler have the same bytes as kit.2. On GitHub, the
+1,444,063-byte ZIP has SHA-256
+`f35366dafcc0f85d95baa30ef5ecc65c80b0d4b6cd9ad39a01db3df88a20d0fc`.
+Both public assets matched the copies built from tag `4364cc9fe` in a fresh
+Windows checkout. The Linux compiler from the download produced the same
+bytecode as the module that returned `1938` on the physical Edge.
+[Release and downloads](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.3) Â· [Per-file checksums and compiler test](release-kit3-download.json)
+
+Windows, macOS and Ubuntu runners downloaded the published ZIP, checked its
+checksum and manifest, extracted it into a path containing a space, and ran
+the host tools and driver tests. Ubuntu also compiled a module with the
+packaged Linux x86-64 executable. To repeat these checks, select the kit tag
+in the manual **Starter kit on desktop hosts** workflow and enable **Download
+and test the release assets attached to the selected tag**.
+[Three-host download test](https://github.com/speccy88/micropython-p2/actions/runs/45612686039)
+
 ## Verify a download
 
 Compare the ZIP hash to `SHA256SUMS.txt` using `sha256sum -c SHA256SUMS.txt`

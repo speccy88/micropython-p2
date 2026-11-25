@@ -1,0 +1,99 @@
+{
+  "release": "https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.3",
+  "release_commit": "4364cc9febdea0f1343d354816ceab3c7989241f",
+  "verified_utc": "2026-11-25T12:20:50+00:00",
+  "firmware_source_commit": "ee618817ca5a2f119cabdc8ef567ccdf012ed85d",
+  "previous_kit": "v1.29.0-p2.1-kit.2",
+  "assets": {
+    "micropython-p2-starter.zip": {
+      "url": "https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.3/micropython-p2-starter.zip",
+      "bytes": 1444063,
+      "sha256": "f35366dafcc0f85d95baa30ef5ecc65c80b0d4b6cd9ad39a01db3df88a20d0fc"
+    },
+    "SHA256SUMS.txt": {
+      "url": "https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.3/SHA256SUMS.txt",
+      "bytes": 93,
+      "sha256": "013e88bd57d8702d0c7546f349da3e57cd2193dcf4323ebbb54708d64baf7c22"
+    }
+  },
+  "members_compared_to_git_blobs": {
+    "ports/p2/firmware/edge.bin": {
+      "bytes": 403960,
+      "sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052"
+    },
+    "ports/p2/firmware/edge.elf": {
+      "bytes": 545528,
+      "sha256": "0f721ef274f747e16e253a58439d4c0a166acdcd1ff1bf0c205a4b6a059e4f21"
+    },
+    "ports/p2/firmware/lean.bin": {
+      "bytes": 238464,
+      "sha256": "c0aea460d3b86d26ff85f6e4834e1d24ac63c53c3523c8ae7abb3b828fe2be59"
+    },
+    "ports/p2/firmware/lean.elf": {
+      "bytes": 322292,
+      "sha256": "e16a6e49b7acd1a046acb1cc4bc2a3c64cca0287c81ba3f30a9bcf074592b5e8"
+    },
+    "ports/p2/firmware/threaded.bin": {
+      "bytes": 232824,
+      "sha256": "b8630322daae67432adcc2ce705f713052c2c768a7ddbda8615407fbea1c8757"
+    },
+    "ports/p2/firmware/threaded.elf": {
+      "bytes": 313296,
+      "sha256": "d7539164c864f5e2350c8ef098c7203cf1b3b0ba28788067156af7d653d316c2"
+    },
+    "ports/p2/firmware/mpy-cross-linux-x86_64": {
+      "bytes": 444624,
+      "sha256": "4c86414b1d66b6fcf1bbfd17fa9df6f118a47f86b0766090a3801b15272f6e68"
+    },
+    "ports/p2/examples/hubdriver/edgecount.py": {
+      "bytes": 1269,
+      "sha256": "3c597e95c7d520d8b422afe204140f4cbb0103ee889b6266c97760c99afa8683"
+    },
+    "ports/p2/examples/hubdriver/edgecount.S": {
+      "bytes": 851,
+      "sha256": "3aa82fd5f84335d163224694caf58ea5c1f5be43ba1d9d3643a1dde108c5847e"
+    },
+    "ports/p2/examples/hubdriver/edgecount.p2d": {
+      "bytes": 148,
+      "sha256": "19b01a431cebd263453c2bfad16340dc688f31157a8cb41d8e1a34bb3c014379"
+    }
+  },
+  "all_member_crcs_ok": true,
+  "windows_fresh_checkout_binary_comparison": "core.autocrlf=true",
+  "compiler_zip_unix_mode": "0o100755",
+  "compiler_probe_from_public_download": {
+    "archive_sha256": "f35366dafcc0f85d95baa30ef5ecc65c80b0d4b6cd9ad39a01db3df88a20d0fc",
+    "edge_image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+    "mpy_cross_sha256": "4c86414b1d66b6fcf1bbfd17fa9df6f118a47f86b0766090a3801b15272f6e68",
+    "mpy_cross_version": "MicroPython v1.29.0-p2.1 on 2026-11-25; mpy-cross emitting mpy v6.3",
+    "module_sha256": "8eadd4067c28f683761f41c4cab5f44909df94ac1b32cf6a564510c4b4405089",
+    "device_result": null
+  },
+  "identical_firmware_compiler_and_module_prior_physical_result": "release-kit2-board.json",
+  "public_asset_desktop_matrix": {
+    "run": "https://github.com/speccy88/micropython-p2/actions/runs/45612686039",
+    "id": 45612686039,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "kit (windows-latest)",
+        "url": "https://github.com/speccy88/micropython-p2/actions/runs/45612686039/job/139200025547",
+        "conclusion": "success",
+        "downloaded_assets": true
+      },
+      {
+        "name": "kit (ubuntu-24.04)",
+        "url": "https://github.com/speccy88/micropython-p2/actions/runs/45612686039/job/139200025704",
+        "conclusion": "success",
+        "downloaded_assets": true
+      },
+      {
+        "name": "kit (macos-latest)",
+        "url": "https://github.com/speccy88/micropython-p2/actions/runs/45612686039/job/139200025770",
+        "conclusion": "success",
+        "downloaded_assets": true
+      }
+    ]
+  }
+}
