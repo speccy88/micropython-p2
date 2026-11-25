@@ -16,7 +16,11 @@ if "$sdk/clang" --target=p2 -c -x assembler -o /dev/null - <<< 'getrnd r0' 2>/de
 else
     export P2_MAP_OPT=-Os
 fi
-buildroot=${BUILD_ROOT:-"$port/build-delivery"}
+default_root="$port/build-delivery"
+if [[ ${P2_ENABLE_HW_IRQ:-0} == 1 ]]; then
+    default_root="$port/build-irq"
+fi
+buildroot=${BUILD_ROOT:-"$default_root"}
 mkdir -p "$buildroot"
 buildroot=$(cd "$buildroot" && pwd)
 export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-$(git -C "$repo" log -1 --format=%ct)}

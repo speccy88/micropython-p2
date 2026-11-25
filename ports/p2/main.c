@@ -8,6 +8,10 @@
 #include "py/pystack.h"
 #include "shared/runtime/pyexec.h"
 #include "drivers/p2resources.h"
+#if P2_ENABLE_HW_IRQ
+#include "irq.h"
+#include "irq_native.h"
+#endif
 #if !P2_PROFILE_THREADED
 #include "shared/runtime/softtimer.h"
 #endif
@@ -79,6 +83,10 @@ void p2_quiesce_devices(void) {
 }
 
 void main(void) {
+    #if P2_ENABLE_HW_IRQ
+    uint32_t boot_mask = p2_irq_save();
+    p2_irq_restore(boot_mask);
+    #endif
     for (;;) {
         #if P2_PROFILE_THREADED
         p2_thread_init();
@@ -113,6 +121,9 @@ void main(void) {
         }
         mp_hal_set_interrupt_char(-1);
         p2_vm_resetting = true;
+        #if P2_ENABLE_HW_IRQ
+        p2_irq_reset();
+        #endif
         mp_sched_lock();
         #if MICROPY_VFS_FAT
         gc_run_reset_finalisers();
@@ -124,6 +135,10 @@ void main(void) {
         gc_sweep_all();
         mp_sched_unlock();
         mp_deinit();
+        #if P2_ENABLE_HW_IRQ
+        // Discard mask changes made by the previous VM, including finalisers.
+        p2_irq_restore(boot_mask);
+        #endif
         mp_hal_stdout_tx_str("MPY: soft reboot\r\n");
     }
 }

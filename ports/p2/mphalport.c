@@ -3,6 +3,10 @@
 #include "py/runtime.h"
 #include "py/mphal.h"
 #include "py/stream.h"
+#if P2_ENABLE_HW_IRQ
+#include "irq.h"
+#include "irq_native.h"
+#endif
 
 extern uint32_t raw_p2_uart_buffered(void);
 extern uint8_t raw_p2_uart_getc(void);
@@ -21,6 +25,12 @@ void p2_console_poll_interrupt(void) {
     }
     #if !P2_PROFILE_THREADED
     p2_timer_poll();
+    #endif
+    #if P2_ENABLE_HW_IRQ
+    uint32_t generation = p2_irq_pending;
+    if (generation) {
+        p2_irq_schedule(generation);
+    }
     #endif
     uint32_t count = p2_console_interrupt_count;
     if (count != interrupt_seen) {

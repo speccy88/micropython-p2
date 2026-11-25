@@ -1,6 +1,15 @@
 BOARD ?= P2_EC32MB
 PROFILE ?= edge
-BUILD ?= build-$(BOARD)-$(PROFILE)
+P2_ENABLE_HW_IRQ ?= 0
+ifneq ($(P2_ENABLE_HW_IRQ),0)
+ifneq ($(P2_ENABLE_HW_IRQ),1)
+$(error P2_ENABLE_HW_IRQ must be 0 or 1)
+endif
+ifeq ($(PROFILE),threaded)
+$(error P2_ENABLE_HW_IRQ=1 is unsupported with PROFILE=threaded)
+endif
+endif
+BUILD ?= build-$(BOARD)-$(PROFILE)$(if $(filter 1,$(P2_ENABLE_HW_IRQ)),-irq)
 include ../../py/mkenv.mk
 P2_WORK ?= $(HOME)/tinygo-p2-work
 P2_BIN ?= $(P2_WORK)/llvm15-build/bin
@@ -59,6 +68,23 @@ SRC_C += shared/readline/readline.c shared/runtime/pyexec.c shared/runtime/stdou
 ifneq ($(PROFILE),threaded)
 SRC_C += timer.c shared/runtime/softtimer.c shared/runtime/mpirq.c
 endif
+# Upstream qstr/root extraction retains per-source fragments across incremental
+# builds. Keep enabled and disabled inventories separate, even with BUILD set.
+IRQ_CFG = $(BUILD)/p2_irq_config.h
+.PHONY: p2-force-config
+$(IRQ_CFG): p2-force-config
+	@mkdir -p $(BUILD)
+	@if test -f $@; then \
+	    echo '#define P2_ENABLE_HW_IRQ $(P2_ENABLE_HW_IRQ)' | cmp -s - $@ || \
+	        { echo "IRQ configuration differs: choose a separate BUILD directory" >&2; exit 1; }; \
+	else echo '#define P2_ENABLE_HW_IRQ $(P2_ENABLE_HW_IRQ)' > $@; fi
+CFLAGS += -include $(IRQ_CFG)
+QSTR_GLOBAL_DEPENDENCIES += $(IRQ_CFG)
+.DELETE_ON_ERROR:
+ifeq ($(P2_ENABLE_HW_IRQ),1)
+SRC_C += irq.c
+SRC_S += irq_p2.S
+endif
 SRC_QSTR += $(SRC_C)
 SRC_C += $(P2_RUNTIME_C)
 SRC_S += boot.S gc_p2.S $(wildcard drivers/*.S) $(wildcard bus/*.S) $(P2_RUNTIME_S)
@@ -71,9 +97,14 @@ SRC_C += drivers/modp2.c drivers/hubdriver.c drivers/resources.c
 SRC_S += drivers/counter.S
 endif
 OBJ += $(PY_O) $(addprefix $(BUILD)/,$(SRC_C:.c=.o) $(SRC_S:.S=.o))
+$(OBJ): $(IRQ_CFG)
 all: $(BUILD)/firmware.bin
 $(BUILD)/firmware.elf: $(OBJ) $(P2_RUNTIME_LIBS) p2.ld
 	$(LD) --gc-sections -Map=$@.map -T p2.ld -o $@ $(OBJ) $(P2_RUNTIME_LIBS)
+ifeq ($(P2_ENABLE_HW_IRQ),1)
+	$(PYTHON) tests/check_irq_asm.py --bin $(P2_BIN) $@ $(BUILD)/irq_p2.o
+$(BUILD)/firmware.elf: tests/check_irq_asm.py
+endif
 $(BUILD)/firmware.bin: $(BUILD)/firmware.elf
 	$(OBJCOPY) -O binary $< $@
 include $(TOP)/py/mkrules.mk

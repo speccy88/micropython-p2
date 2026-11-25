@@ -12,11 +12,25 @@ static void pins(u32 value) {
 static void pulse(void) {
     __asm__ volatile ("outh #56\n\toutl #56" ::: "memory");
 }
-static void select_ram(void) {
+#if P2_ENABLE_HW_IRQ
+#include "irq_native.h"
+#endif
+static u32 select_ram(void) {
+    #if P2_ENABLE_HW_IRQ
+    u32 state = p2_irq_save();
+    #else
+    u32 state = 0;
+    #endif
     __asm__ volatile ("outl #57" ::: "memory");
+    return state;
 }
-static void release_ram(void) {
+static void release_ram(u32 state) {
     __asm__ volatile ("outh #57" ::: "memory");
+    #if P2_ENABLE_HW_IRQ
+    p2_irq_restore(state);
+    #else
+    (void)state;
+    #endif
 }
 static void spi_byte(u32 value) {
     for (u32 bit = 0x80; bit; bit >>= 1) {
@@ -25,9 +39,9 @@ static void spi_byte(u32 value) {
     }
 }
 static void spi_command(u32 command) {
-    select_ram();
+    u32 state = select_ram();
     spi_byte(command);
-    release_ram();
+    release_ram(state);
 }
 static u32 spi_read_parallel(void) {
     u32 result = 0;
@@ -51,24 +65,24 @@ void p2_psram_init(u32 *ids) {
     pins(0);
     __asm__ volatile ("waitx %0" : : "r" (32000) : "memory");
     // Exit QPI after a warm reset. SPI mode discards this incomplete command.
-    select_ram();
+    u32 state = select_ram();
     pins(0x00ffff00);
     pulse();
     pins(0x00555500);
     pulse();
-    release_ram();
+    release_ram(state);
     __asm__ volatile ("andn dirb, %0\n\tor dirb, %1" : : "r" (DATA_MASK), "r" (MOSI_MASK) : "memory");
     spi_command(0x66);
     spi_command(0x99);
     __asm__ volatile ("waitx #32" ::: "memory");
-    select_ram();
+    state = select_ram();
     spi_byte(0x9f);
     spi_byte(0);
     spi_byte(0);
     spi_byte(0);
     for (u32 i = 0; i < 8; ++i) {ids[i] = spi_read_parallel();
     }
-    release_ram();
+    release_ram(state);
     spi_command(0x35);
     __asm__ volatile ("andn dirb, %0" : : "r" (DATA_MASK) : "memory");
 }

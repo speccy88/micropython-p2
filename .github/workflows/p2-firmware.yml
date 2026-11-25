@@ -3,6 +3,10 @@ name: Rebuild P2 firmware
 on:
   workflow_dispatch:
     inputs:
+      build_irq:
+        description: Also build and audit opt-in IRQ Edge and Lean images from this checkout
+        type: boolean
+        default: false
       reproduce_release:
         description: Build the source revision in the firmware manifest and verify its images
         type: boolean
@@ -72,6 +76,16 @@ jobs:
         run: |
           python3 ports/p2/toolchain/check-overlay.py "$P2_BIN"
           bash "$FIRMWARE_SOURCE/ports/p2/tools/build_profiles.sh" edge lean threaded
+      - name: Build IRQ-enabled Edge and Lean and check their resident handlers
+        if: inputs.build_irq
+        env:
+          P2_WORK: ${{ runner.temp }}/p2-sdk
+          P2_BIN: ${{ runner.temp }}/p2-sdk/bin
+          BUILD_ROOT: ${{ runner.temp }}/p2-irq
+          P2_ENABLE_HW_IRQ: '1'
+        run: |
+          git submodule update --init --depth=1 lib/micropython-lib
+          bash ports/p2/tools/build_profiles.sh edge lean
       - name: Compare freshly linked release images with manifest
         if: inputs.reproduce_release
         env:
@@ -104,4 +118,7 @@ jobs:
             ${{ runner.temp }}/p2-firmware/*/firmware.elf
             ${{ runner.temp }}/p2-firmware/*/firmware.elf.map
             ${{ runner.temp }}/p2-firmware/*/sections.txt
+            ${{ runner.temp }}/p2-irq/*/firmware.bin
+            ${{ runner.temp }}/p2-irq/*/firmware.elf
+            ${{ runner.temp }}/p2-irq/*/sections.txt
           if-no-files-found: error

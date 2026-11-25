@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
 #include "modp2.h"
+#if P2_ENABLE_HW_IRQ
+#include "irq.h"
+#endif
 
 // Ownership belongs to one live Python handle. The pin registry contains only
 // small integer tags; native drivers cannot retain pointers to these handles.
@@ -20,6 +23,18 @@ static pin_obj_t *open_pin(mp_obj_t o) {
     }
     return p;
 }
+#if P2_ENABLE_HW_IRQ
+unsigned p2_irq_pin_number(mp_obj_t self) {
+    if (!mp_obj_is_type(self, &p2_pin_type)) {
+        mp_raise_TypeError(MP_ERROR_TEXT("ordinary Pin required"));
+    }
+    pin_obj_t *p = open_pin(self);
+    if (p->mode != PIN_IN) {
+        mp_raise_ValueError(MP_ERROR_TEXT("IRQ requires Pin.IN"));
+    }
+    return p->pin;
+}
+#endif
 static pin_obj_t *claim_pin(const mp_obj_type_t *type, unsigned pin, unsigned owner) {
     pin_obj_t *p = mp_obj_malloc_with_finaliser(pin_obj_t, type);
     p->pin = pin;
@@ -34,6 +49,9 @@ static pin_obj_t *claim_pin(const mp_obj_type_t *type, unsigned pin, unsigned ow
 static mp_obj_t release_pin(mp_obj_t self) {
     pin_obj_t *p = MP_OBJ_TO_PTR(self);
     if (p->owner) {
+        #if P2_ENABLE_HW_IRQ
+        p2_irq_pin_detach(self);
+        #endif
         p2_pins_release(&p->pin, 1, p->owner);
         p->owner = 0;
     }
@@ -128,6 +146,11 @@ static mp_obj_t pin_call(mp_obj_t self, size_t n, size_t nk, const mp_obj_t *arg
     return value(2, call_args);
 }
 static const mp_rom_map_elem_t pin_locals[] = {
+    #if P2_ENABLE_HW_IRQ
+    {MP_ROM_QSTR(MP_QSTR_IRQ_RISING), MP_ROM_INT(P2_IRQ_RISING)},
+    {MP_ROM_QSTR(MP_QSTR_IRQ_FALLING), MP_ROM_INT(P2_IRQ_FALLING)},
+    {MP_ROM_QSTR(MP_QSTR_irq), MP_ROM_PTR(&p2_pin_irq_obj)},
+    #endif
     {MP_ROM_QSTR(MP_QSTR_IN), MP_ROM_INT(PIN_IN)},
     {MP_ROM_QSTR(MP_QSTR_OUT), MP_ROM_INT(PIN_OUT)},
     {MP_ROM_QSTR(MP_QSTR_OPEN_DRAIN), MP_ROM_INT(PIN_OPEN_DRAIN)},

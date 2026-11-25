@@ -1,6 +1,6 @@
 //go:build p2
 
-// P2-EC32MB parallel quad transfers preserve R0..R29. The caller stalls IRQs.
+// P2-EC32MB parallel quad transfers preserve R0..R29. Default builds use the caller's mask.
 // Timing follows APS6404L rev 2.3 sections 11 and 14.6: https://www.pjrc.com/store/APS6404L_3SQR.pdf
 
 .macro p2_psram_address_nibble index
@@ -18,6 +18,12 @@
 	mov r30, ##0x00ffff00
 	outl #56
 	or dirb, r30
+#if P2_ENABLE_HW_IRQ
+	// Inline the hardware save in ABI scratch to avoid two calls per burst.
+	// The ISR and this kernel both preserve $3 while the chip is selected.
+	getbrk $3 wcz
+	stalli
+#endif
 	getct ptrb
 	outl #57
 	andn outb, r30
@@ -36,6 +42,15 @@
 	p2_psram_address_nibble 0
 .endm
 
+.macro p2_psram_restore_mask
+#if P2_ENABLE_HW_IRQ
+	// No instruction in this transaction can unstall interrupts. Bit 1
+	// selects whether they should stay stalled on return to the caller.
+	test $3, #2 wz
+	if_z allowi
+#endif
+.endm
+
 .section .text.p2_psram_read_word
 .global p2_psram_read_word
 .global p2_psram_read_quad
@@ -45,7 +60,7 @@ p2_psram_read_word:
 	mov $1, #0
 	jmp #.Lread_prefix
 // Four consecutive bytes from each chip, written to four aligned hub longs.
-// $0..$2 are ABI scratch cog registers. The caller stalls interrupts.
+// $0..$2 are ABI scratch cog registers. IRQ builds also use $3 for the mask token.
 p2_psram_read_quad:
 	mov $0, #4
 	mov $1, r1
@@ -101,6 +116,7 @@ p2_psram_read_quad:
 	outh #57
 	getct r31
 	sub r31, ptrb
+	p2_psram_restore_mask
 	reta
 
 .section .text.p2_psram_write_word
@@ -152,4 +168,5 @@ p2_psram_write_quad:
 	getct r31
 	sub r31, ptrb
 	andn dirb, r30
+	p2_psram_restore_mask
 	reta

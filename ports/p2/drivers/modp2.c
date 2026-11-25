@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
 #include "modp2.h"
+#if P2_ENABLE_HW_IRQ
+#include "irq.h"
+#endif
 #include "bus/machine_bus.h"
 void p2_poll_borrowed_io(void) {
     p2_console_poll_interrupt();
@@ -57,6 +60,10 @@ static mp_obj_t machine_freq(void) {
 static MP_DEFINE_CONST_FUN_OBJ_0(machine_freq_obj, machine_freq);
 static const mp_rom_map_elem_t machine_globals[] = {
     P2_MACHINE_BUS_GLOBALS
+    #if P2_ENABLE_HW_IRQ
+    {MP_ROM_QSTR(MP_QSTR_disable_irq), MP_ROM_PTR(&p2_disable_irq_obj)},
+    {MP_ROM_QSTR(MP_QSTR_enable_irq), MP_ROM_PTR(&p2_enable_irq_obj)},
+    #endif
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_machine)},
     {MP_ROM_QSTR(MP_QSTR_Pin), MP_ROM_PTR(&p2_pin_type)},
     {MP_ROM_QSTR(MP_QSTR_PWM), MP_ROM_PTR(&p2_pwm_type)},

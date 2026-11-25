@@ -23,6 +23,8 @@ SECTIONS {
         . = 0xa00;
         *(.text .text.*)
     }
+    .p2.irq_blob : { KEEP(*(.p2.irq_blob)) }
+    ASSERT(SIZEOF(.p2.irq_blob) <= 32 * 4, "INT1 exceeds reserved COG $080..$09f")
     .rodata : { *(.rodata .rodata.*) }
     .data : { *(.data .data.* .sdata .sdata.*) }
     .bss (NOLOAD) : {

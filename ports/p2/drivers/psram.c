@@ -4,6 +4,14 @@
 #include <string.h>
 #include "modp2.h"
 #if P2_BOARD_HAS_PSRAM
+#if P2_ENABLE_HW_IRQ
+// IRQ-enabled PASM kernels save and restore the mask around chip selection.
+#define PSRAM_STALL() ((void)0)
+#define PSRAM_RESTORE() ((void)0)
+#else
+#define PSRAM_STALL() __asm__ volatile ("stalli" ::: "memory")
+#define PSRAM_RESTORE() __asm__ volatile ("allowi" ::: "memory")
+#endif
 #define CAPACITY (32u << 20)
 #define MAX_REGIONS 32
 static uint32_t ids[8], max_cycles, last_complete;
@@ -100,10 +108,10 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
         // Start on a four-byte boundary inside each physical chip. Four
         // transfers then stay within even the shortest 32-byte wrap window.
         if (!(addr & 15) && !((uintptr_t)(buf + done) & 3) && size - done >= 16) {
-            __asm__ volatile ("stalli" ::: "memory");
+            PSRAM_STALL();
             uint32_t ticks = write ? p2_psram_write_quad(addr >> 2, buf + done)
                 : p2_psram_read_quad(addr >> 2, buf + done);
-            __asm__ volatile ("allowi" ::: "memory");
+            PSRAM_RESTORE();
             check_ticks(ticks);
             done += 16;
             addr += 16;
@@ -123,9 +131,9 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
         }
         uint32_t word = 0;
         if (!write || n < 4) {
-            __asm__ volatile ("stalli" ::: "memory");
+            PSRAM_STALL();
             uint64_t pair = p2_psram_read_word(addr >> 2);
-            __asm__ volatile ("allowi" ::: "memory");
+            PSRAM_RESTORE();
             check_ticks(pair >> 32);
             word = (uint32_t)pair;
         }
@@ -148,9 +156,9 @@ static void transfer(uint32_t addr, uint8_t *buf, size_t size, bool write, bool 
             }
         }
         if (write) {
-            __asm__ volatile ("stalli" ::: "memory");
+            PSRAM_STALL();
             uint32_t ticks = p2_psram_write_word(addr >> 2, word);
-            __asm__ volatile ("allowi" ::: "memory");
+            PSRAM_RESTORE();
             check_ticks(ticks);
         }
         done += n;
