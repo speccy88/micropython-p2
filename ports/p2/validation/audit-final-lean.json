@@ -1,0 +1,16 @@
+{
+  "image_sha256": "c0aea460d3b86d26ff85f6e4834e1d24ac63c53c3523c8ae7abb3b828fe2be59",
+  "image_bytes": 238464,
+  "scripts": {
+    "vm.py": {
+      "sha256": "b4bdb85df142c09d6ed333ab537e7847ab3d816434e06ce64471f5a6156ff301",
+      "seconds": 1.531000000000006,
+      "output": [
+        "{\"gc_us_median\": 16546, \"integer_loop_1000_us\": 41928, \"gc_us_min\": 16539, \"platform\": \"p2\", \"c_stack_used\": 1380, \"heap_free_after\": 231248, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 231952, \"gc_us_max\": 16571, \"passed\": true}"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2 Edge with Propeller 2', _mpy=774, _build='P2_EDGE') 160000000 234688",
+  "passed": true
+}

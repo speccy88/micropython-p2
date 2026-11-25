@@ -1,0 +1,61 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "results": [
+    [
+      "basics/set_pop.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/set_remove.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/set_add.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/int_divmod.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/try_finally_return.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/gc1.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/fun_varargs.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/dict_del.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/dict_pop.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/bytes_compare.py",
+      "pass",
+      ""
+    ],
+    [
+      "basics/list_slice.py",
+      "pass",
+      ""
+    ]
+  ],
+  "exitcode": 0
+}

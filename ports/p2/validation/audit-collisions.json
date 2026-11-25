@@ -1,0 +1,16 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "image_bytes": 403960,
+  "scripts": {
+    "collisions.py": {
+      "sha256": "a90cb59ae4dece28b28aca8d7d4e753fad947b0d446712bc24e820360dd924ee",
+      "seconds": 24.656000000000006,
+      "output": [
+        "COLLISIONS_PASS"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2-EC32MB with Propeller 2', _mpy=774, _build='P2_EC32MB') 160000000 70928",
+  "passed": true
+}

@@ -1,0 +1,124 @@
+{
+  "flat_image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "serial_endpoint": "socket://127.0.0.1:8126",
+  "checks": {
+    "large_raw_paste": {
+      "bytes": 39969,
+      "reply": "e54fc6f60636557aea30d0f8",
+      "nonce": "e54fc6f60636557aea30d0f8",
+      "passed": true
+    },
+    "large_serial_output": {
+      "expected_bytes": 80896,
+      "received_bytes": 80896,
+      "expected_sha256": "0d3662442ec08104f94efcfc4fda3cf2fa92e0e1823f580eb3daf67db61821ba",
+      "received_sha256": "0d3662442ec08104f94efcfc4fda3cf2fa92e0e1823f580eb3daf67db61821ba",
+      "passed": true
+    },
+    "interrupt_loop": {
+      "passed": true,
+      "exception": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 2, in <module>\r\nKeyboardInterrupt: \r\n"
+    },
+    "soft_reset_0": {
+      "passed": true,
+      "heap_free": 71824
+    },
+    "soft_reset_1": {
+      "passed": true,
+      "heap_free": 71824
+    },
+    "soft_reset_2": {
+      "passed": true,
+      "heap_free": 71824
+    },
+    "soft_reset_3": {
+      "passed": true,
+      "heap_free": 71824
+    },
+    "tests/vm.py": {
+      "sha256": "b4bdb85df142c09d6ed333ab537e7847ab3d816434e06ce64471f5a6156ff301",
+      "seconds": 1.031999999890104,
+      "passed": true,
+      "stdout": "{\"gc_us_median\": 6079, \"integer_loop_1000_us\": 23717, \"gc_us_min\": 6071, \"platform\": \"p2\", \"c_stack_used\": 1196, \"heap_free_after\": 68640, \"mpy\": 774, \"test\": \"vm\", \"initial_heap_free\": 69072, \"gc_us_max\": 6102, \"passed\": true}",
+      "stderr": ""
+    },
+    "tests/timer.py": {
+      "sha256": "4370f18a5cb412daad3910de900547187b4eb760734e3bc35780c980cc65431b",
+      "seconds": 0.7809999999590218,
+      "passed": true,
+      "stdout": "Timer passed one-shot, periodic, cancellation, GC, queue and argument checks",
+      "stderr": ""
+    },
+    "tests/bus/loopback.py": {
+      "sha256": "ac126fca293a2b0a15499269cbc4c5c435855132c5937b8d8f4cb669845bb8ea",
+      "seconds": 0.2660000000614673,
+      "passed": true,
+      "stdout": "P2 bus loopbacks and ownership OK",
+      "stderr": ""
+    },
+    "tests/drivers/api.py": {
+      "sha256": "e9d2f1fd9960907befb9e131202eca31fd00b729efe09afe385379e9a63ee645",
+      "seconds": 5.484000000171363,
+      "passed": true,
+      "stdout": "soak 32 2005\r\nsoak 64 3314\r\nsoak 96 4622\r\nsoak 128 5931\r\nsoak 160 7240\r\nsoak 192 8549\r\nsoak 224 9857\r\nsoak 256 11166\r\nsoak 288 12475\r\nsoak 320 13784\r\nsoak 352 15093\r\nsoak 384 16402\r\nsoak 416 17710\r\nsoak 448 19019\r\nsoak 480 20328\r\nsoak 512 21637\r\nsoak 544 22946\r\nsoak 576 24255\r\nsoak 608 25563\r\nsoak 640 26872\r\nsoak 672 28181\r\nsoak 704 29490\r\nsoak 736 30799\r\nsoak 768 32108\r\nsoak 800 33416\r\nsoak 832 34725\r\nsoak 864 36034\r\nsoak 896 37343\r\nsoak 928 38652\r\nsoak 960 39961\r\nsoak 992 41269\r\nsoak 1024 42578\r\nsoak 1056 43887\r\nsoak 1088 45196\r\nsoak 1120 46505\r\nsoak 1152 47814\r\nsoak 1184 49123\r\nsoak 1216 50431\r\nP2_DRIVER_PASS 1223 5002 2 2236 2184 {'max_cycles': 550, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 513}\r\ncleanup pass",
+      "stderr": ""
+    },
+    "tests/drivers/bounds32.py": {
+      "sha256": "0f728b2b0a6b2556f11bc4d801d96f376d81fd8e34edb56689f24c8ca075c943",
+      "seconds": 0.43700000015087426,
+      "passed": true,
+      "stdout": "P2_PSRAM_BOUNDARY_PASS 33554432 10 {'max_cycles': 550, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 32}",
+      "stderr": ""
+    },
+    "tests/drivers/borrowed_io.py": {
+      "sha256": "3f911def3ba122d87b63d703becdafac56eae1139b75887b7e02bc2f8c684c33",
+      "seconds": 1.406999999890104,
+      "passed": true,
+      "stdout": "P2_BORROW_ORDER_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/burst_boundaries.py": {
+      "sha256": "6e9ca661f3d9419dc00ca6dd814e30027b89d122135bc44be0087ef0f41f6079",
+      "seconds": 0.5310000001918525,
+      "passed": true,
+      "stdout": "P2_BURST_BOUNDS_PASS 550",
+      "stderr": ""
+    },
+    "tests/drivers/full_capacity.py": {
+      "sha256": "9842e89a0f896f479618f58d4176dfd69040645093f6e10a893053e725555c48",
+      "seconds": 49.28099999995902,
+      "passed": true,
+      "stdout": "P2_PSRAM_FULL_WRITTEN 33554432 write_ms 16844\r\nP2_PSRAM_FULL_PASS bytes 33554432 tile_bytes 4096 tiles 8192 first8 00000000271389c4 last8 41209048ffffff01 write_ms 16844 read_ms 31823 elapsed_ms 48667",
+      "stderr": ""
+    },
+    "tests/drivers/pwm_capture.py": {
+      "sha256": "0ee90b75a030dc8ea0bb06612eedf29859e921ca901e463af8b33945fee5a655",
+      "seconds": 0.3130000000819564,
+      "passed": true,
+      "stdout": "PWM_CAPTURE 1000 40000 40000\r\nPWM_CAPTURE 2000 60001 59999\r\nP2_PWM_CAPTURE_PASS",
+      "stderr": ""
+    },
+    "tests/drivers/adc_ready.py": {
+      "sha256": "13c5241acc54e0d72fe5a96a81b8560e34e7c0ab18386d20ccabfbf010a5cec5",
+      "seconds": 0.23400000017136335,
+      "passed": true,
+      "stdout": "P2_ADC_READY_PASS internal_raw_gnd 721 internal_raw_vio 3418 unreferenced_pin_min 32877 unreferenced_pin_max 32925",
+      "stderr": ""
+    },
+    "examples/external_array.py": {
+      "sha256": "6076202b5799aed895b17f8b9487c95058d9bd1cdcec713b54c7df18d5d45140",
+      "seconds": 22.312000000150874,
+      "passed": true,
+      "stdout": "P2_EXT_ARRAY_PASS bytes 8388608 cache 512 initial_free 69808 live_hub_delta 5008 observed_peak_hub_delta 66416 write_us 8019740 read_us 11886777 random_us 1788422",
+      "stderr": ""
+    },
+    "tests/media_readonly.py": {
+      "sha256": "86284d7856f21ba69439c6fa9705188f2044cf3b57f50c388fbdc54741708af7",
+      "seconds": 0.23400000017136335,
+      "passed": true,
+      "stdout": "SD_NOT_MOUNTED\r\nJEDEC 0xef7018\r\nFLASH_READ_PASS 256 4096",
+      "stderr": ""
+    }
+  },
+  "passed": true
+}

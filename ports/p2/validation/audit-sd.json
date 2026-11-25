@@ -1,0 +1,17 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "passed": true,
+  "sd": {
+    "directory": "/",
+    "file": "/P263BC6E.TMP",
+    "verified_bytes": 1265
+  },
+  "startup": {
+    "friendly_order": [
+      "boot.py",
+      "main.py"
+    ],
+    "raw_skipped": true,
+    "originals_restored": 0
+  }
+}

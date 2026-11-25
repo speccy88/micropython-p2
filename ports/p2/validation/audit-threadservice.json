@@ -1,0 +1,16 @@
+{
+  "image_sha256": "efe10201fe868a888e95d655c820b212f58e9330ddfd18d67bd0a80c9efd8ba3",
+  "image_bytes": 232776,
+  "scripts": {
+    "thread-fixture.py": {
+      "sha256": "1338282a3b78f9e7a5633222f5c9eac32c0134230ef6c128363ba6fbc64872f5",
+      "seconds": 0.5,
+      "output": [
+        "P2_THREADED_SERVICE_PASS 2 24"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2-EC32MB with Propeller 2', _mpy=774, _build='P2_EC32MB', _thread='GIL') None 188880",
+  "passed": true
+}

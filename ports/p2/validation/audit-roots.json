@@ -1,0 +1,5 @@
+{
+  "image_sha256": "e7c57028d4854a2108de4b31d69be14edcfaea1cf2c6958efaa57a72c7e0215c",
+  "observed": ">OK\r\nMPY: soft reboot\r\nP2 GC roots: 7/7\r\nraw REPL; CTRL-B to exit\r\n>",
+  "passed": true
+}

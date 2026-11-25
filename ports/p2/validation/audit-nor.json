@@ -1,0 +1,9 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "passed": true,
+  "flash": {
+    "sector_start": 16773120,
+    "jedec": "0xef7018",
+    "restored_sha256": "e36f59b5d9cb1e0df85e3400654984bfd04e09979932a0b071cecafbeb436c8b"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "archive_sha256": "6b52210884b7bb7a71fe65c89789347360fa96e0362850ab5311167cd987df49",
+  "edge_image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "mpy_cross_sha256": "4c86414b1d66b6fcf1bbfd17fa9df6f118a47f86b0766090a3801b15272f6e68",
+  "mpy_cross_version": "MicroPython v1.29.0-p2.1 on 2026-11-25; mpy-cross emitting mpy v6.3",
+  "module_sha256": "8eadd4067c28f683761f41c4cab5f44909df94ac1b32cf6a564510c4b4405089",
+  "device_result": "/kitprobe/kit_probe.mpy 1938"
+}

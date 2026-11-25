@@ -125,7 +125,7 @@ Check out that commit to reproduce the version string and build date.
 | --- | --- | --- |
 | edge | P2_EC32MB | PSRAM, storage, peripheral modules, float math, asyncio, frozen packages and independent drivers |
 | lean | P2_EDGE | Single VM plus console, small hub footprint, no external memory requirement |
-| threaded | P2_EC32MB | Experimental compute profile, one additional Python worker, GIL and coordinated GC |
+| threaded | P2_EC32MB | Experimental profile with one additional Python worker, GIL, coordinated GC and shared native driver mailboxes |
 
 The prebuilt flat images, ELFs and matching Linux x86-64 `mpy-cross` are
 in [firmware](firmware/). The [manifest](firmware/manifest.json) gives their

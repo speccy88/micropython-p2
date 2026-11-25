@@ -1,0 +1,92 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "image_bytes": 403960,
+  "scripts": {
+    "benchmark.py": {
+      "sha256": "c6f4421c1efc36a513f62e3fb2d3c4cb1abca9571f0cf87d055418258cd4573b",
+      "seconds": 10.172000000020489,
+      "output": [
+        "space 68320 928 844",
+        "sample alu 0 17595",
+        "sample alu 1 17215",
+        "sample alu 2 17215",
+        "sample alu 3 17215",
+        "sample alu 4 17214",
+        "sample calls 0 29222",
+        "sample calls 1 29222",
+        "sample calls 2 29222",
+        "sample calls 3 29221",
+        "sample calls 4 29221",
+        "sample float 0 15747",
+        "sample float 1 15748",
+        "sample float 2 15748",
+        "sample float 3 15748",
+        "sample float 4 15748",
+        "sample maps 0 20948",
+        "sample maps 1 20949",
+        "sample maps 2 20948",
+        "sample maps 3 20948",
+        "sample maps 4 20948",
+        "sample parse 0 70424",
+        "sample parse 1 70424",
+        "sample parse 2 70424",
+        "sample parse 3 70424",
+        "sample parse 4 70424",
+        "sample gc 0 61159",
+        "sample gc 1 61160",
+        "sample gc 2 61159",
+        "sample gc 3 61159",
+        "sample gc 4 61159",
+        "sample raw 0 49634",
+        "sample raw 1 49634",
+        "sample raw 2 49633",
+        "sample raw 3 49634",
+        "sample raw 4 49633",
+        "sample sequential 0 417916",
+        "sample sequential 1 417916",
+        "sample sequential 2 417915",
+        "sample sequential 3 417916",
+        "sample sequential 4 417916",
+        "sample random 0 545524",
+        "sample random 1 544991",
+        "sample random 2 544990",
+        "sample random 3 544991",
+        "sample random 4 544991"
+      ],
+      "error": ""
+    },
+    "transfer_bench.py": {
+      "sha256": "45088ad64cd9c1a79257467b89d5b32a839619b52688443c1b14eed5bfa9b285",
+      "seconds": 8.890000000130385,
+      "output": [
+        "array_retained_hub_bytes 880 cache_bytes 512",
+        "psram_us 0 23244 24465 1623637 stack 1196 max_cycles 550",
+        "psram_us 1 23243 24464 1623636 stack 1196 max_cycles 550",
+        "psram_us 2 23244 24464 1623636 stack 1196 max_cycles 550",
+        "psram_us 3 23244 24464 1623636 stack 1196 max_cycles 550",
+        "psram_us 4 23244 24464 1623637 stack 1196 max_cycles 550"
+      ],
+      "error": ""
+    },
+    "waveform.py": {
+      "sha256": "f8fa3b25899ae6787ffad57668d17c9b2e500b54303b0986bdfb6f5e0b3b8b7c",
+      "seconds": 0.5,
+      "output": [
+        "WS2812 pulse count/high ticks 768 49",
+        "WS2812 pulse count/high ticks 768 105",
+        "P2_WS2812_TIMING_PASS"
+      ],
+      "error": ""
+    },
+    "events.py": {
+      "sha256": "8ce9479e6c72fadf91a36cadc0a156143680ed5174c24c598e4fac2592440c48",
+      "seconds": 0.46899999980814755,
+      "output": [
+        "EDGE_EVENTS_PASS [25, 25, 25, 25]"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2-EC32MB with Propeller 2', _mpy=774, _build='P2_EC32MB') 160000000 71552",
+  "passed": true
+}

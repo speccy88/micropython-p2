@@ -1,0 +1,9 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "packet_bytes": 753,
+  "sha256": "0617f558a6425e369f1835d1086c02e8f279da3d2b4dfd4d771b7ad03c3b0780",
+  "seconds": 6.094000000040978,
+  "stdout": "HTTP_BRIDGE_PASS\n",
+  "stderr": "Fetch 'unknown' failed: 'unknown'\n",
+  "passed": true
+}

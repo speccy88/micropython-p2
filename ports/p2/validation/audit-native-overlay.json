@@ -1,0 +1,30 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "driver_bytes": [
+    164,
+    240
+  ],
+  "modes": {
+    "hub": {
+      "retained_hub_bytes": 528,
+      "launch_us": [
+        518,
+        408,
+        369,
+        400,
+        369
+      ]
+    },
+    "psram": {
+      "retained_hub_bytes": 144,
+      "launch_us": [
+        789,
+        676,
+        653,
+        670,
+        653
+      ]
+    }
+  },
+  "passed": true
+}

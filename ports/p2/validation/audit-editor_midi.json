@@ -1,0 +1,11 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "output": [
+    "a TEXT append | r N TEXT replace | d N delete | p print | w save | q quit",
+    "a TEXT append | r N TEXT replace | d N delete | p print | w save | q quit",
+    "a TEXT append | r N TEXT replace | d N delete | p print | w save | q quit",
+    "12",
+    "EDITOR_MIDI_PASS"
+  ],
+  "passed": true
+}

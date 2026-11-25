@@ -1,0 +1,22 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "script_sha256": "a1beceef5717d939baeba6ba5d612227c984fb510636b82dfd0b71bdce513214",
+  "requested_seconds": 20,
+  "samples": [
+    {
+      "seconds": 0,
+      "heap": 68416,
+      "worker_count": 868,
+      "timer_callbacks": 17,
+      "batch": 0
+    }
+  ],
+  "passed": true,
+  "start": "160000000 71232",
+  "seconds": 20.27,
+  "batches": 22,
+  "min_free": 68416,
+  "max_roundtrip_s": 1.093999999999994,
+  "cleanup_heap": 69216,
+  "reset_heap": 71264
+}

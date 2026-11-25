@@ -1,0 +1,107 @@
+{
+  "image_sha256": "63d9625250eabf3b3722206f1db2a7a487a90237c798e7ab47ea216a24daf80a",
+  "image_bytes": 402796,
+  "scripts": {
+    "benchmark.py": {
+      "sha256": "c6f4421c1efc36a513f62e3fb2d3c4cb1abca9571f0cf87d055418258cd4573b",
+      "seconds": 11.094000000040978,
+      "output": [
+        "space 69472 928 940",
+        "sample alu 0 28379",
+        "sample alu 1 27997",
+        "sample alu 2 27997",
+        "sample alu 3 27997",
+        "sample alu 4 27997",
+        "sample calls 0 36307",
+        "sample calls 1 36307",
+        "sample calls 2 36306",
+        "sample calls 3 36306",
+        "sample calls 4 36306",
+        "sample float 0 20330",
+        "sample float 1 20330",
+        "sample float 2 20331",
+        "sample float 3 20330",
+        "sample float 4 20330",
+        "sample maps 0 23174",
+        "sample maps 1 23173",
+        "sample maps 2 23173",
+        "sample maps 3 23173",
+        "sample maps 4 23173",
+        "sample parse 0 70895",
+        "sample parse 1 70895",
+        "sample parse 2 70895",
+        "sample parse 3 70895",
+        "sample parse 4 70895",
+        "sample gc 0 68685",
+        "sample gc 1 68686",
+        "sample gc 2 68686",
+        "sample gc 3 68686",
+        "sample gc 4 68685",
+        "sample raw 0 49525",
+        "sample raw 1 49526",
+        "sample raw 2 49525",
+        "sample raw 3 49526",
+        "sample raw 4 49526",
+        "sample sequential 0 489020",
+        "sample sequential 1 489019",
+        "sample sequential 2 489020",
+        "sample sequential 3 489019",
+        "sample sequential 4 489019",
+        "sample random 0 630747",
+        "sample random 1 630152",
+        "sample random 2 630152",
+        "sample random 3 630151",
+        "sample random 4 630152"
+      ],
+      "error": ""
+    },
+    "transfer_bench.py": {
+      "sha256": "45088ad64cd9c1a79257467b89d5b32a839619b52688443c1b14eed5bfa9b285",
+      "seconds": 10.452999999979511,
+      "output": [
+        "array_retained_hub_bytes 880 cache_bytes 512",
+        "psram_us 0 23344 24566 1922620 stack 1388 max_cycles 533",
+        "psram_us 1 23344 24567 1922620 stack 1388 max_cycles 533",
+        "psram_us 2 23344 24566 1922619 stack 1388 max_cycles 533",
+        "psram_us 3 23344 24566 1922620 stack 1388 max_cycles 533",
+        "psram_us 4 23344 24566 1922620 stack 1388 max_cycles 533"
+      ],
+      "error": ""
+    },
+    "burst_boundaries.py": {
+      "sha256": "6e9ca661f3d9419dc00ca6dd814e30027b89d122135bc44be0087ef0f41f6079",
+      "seconds": 0.5939999998081475,
+      "output": [
+        "P2_BURST_BOUNDS_PASS 533"
+      ],
+      "error": ""
+    },
+    "bounds32.py": {
+      "sha256": "0f728b2b0a6b2556f11bc4d801d96f376d81fd8e34edb56689f24c8ca075c943",
+      "seconds": 0.40600000019185245,
+      "output": [
+        "P2_PSRAM_BOUNDARY_PASS 33554432 10 {'max_cycles': 533, 'ids': b'\\r]R\\xd5\\xb5WJs\\r]R\\xd5\\xb5X{\\xad\\r]R\\xd5\\xb5X\\x7f\\xb5\\r]R\\xd5\\xb5Xv\\xb5', 'completed': 32}"
+      ],
+      "error": ""
+    },
+    "borrowed_io.py": {
+      "sha256": "3f911def3ba122d87b63d703becdafac56eae1139b75887b7e02bc2f8c684c33",
+      "seconds": 1.4369999999180436,
+      "output": [
+        "P2_BORROW_ORDER_PASS"
+      ],
+      "error": ""
+    },
+    "full_capacity.py": {
+      "sha256": "9842e89a0f896f479618f58d4176dfd69040645093f6e10a893053e725555c48",
+      "seconds": 51.35899999993853,
+      "output": [
+        "P2_PSRAM_FULL_WRITTEN 33554432 write_ms 17786",
+        "P2_PSRAM_FULL_PASS bytes 33554432 tile_bytes 4096 tiles 8192 first8 00000000271389c4 last8 41209048ffffff01 write_ms 17786 read_ms 32862 elapsed_ms 50648"
+      ],
+      "error": ""
+    }
+  },
+  "board": "(name='micropython', version=(1, 29, 0, ''), _machine='P2-EC32MB with Propeller 2', _mpy=774, _build='P2_EC32MB') 160000000 72992",
+  "passed": true
+}

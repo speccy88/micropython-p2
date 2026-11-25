@@ -1,0 +1,26 @@
+{
+  "image_sha256": "7a44cce09e27e658486701ca70d473c9a4fdcb730eab4438ecf75fd3fbe89052",
+  "bytes_per_direction": 16384,
+  "write_flush_close_and_read_compare_us": [
+    [
+      243629,
+      226296
+    ],
+    [
+      267774,
+      230188
+    ],
+    [
+      267831,
+      234087
+    ],
+    [
+      267629,
+      227959
+    ],
+    [
+      267695,
+      233664
+    ]
+  ]
+}
