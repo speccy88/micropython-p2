@@ -4,11 +4,21 @@ The first thing I’d try on this board is an eight-megabyte array. That’s a s
 
 You can also put a cog to work while Python is busy, capture a pulse with a Smart Pin, or use part of PSRAM as a scratch disk. The first three experiments below need just the board, power and a USB serial connection.
 
-**[Download the starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.1/micropython-p2-starter.zip)** · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.1) · [Hardware test results](ports/p2/PROGRESS.md)
+**[Open the Propeller 2 workbench](https://speccy88.github.io/micropython-p2/)** · [Download the command-line starter ZIP](https://github.com/speccy88/micropython-p2/releases/download/v1.29.0-p2.1-kit.1/micropython-p2-starter.zip) · [Release notes and checksums](https://github.com/speccy88/micropython-p2/releases/tag/v1.29.0-p2.1-kit.1) · [Hardware test results](ports/p2/PROGRESS.md)
 
 ## Get a prompt
 
 Use a P2-EC32MB Edge, a powered carrier, and a Prop Plug or equivalent 3.3 V USB serial connection with reset. Set the board for serial-capable boot. The names on the switches vary by revision. For the first run, a RAM download lets you try Python and return to the board’s previous boot program with a power cycle. [Parallax board guide](https://www.parallax.com/package/p2-edge-module-with-32mb-ram-product-guide/)
+
+### From your browser
+
+1. Plug in the board and open the workbench in desktop Chrome or Edge on Windows, Linux or macOS. Close any serial terminal that already has the adapter open. [Launch the workbench](https://speccy88.github.io/micropython-p2/)
+2. On the 32 MiB Edge, keep **Edge · 32 MiB PSRAM** and **Try in RAM** selected. Click **Load RAM & open ViperIDE**, then pick your USB serial adapter. The workbench checks the download, resets the P2, and opens the editor as soon as Python answers.
+3. Click the green **Run File** button or press **F5** in the editor. The example prints `Hello from p2` and `External RAM: 32 MiB`. Try changing the greeting and running it again. The example lives in the editor until you save it.
+
+For a permanent install on a flash-equipped Edge, select **Boot flash** and click **Replace boot flash & open ViperIDE**. This overwrites the existing boot program. Keep the board powered until Python starts. To check it, set the board for SPI flash boot, power-cycle, then choose **Connect to the IDE**. You can also use that button whenever MicroPython is already running. The flash programming stream has automated host tests. Hardware cold boot is still unverified.
+
+### From a terminal
 
 Extract the **starter ZIP** and open a terminal in the folder containing this README and `ports`. These commands also work from a checkout of the repository. Install Python 3.10 or newer on the host. Python 3.12 was used for the Windows tests.
 

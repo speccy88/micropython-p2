@@ -7,6 +7,8 @@ the P2's 512 KiB hub. A second cog handles full-duplex serial on P62/P63.
 
 ### Load and run
 
+The [Propeller 2 workbench](https://speccy88.github.io/micropython-p2/) loads a release image over Web Serial and opens ViperIDE on the same USB connection. Start with **Try in RAM**, choose the board's adapter and press **F5** in the editor. For a flash-equipped board, **Boot flash** installs the selected image as the boot program. [Walk through your first session](../../README.md#from-your-browser)
+
 From the repository root or the extracted starter kit on Windows, run the
 following in PowerShell. The bundled TinyGo/P2 ROM loader writes
 hub RAM. A power cycle returns to the board's existing boot media.

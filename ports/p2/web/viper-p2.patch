@@ -1,0 +1,273 @@
+diff --git a/src/ViperIDE.html b/src/ViperIDE.html
+index e765650..b2865df 100644
+--- a/src/ViperIDE.html
++++ b/src/ViperIDE.html
+@@ -88,7 +88,7 @@
+                     <div><a href="#" onclick="app.installPkgFromUrl()" id="install-via-url">📦 Install package via link</a></div>
+ 
+                     <div class="title-lines" id="menu-tools-python">MicroPython</div>
+-                    <div><a href="flasher.html" target="_blank">🔥 Firmware Flasher</a></div>
++                    <div><a href="../" target="_top">P2 firmware installer</a></div>
+                     <div><a href="#" onclick="app.pyPrettify()" id="py-prettify">🎀 Prettify current file</a></div>
+                     <div><a href="#" onclick="app.pyMinify()" id="py-minify">🤏 Minify current file</a></div>
+                     <div><a href="#" onclick="app.saveAndCompile()" id="py-save-compile">🛠️ Save &amp; compile to .mpy</a></div>
+diff --git a/src/app.js b/src/app.js
+index edb3c77..541104d 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -35,11 +35,9 @@ import { createBrowserVM, SYSTEM_DIRS } from './emulator.js'
+ import { getSetting, onSettingChange, updateSetting } from './settings.js'
+ import { renderMarkdown } from './markdown.js'
+ 
+-import { UAParser } from 'ua-parser-js'
+-import * as amplitude from '@amplitude/analytics-browser'
+ 
+ import { splitPath, joinPath, sleep, fetchJSON, escapeCSS, sizeFmt, report } from './utils.js'
+-import { getUserUID, getScreenInfo, IdleMonitor, getCssPropertyValue, QSA, QS, QID, iOS,
++import { getCssPropertyValue, QSA, QS, QID, iOS,
+          sanitizeHTML, indicateActivity, setupTabs,
+          readDroppedFiles } from './utils_browser.js'
+ 
+@@ -74,15 +72,6 @@ function getBuildDate() {
+ 
+ const T = i18next.t.bind(i18next)
+ 
+-const isLocalhost = (() => {
+-    const host = window.location.hostname
+-    return host === 'localhost' ||
+-           host.endsWith('.localhost') ||
+-           host === '127.0.0.1' ||
+-           host === '[::1]' ||
+-           host === '::1'
+-})()
+-
+ /*
+  * Device Management
+  */
+@@ -254,13 +243,13 @@ function handlePortDisconnect() {
+     }
+ }
+ 
+-async function disconnectDevice() {
++export async function disconnectDevice(forget = true) {
+     stopReconnectLoop()
+     intentionalDisconnect = true
+     try {
+         if (port) {
+             try {
+-                await port.disconnect()
++                await port.disconnect(forget)
+             } catch (err) {
+                 console.log(err)
+             }
+@@ -509,6 +498,35 @@ export async function connectDevice(type) {
+         return
+     }
+ 
++    return startSession(type, new_port)
++}
++
++// The parent installer owns the USB permission. Reopening an FTDI port
++// can reset the P2 and discard a program just loaded into hub RAM.
++export async function connectInstalledP2(serialPort) {
++    if (port) throw new Error('Disconnect the current IDE session first.')
++    const transport = new WebSerial()
++    transport.port = serialPort
++    const info = serialPort.getInfo()
++    transport.info = {
++        vid: info.usbVendorId?.toString(16).padStart(4, '0'),
++        pid: info.usbProductId?.toString(16).padStart(4, '0'),
++    }
++    await transport.connect(true)
++    return startSession('usb', transport)
++}
++
++export async function openP2Example(profile) {
++    let fn = '/hello_p2.py', i = 1
++    while (fsCache.has(fn) || openFiles.has(fn)) fn = '/hello_p2_' + (++i) + '.py'
++    let content = '# Press F5 to run this on your board.\nimport sys\nprint("Hello from", sys.platform)\n'
++    if (profile === 'edge') {
++        content += '\nimport p2\nprint("External RAM:", p2.PSRAM().capacity() // (1024 * 1024), "MiB")\n'
++    }
++    await _loadContent(fn, content, createTab(fn))
++}
++
++async function startSession(type, new_port) {
+     port = new_port
+     connType = type
+     wirePort(port)
+@@ -516,6 +534,7 @@ export async function connectDevice(type) {
+     analytics.track('Device Port Connected', Object.assign({ connection: type }, await port.getInfo()))
+ 
+     await initDeviceSession()
++    return deviceState
+ }
+ 
+ /*
+@@ -1695,7 +1714,7 @@ Connect your device and start creating! 🤖👨‍💻🕹️
+ > 👉 Open a [virtual device](${VIPER_IDE_BASE_URL}/?vm=1) and explore some examples.
+ 
+ > **New board, no MicroPython on it yet?**  
+-> 👉 Use the [Firmware Flasher](${VIPER_IDE_BASE_URL}/flasher.html) to install it.
++> 👉 Use the [Firmware Flasher](${VIPER_IDE_BASE_URL}/../) to install it.
+ 
+ ## More about ViperIDE
+ 
+@@ -2214,19 +2233,6 @@ function showOfflineReadyToast(version) {
+ (async () => {
+     const urlParams = new URLSearchParams(window.location.search)
+ 
+-    if ('serviceWorker' in navigator) {
+-        navigator.serviceWorker.addEventListener('message', (event) => {
+-            if (event.data?.type === offlineReadyMessage) {
+-                showOfflineReadyToast(event.data?.version)
+-            }
+-        })
+-        try {
+-            await navigator.serviceWorker.register('./app_worker.js');
+-        } catch (err) {
+-            report("Unable to register service worker", err)
+-        }
+-    }
+-
+     await i18next.use(LanguageDetector).init({
+         fallbackLng: 'en',
+         //debug: true,
+@@ -2241,84 +2247,7 @@ function showOfflineReadyToast(version) {
+         applyTranslation()
+     })
+ 
+-    if (isLocalhost) {
+-        window.analytics = {
+-            track: function() {},
+-            identify: function() {},
+-        }
+-    } else {
+-        amplitude.init('ee23cab1415ee70b31a694db17aebcb8', {
+-            autocapture: false
+-        })
+-
+-        window.analytics = {
+-            track: (eventName, properties) => amplitude.track(eventName, properties),
+-            identify: (userId, traits) => {
+-                amplitude.setUserId(userId)
+-                if (traits) {
+-                    const id = new amplitude.Identify()
+-                    for (const [key, value] of Object.entries(traits)) {
+-                        id.set(key, value)
+-                    }
+-                    amplitude.identify(id)
+-                }
+-            }
+-        }
+-
+-        try {
+-            const ua = new UAParser()
+-            const scr = getScreenInfo()
+-
+-            let tz
+-            try {
+-                tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+-            } catch (_e) {
+-                tz = (new Date()).getTimezoneOffset()
+-            }
+-
+-            const userUID = getUserUID()
+-
+-            analytics.identify(userUID, {
+-                version: VIPER_IDE_VERSION,
+-                build: getBuildDate(),
+-                browser: ua.getBrowser().name,
+-                browser_version: ua.getBrowser().version,
+-                os: ua.getOS().name,
+-                os_version: ua.getOS().version,
+-                cpu: ua.getCPU().architecture,
+-                pwa: isStandalonePWA(),
+-                screen: scr.width + 'x' + scr.height,
+-                orientation: scr.orientation,
+-                dpr: scr.dpr,
+-                dpi: QID('dpi-ruler').offsetHeight,
+-                lang: currentLang,
+-                //location: geo.latitude + ',' + geo.longitude,
+-                //continent: geo.continent,
+-                //country: geo.countryName,
+-                //region: geo.regionName,
+-                //city: geo.cityName,
+-                tz: tz,
+-            })
+-
+-            analytics.track('Visit', {
+-                url: window.location.href,
+-                referrer: document.referrer,
+-            })
+-
+-            const idleMonitor = new IdleMonitor(3*60*1000)
+-
+-            idleMonitor.setIdleCallback(() => {
+-                analytics.track('User Idle')
+-            })
+-
+-            idleMonitor.setActiveCallback(() => {
+-                analytics.track('User Active')
+-            })
+-
+-        } catch (_err) {
+-            // analytics user enrichment failed; base tracking via amplitude still active
+-        }
+-    }
++    window.analytics = { track() {}, identify() {} }
+ 
+     onSettingChange('zoom', function(newValue) {
+         const size = 14 * parseFloat(newValue)
+@@ -2522,6 +2451,7 @@ function showOfflineReadyToast(version) {
+ 
+     /* location.search has been acted on, so anything the launch queue hands
+        over from here on is a link followed into this already-running window */
++    document.documentElement.dataset.p2IdeReady = 'true'
+     startupSettled = true
+ 
+     if (typeof webrepl_url !== 'undefined') {
+diff --git a/src/manifest.json b/src/manifest.json
+index 048f42a..8925052 100644
+--- a/src/manifest.json
++++ b/src/manifest.json
+@@ -3,8 +3,8 @@
+     "name": "ViperIDE",
+     "short_name": "ViperIDE",
+     "description": "MicroPython Web IDE",
+-    "start_url": "/index.html",
+-    "scope": "/",
++    "start_url": "./index.html",
++    "scope": "./",
+     "background_color": "#2a2e32",
+     "theme_color": "#2a2e32",
+     "display": "standalone",
+diff --git a/src/transports/web_serial.js b/src/transports/web_serial.js
+index a738590..5093fe6 100644
+--- a/src/transports/web_serial.js
++++ b/src/transports/web_serial.js
+@@ -36,8 +36,8 @@ export class WebSerial extends Transport {
+         }
+     }
+ 
+-    async connect() {
+-        await this.port.open({ baudRate: 115200 })
++    async connect(alreadyOpen = false) {
++        if (!alreadyOpen) await this.port.open({ baudRate: 115200 })
+ 
+         const decoderStream = new TextDecoderStream()
+         const streamClosed = this.port.readable.pipeTo(decoderStream.writable)
+@@ -133,11 +133,11 @@ export class WebSerial extends Transport {
+         return matches.length === 1 ? matches[0] : null
+     }
+ 
+-    async disconnect() {
++    async disconnect(forget = true) {
+         await this._teardown()
+         /* The user is done with this device: hand the permission back, which is what
+            makes the next connection ask again. */
+-        await this.port.forget()
++        if (forget) await this.port.forget()
+     }
+ 
+     async writeBytes(data) {

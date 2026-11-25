@@ -1,0 +1,71 @@
+name: P2 Web Workbench
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ports/p2/web/**'
+      - 'ports/p2/firmware/**'
+      - 'ports/p2/tools/flash_boot.py'
+      - 'ports/p2/tools/p2ram.py'
+      - 'ports/p2/tools/loadp2/**'
+      - '.github/workflows/p2-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p2-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: vshymanskyy/ViperIDE
+          ref: 6bbfb5036248312b8b2b4e7d81735acedaa8c9b6
+          path: _vendor/viper
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.13.0
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check the ROM protocol
+        run: node --test ports/p2/web/rom.test.mjs
+      - name: Build the P2 edition of ViperIDE
+        working-directory: _vendor/viper
+        env:
+          VIPER_IDE_BASE_URL: /${{ github.event.repository.name }}/ide
+        run: |
+          git apply "$GITHUB_WORKSPACE/ports/p2/web/viper-p2.patch"
+          npm ci --no-audit --no-fund
+          python -m pip install --quiet python-minifier==3.2.0
+          python build.py --skip-tests
+      - name: Package editor, firmware and license notices
+        run: python ports/p2/web/build_site.py _vendor/viper _site
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.site.outputs.page_url }}
+    steps:
+      - name: Publish the workbench
+        id: site
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

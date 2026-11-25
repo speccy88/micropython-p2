@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#123d33">
+  <meta name="description" content="Load MicroPython on a Propeller 2 Edge over USB and start coding in ViperIDE.">
+  <title>Propeller 2 Workbench · MicroPython</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23192c26'/%3E%3Ctext x='3' y='23' font-family='sans-serif' font-size='21' font-weight='bold' fill='%23c4f084'%3EP₂%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <section id="setup" aria-label="Propeller 2 workbench">
+    <header><nav class="wrap" aria-label="Main navigation">
+      <a class="brand" href="./"><span class="monogram" aria-hidden="true">P₂</span> Propeller 2 <span class="brand-sub">/ MicroPython</span></a>
+      <div class="links"><a href="https://github.com/speccy88/micropython-p2#readme">Tutorial ↗</a><a href="https://github.com/speccy88/micropython-p2">GitHub ↗</a></div>
+    </nav></header>
+    <main class="wrap">
+      <div class="intro"><h1>Propeller 2 workbench<span>.</span></h1>
+        <p>Plug in your board, load MicroPython, and run your first script in ViperIDE. All over USB, right in this tab.</p>
+      </div>
+      <div class="bench">
+        <section class="hardware" aria-labelledby="board-name">
+          <div class="diagram" role="img" aria-label="Resource diagram of the eight Propeller 2 cogs around shared hub RAM">
+            <div class="pcb" aria-hidden="true">
+              <div class="silk"><b>P2</b><span>PROPELLER 2</span></div>
+              <div class="chip"><div class="cogs"><i>0</i><i>1</i><i>2</i><i>3</i></div><div class="hub">HUB RAM</div><div class="cogs"><i>4</i><i>5</i><i>6</i><i>7</i></div></div>
+              <div class="banks"><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="board-info"><div><h2 id="board-name">P2 Edge</h2><span id="board-code" class="code">P2-EC32MB</span></div>
+            <dl><div><dt>Clock</dt><dd>160 MHz</dd></div><div><dt>Hub RAM</dt><dd>512 KiB</dd></div><div><dt id="extra-label">PSRAM</dt><dd id="extra-value">32 MiB</dd></div></dl>
+          </div>
+        </section>
+        <section class="install" aria-labelledby="install-title">
+          <h2 id="install-title">Install MicroPython</h2>
+          <form id="install-form">
+            <label for="profile">Firmware profile</label>
+            <select id="profile"><option value="edge">Edge · 32 MiB PSRAM</option><option value="lean">Lean · Plain P2 Edge</option><option value="threaded">Threaded · Experimental</option></select>
+            <fieldset><legend>Install destination</legend><div class="segments">
+              <label><input type="radio" name="mode" value="ram" checked><span>Try in RAM</span></label>
+              <label><input type="radio" name="mode" value="flash"><span>Boot flash</span></label>
+            </div></fieldset>
+            <p id="explain">Runs until the next hardware reset or power cycle. Your boot flash stays intact.</p>
+            <button class="primary" id="install-button" type="submit"><span id="action">Load RAM &amp; open ViperIDE</span><span aria-hidden="true">→</span></button>
+          </form>
+          <div class="status" id="status" hidden><div class="status-line"><strong id="stage" role="status"></strong><span id="percent"></span></div>
+            <progress id="progress" max="1" value="0" aria-label="Firmware transfer"></progress>
+            <button class="text-button" id="cancel" type="button" hidden>Cancel transfer</button>
+          </div>
+          <p class="connect-line">Already running MicroPython? <button id="connect" class="text-button" type="button">Connect to the IDE →</button></p>
+        </section>
+      </div>
+      <aside id="support" hidden></aside>
+      <div class="help">
+        <details><summary>What do I need?</summary><p>A powered P2 Edge carrier, a 3.3 V USB serial adapter with reset (such as a Prop Plug), and desktop Chrome or Edge. Enable serial boot, close other serial tools, then pick the adapter in the browser’s device chooser. On Linux your account needs access to the serial device.</p></details>
+        <details><summary>How do I check a flash install?</summary><p>Boot flash replaces your existing boot program. Keep a recoverable copy. Enable flash boot with a serial window using your <a href="https://www.parallax.com/package/p2-edge-module-with-32mb-ram-product-guide/">board guide</a>. Power off before removing a bootable SD card. After installing, power-cycle the board and choose <strong>Connect to the IDE</strong>. A fresh prompt confirms cold boot. Persistent installation currently has host-side protocol checks only.</p></details>
+      </div>
+    </main>
+    <footer class="wrap"><span id="version">MicroPython v1.29.0-p2.1</span><div><button id="explore" type="button" class="text-button">Open ViperIDE</button><a href="./licenses/">Licenses</a></div></footer>
+  </section>
+  <section id="workspace" hidden aria-label="ViperIDE workspace">
+    <div class="ide-bar"><button id="back" type="button">← Workbench</button><span>ViperIDE <i>/</i> Propeller 2</span><a href="https://github.com/speccy88/micropython-p2#readme" target="_blank" rel="noopener">Tutorial ↗</a></div>
+    <iframe id="ide" title="ViperIDE MicroPython editor" allow="serial; clipboard-write"></iframe>
+  </section>
+  <noscript>Enable JavaScript to use Web Serial or <a href="https://github.com/speccy88/micropython-p2/releases/latest">download the command-line starter kit</a>.</noscript>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
