@@ -15,7 +15,8 @@ function updateForm() {
         : "Runs until the next hardware reset or power cycle. Your boot flash stays intact.";
     $("board-code").textContent = profile === "lean" ? "P2 EDGE" : "P2-EC32MB";
     $("extra-label").textContent = profile === "edge" ? "PSRAM" : "GC arena";
-    $("extra-value").textContent = {edge: "32 MiB", lean: "235 KiB", threaded: "194 KiB"}[profile];
+    const option = $("profile").selectedOptions[0];
+    $("extra-value").textContent = profile === "edge" ? "32 MiB" : option.dataset.gcKib + " KiB";
     $("board-name").textContent = profile === "threaded" ? "P2 Edge · Threaded" : "P2 Edge";
     for (const element of form.elements) element.disabled = Boolean(job) || !supported;
     $("connect").disabled = Boolean(job) || !supported;

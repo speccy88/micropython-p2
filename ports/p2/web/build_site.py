@@ -46,6 +46,7 @@ def write_firmware(dest):
             },
         }
     (dest / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
+    return manifest["profiles"]
 
 
 def write_notices(viper, dest):
@@ -133,7 +134,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     if any(out.iterdir()):
         parser.error("Use an empty output directory.")
-    for name in ("index.html", "style.css", "app.mjs", "rom.mjs"):
+    for name in ("style.css", "app.mjs", "rom.mjs"):
         shutil.copyfile(WEB / name, out / name)
     ide = out / "ide"
     ide.mkdir()
@@ -151,7 +152,12 @@ def main():
         ide / "assets",
         ignore=shutil.ignore_patterns("universal_flash_nuke.uf2", "vendors"),
     )
-    write_firmware(out / "firmware")
+    profiles = write_firmware(out / "firmware")
+    page = (WEB / "index.html").read_text(encoding="utf-8")
+    for profile in ("lean", "threaded"):
+        kib = profiles[profile]["gc_arena_bytes"] // 1024
+        page = page.replace("{{" + profile + "_gc_kib}}", str(kib))
+    (out / "index.html").write_text(page, encoding="utf-8")
     write_notices(args.viper, out / "licenses")
 
 

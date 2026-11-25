@@ -36,7 +36,7 @@
           <h2 id="install-title">Install MicroPython</h2>
           <form id="install-form">
             <label for="profile">Firmware profile</label>
-            <select id="profile"><option value="edge">Edge · 32 MiB PSRAM</option><option value="lean">Lean · Plain P2 Edge</option><option value="threaded">Threaded · Experimental</option></select>
+            <select id="profile"><option value="edge">Edge · 32 MiB PSRAM</option><option value="lean" data-gc-kib="{{lean_gc_kib}}">Lean · Plain P2 Edge</option><option value="threaded" data-gc-kib="{{threaded_gc_kib}}">Threaded · Experimental</option></select>
             <fieldset><legend>Install destination</legend><div class="segments">
               <label><input type="radio" name="mode" value="ram" checked><span>Try in RAM</span></label>
               <label><input type="radio" name="mode" value="flash"><span>Boot flash</span></label>
