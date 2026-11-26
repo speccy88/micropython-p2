@@ -1,4 +1,4 @@
-"""Assemble the static P2 workbench from a built ViperIDE checkout and release images."""
+"""Assemble the static P2 workbench from a built ViperIDE checkout and tested images."""
 
 # SPDX-License-Identifier: MIT
 import argparse
@@ -48,8 +48,30 @@ def write_firmware(dest):
                 "sha256": hashlib.sha256(flash).hexdigest(),
             },
         }
+    irq_builds = json.loads((PORT / "validation/irq/builds.json").read_text(encoding="utf-8"))
+    for profile in ("edge", "lean"):
+        tested = irq_builds["builds"]["on"][profile]
+        name = f"{profile}-irq"
+        filename = f"{name}.bin"
+        image = (WEB / "firmware" / filename).read_bytes()
+        expected = {
+            "file": filename,
+            "bytes": tested["flat_bytes"],
+            "sha256": tested["bin_sha256"],
+        }
+        if (
+            len(image) != expected["bytes"]
+            or hashlib.sha256(image).hexdigest() != expected["sha256"]
+        ):
+            raise ValueError(f"{filename} differs from the hardware-validated IRQ build")
+        (dest / filename).write_bytes(image)
+        index["profiles"][name] = {"ram": expected}
     (dest / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
-    return manifest["profiles"]
+    return {
+        "lean": manifest["profiles"]["lean"]["gc_arena_bytes"],
+        "threaded": manifest["profiles"]["threaded"]["gc_arena_bytes"],
+        "lean-irq": irq_builds["builds"]["on"]["lean"]["heap_arena"],
+    }
 
 
 def write_notices(viper, dest):
@@ -161,7 +183,7 @@ def main():
         ide / "assets",
         ignore=shutil.ignore_patterns("universal_flash_nuke.uf2", "vendors"),
     )
-    profiles = write_firmware(out / "firmware")
+    gc_arenas = write_firmware(out / "firmware")
     page = (WEB / "index.html").read_text(encoding="utf-8")
     # Pages caches these responses independently. A changed editor needs a fresh
     # iframe URL even when the visitor has only reloaded the outer workbench.
@@ -172,9 +194,8 @@ def main():
     ):
         digest = hashlib.sha256(asset.read_bytes()).hexdigest()[:16]
         page = page.replace(f'"{url}"', f'"{url}?v={digest}"')
-    for profile in ("lean", "threaded"):
-        kib = profiles[profile]["gc_arena_bytes"] // 1024
-        page = page.replace("{{" + profile + "_gc_kib}}", str(kib))
+    for profile, arena in gc_arenas.items():
+        page = page.replace("{{" + profile + "_gc_kib}}", str(arena // 1024))
     (out / "index.html").write_text(page, encoding="utf-8")
     write_notices(args.viper, out / "licenses")
 

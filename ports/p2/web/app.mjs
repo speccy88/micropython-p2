@@ -7,20 +7,24 @@ const supported = window.isSecureContext && "serial" in navigator;
 let job = null, ideLoading = null, editorOpened = false, lastInstalledPort = null;
 
 function updateForm() {
+    const option = $("profile").selectedOptions[0];
+    const profile = option.value.split("-")[0];
+    const ramOnly = option.hasAttribute("data-ram-only");
+    if (ramOnly) form.elements.mode.value = "ram";
     const flash = form.elements.mode.value === "flash";
-    const profile = $("profile").value;
     $("action").textContent = flash ? "Replace boot flash & open ViperIDE" : "Load RAM & open ViperIDE";
-    $("explain").textContent = flash
+    const destinationHelp = flash
         ? "Overwrites your current boot program. Keep a recovery copy and leave power connected until Python starts."
         : "Runs until the next hardware reset or power cycle. Your boot flash stays intact.";
+    $("explain").textContent = ramOnly ? "Pin.irq() is enabled in this RAM-only build. " + destinationHelp : destinationHelp;
     $("board-code").textContent = profile === "lean" ? "P2 EDGE" : "P2-EC32MB";
     $("board-photo").src = profile === "lean" ? "./p2-edge.png" : "./p2-ec32mb.png";
     $("board-photo").alt = profile === "lean" ? "Plain P2 Edge with LEDs P56 and P57" : "P2-EC32MB with 32 MB PSRAM and LEDs P38 and P39";
     $("extra-label").textContent = profile === "edge" ? "PSRAM" : "GC arena";
-    const option = $("profile").selectedOptions[0];
     $("extra-value").textContent = profile === "edge" ? "32 MiB" : option.dataset.gcKib + " KiB";
     $("board-name").textContent = profile === "threaded" ? "P2 Edge · Threaded" : "P2 Edge";
     for (const element of form.elements) element.disabled = Boolean(job) || !supported;
+    if (ramOnly) $("mode-flash").disabled = true;
     $("connect").disabled = Boolean(job) || !supported;
     $("boot-sd").disabled = Boolean(job) || !supported;
     $("explore").disabled = Boolean(job);
@@ -52,7 +56,8 @@ async function loadFirmware(profile, mode, signal) {
         return response;
     };
     const manifest = await (await get("./firmware/index.json")).json();
-    const info = manifest.profiles[profile][mode];
+    const info = manifest.profiles[profile]?.[mode];
+    if (!info) throw Error("This firmware profile is unavailable for the selected install destination.");
     if (mode === "flash" && info.completion !== "P2OK") {
         throw Error("The flash programmer is out of date. Reload the workbench and retry.");
     }
@@ -111,7 +116,7 @@ async function start(action) {
         progress("Choose the serial adapter connected to your P2.");
         // requestPort must run in the click's user activation, before fetch or IDE setup.
         port = await navigator.serial.requestPort();
-        progress(action === "install" ? "Checking the release firmware…" : "Opening ViperIDE…");
+        progress(action === "install" ? "Checking the firmware…" : "Opening ViperIDE…");
         $("cancel").hidden = false;
         const [ide, bytes] = await Promise.all([
             loadEditor(), action === "install" ? loadFirmware(profile, mode, signal) : null

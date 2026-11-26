@@ -19,6 +19,8 @@ Use a P2-EC32MB Edge, a powered carrier, and a Prop Plug or equivalent 3.3 V USB
 2. On the 32 MiB Edge, keep **Edge · 32 MiB PSRAM** and **Try in RAM** selected. Click **Load RAM & open ViperIDE**, then pick your USB serial adapter. The workbench checks the download, resets the P2, and opens the editor as soon as Python answers.
 3. Firmware uploads use **2 Mbaud**. ViperIDE switches to **115,200 baud** for the Python console. In **blink_p2.py**, leave `EDGE_32MB = True` for the 32 MB Edge (LEDs on P38 and P39). Set it to `False` for the Edge without external RAM (P56 and P57). Press **F5** or click **Run File**. With the board's LED enable switch on, the two LEDs take turns five times. Try changing `sleep_ms(250)` to speed them up. Use **LED blinker** in the toolbar to reopen the example. It runs on Edge and Lean firmware; the Threaded profile lacks `machine.Pin`.
 
+For hardware pin interrupts, choose **Edge IRQ** or **Lean IRQ** for your board and load it into RAM. [Try the button example](ports/p2/IRQ.md)
+
 For a permanent install on a flash-equipped Edge, select **Boot flash** and click **Replace boot flash & open ViperIDE**. This overwrites the existing boot program. Keep the board powered until Python starts. To check it, set the board for SPI flash boot, power-cycle, then choose **Connect to the IDE**. You can also use that button whenever MicroPython is already running. The flash programming stream has automated host tests. Hardware cold boot is still unverified.
 
 ### From a terminal

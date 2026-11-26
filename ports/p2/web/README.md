@@ -2,6 +2,8 @@
 
 The workbench runs entirely in the browser. Desktop Chrome and Edge can load one of the three release profiles, start ViperIDE on the same open serial port, and run a first script over the REPL. Existing MicroPython installations have a connect-only entry point. Visitors can also open the editor without granting USB access. [Open the workbench](https://speccy88.github.io/micropython-p2/)
 
+To try hardware pin callbacks with `machine.Pin.irq()`, select **Edge IRQ** for the 32 MiB board or **Lean IRQ** for the plain Edge. These two choices are RAM-only. The site builder checks both binaries against the hardware acceptance hashes before packaging them. [Pin IRQ guide](../IRQ.md) · [Tested builds and hashes](../validation/irq/builds.json)
+
 With a prepared FAT32 card inserted, open **Can I boot my SD card?** and
 select **Boot SD & open ViperIDE**. The workbench resets the board into its
 serial ROM monitor, requests `R_BOOT_P2.BIX`, and hands the open port to

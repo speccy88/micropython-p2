@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -109,6 +111,29 @@ for (const [profile, {flat}] of Object.entries(profiles)) {
         assert.equal(progress.at(-1)[2], true);
     });
 }
+
+test("Workbench packages the tested Edge and Lean IRQ images for RAM", async t => {
+    const dir = mkdtempSync(join(tmpdir(), "p2-web-"));
+    t.after(() => rmSync(dir, {recursive: true}));
+    const dest = join(dir, "firmware");
+    const script = "import sys; from pathlib import Path; from build_site import write_firmware; write_firmware(Path(sys.argv[1]))";
+    const built = spawnSync("python", ["-c", script, dest], {
+        cwd: fileURLToPath(new URL("./", import.meta.url)),
+    });
+    assert.equal(built.status, 0, built.stderr?.toString());
+    const {profiles: published} = JSON.parse(readFileSync(join(dest, "index.json")));
+    for (const profile of ["edge-irq", "lean-irq"]) {
+        assert.deepEqual(Object.keys(published[profile]), ["ram"]);
+        const {file, bytes, sha256} = published[profile].ram;
+        const image = readFileSync(join(dest, file));
+        assert.equal(image.length, bytes);
+        assert.equal(await digest(image), sha256);
+        const {port, chunks, commands} = emulateROM();
+        assert.equal(await run(port, image, "ram"), "G");
+        assert.deepEqual(Buffer.from(chunks.join(""), "base64").subarray(0, -4), image);
+        assert.deepEqual(commands, ["Prop_Chk", "Prop_Txt", "?"]);
+    }
+});
 
 test("SD boot runs the named card file and releases the open port for the IDE", async () => {
     const {port, commands, chunks} = emulateROM();

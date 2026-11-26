@@ -260,6 +260,10 @@ legend {
 .segments input:focus-visible + span {
   outline: 3px solid #155788;
 }
+.segments input:disabled + span {
+  cursor: not-allowed;
+  opacity: .55;
+}
 #explain {
   font-size: 14px;
   color: var(--muted);

@@ -4,7 +4,9 @@ The optional IRQ build lets an ordinary input pin wake a Python callback on an e
 
 ## Try it
 
-Start with the port's prepared LLVM 15 toolchain. From the repository root in Linux or WSL, build the Edge profile in its own output directory. The same command with `lean` builds for the plain Edge. The default builds have `P2_ENABLE_HW_IRQ=0`. The threaded build rejects `P2_ENABLE_HW_IRQ=1`. [Toolchain setup](toolchain/README.md)
+In the Workbench firmware menu, choose **Edge IRQ** for the P2-EC32MB or **Lean IRQ** for the plain Edge and click **Load RAM & open ViperIDE**. [Open the Workbench](https://speccy88.github.io/micropython-p2/)
+
+To build from source, start with the port's prepared LLVM 15 toolchain. From the repository root in Linux or WSL, build the Edge profile in its own output directory. The same command with `lean` builds for the plain Edge. The default builds have `P2_ENABLE_HW_IRQ=0`. The threaded build rejects `P2_ENABLE_HW_IRQ=1`. [Toolchain setup](toolchain/README.md)
 
 ```sh
 export P2_WORK="$HOME/tinygo-p2-work"
