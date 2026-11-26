@@ -60,7 +60,7 @@ jobs:
           echo "FIRMWARE_SOURCE=$source_dir" >> "$GITHUB_ENV"
       - name: Restore compiled P2 toolchain
         id: compiler
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/p2-sdk
           key: p2-ubuntu24-x64-fc631f268080135e7c13ad27783ee6e1bb6a1c35-${{ hashFiles('_sdk/modern/toolchain.lock.json', '_sdk/modern/patches/llvm15-p2.patch', '_sdk/modern/patches/p2llvm-tools.patch', 'ports/p2/toolchain/p2-codegen.patch', 'ports/p2/toolchain/build-overlay.sh', 'ports/p2/ci/prepare-compiler.sh') }}
